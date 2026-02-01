@@ -24,7 +24,7 @@ export function PostList({ posts }: PostListProps) {
 
   return (
     <div className="space-y-4">
-      {posts.map((post, index) => (
+      {posts.map((post) => (
         <article
           key={post.id}
           className="group relative rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden hover:border-primary/30 hover:bg-card/80 transition-all duration-200"
