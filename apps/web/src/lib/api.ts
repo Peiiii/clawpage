@@ -1,6 +1,9 @@
 import type { Agent, Post, App, Message, ApiResponse, PaginatedResponse } from '@clawpage/shared'
 
-const API_BASE = '/api'
+const API_BASE = import.meta.env.VITE_API_URL || '/api'
+// 在生产环境且没有配置 API URL 时，直接使用 mock 数据
+const USE_MOCK = import.meta.env.PROD && !import.meta.env.VITE_API_URL
+const API_TIMEOUT = 2000 // 2 秒超时
 
 // Mock 数据（当 API 不可用时使用）
 const MOCK_AGENTS: Agent[] = [
@@ -85,8 +88,32 @@ const MOCK_POSTS: Post[] = [
   },
 ]
 
+// Mock 数据返回函数
+function getMockAgents(params?: { search?: string; tag?: string }): PaginatedResponse<Agent> {
+  let filtered = [...MOCK_AGENTS]
+  if (params?.search) {
+    const search = params.search.toLowerCase()
+    filtered = filtered.filter(a => 
+      a.name.toLowerCase().includes(search) || 
+      a.description?.toLowerCase().includes(search)
+    )
+  }
+  return {
+    items: filtered,
+    total: filtered.length,
+    page: 1,
+    pageSize: 20,
+    hasMore: false,
+  }
+}
+
 // Agent API
 export async function fetchAgents(params?: { search?: string; tag?: string; page?: number }): Promise<PaginatedResponse<Agent>> {
+  // 生产环境直接使用 mock 数据
+  if (USE_MOCK) {
+    return getMockAgents(params)
+  }
+  
   try {
     const searchParams = new URLSearchParams()
     if (params?.search) searchParams.set('search', params.search)
@@ -94,65 +121,62 @@ export async function fetchAgents(params?: { search?: string; tag?: string; page
     if (params?.page) searchParams.set('page', params.page.toString())
     
     const res = await fetch(`${API_BASE}/agents?${searchParams}`, {
-      signal: AbortSignal.timeout(5000)
+      signal: AbortSignal.timeout(API_TIMEOUT)
     })
     
     if (!res.ok) throw new Error('API error')
     return res.json()
   } catch {
-    // 使用 mock 数据
-    let filtered = [...MOCK_AGENTS]
-    if (params?.search) {
-      const search = params.search.toLowerCase()
-      filtered = filtered.filter(a => 
-        a.name.toLowerCase().includes(search) || 
-        a.description?.toLowerCase().includes(search)
-      )
-    }
-    return {
-      items: filtered,
-      total: filtered.length,
-      page: 1,
-      pageSize: 20,
-      hasMore: false,
-    }
+    return getMockAgents(params)
   }
 }
 
+function getMockAgent(slug: string): ApiResponse<Agent> {
+  const agent = MOCK_AGENTS.find(a => a.slug === slug)
+  if (agent) {
+    return { success: true, data: agent }
+  }
+  return { success: false, error: 'Agent not found' }
+}
+
 export async function fetchAgent(slug: string): Promise<ApiResponse<Agent>> {
+  if (USE_MOCK) return getMockAgent(slug)
+  
   try {
     const res = await fetch(`${API_BASE}/agents/${slug}`, {
-      signal: AbortSignal.timeout(5000)
+      signal: AbortSignal.timeout(API_TIMEOUT)
     })
     if (!res.ok) throw new Error('API error')
     return res.json()
   } catch {
-    const agent = MOCK_AGENTS.find(a => a.slug === slug)
-    if (agent) {
-      return { success: true, data: agent }
-    }
-    return { success: false, error: 'Agent not found' }
+    return getMockAgent(slug)
+  }
+}
+
+function getMockPosts(agentSlug: string): PaginatedResponse<Post> {
+  const agent = MOCK_AGENTS.find(a => a.slug === agentSlug)
+  const posts = agent ? MOCK_POSTS.filter(p => p.agentId === agent.id) : []
+  return {
+    items: posts,
+    total: posts.length,
+    page: 1,
+    pageSize: 20,
+    hasMore: false,
   }
 }
 
 // Posts API
 export async function fetchPosts(agentSlug: string, page = 1): Promise<PaginatedResponse<Post>> {
+  if (USE_MOCK) return getMockPosts(agentSlug)
+  
   try {
     const res = await fetch(`${API_BASE}/posts?agent=${agentSlug}&page=${page}`, {
-      signal: AbortSignal.timeout(5000)
+      signal: AbortSignal.timeout(API_TIMEOUT)
     })
     if (!res.ok) throw new Error('API error')
     return res.json()
   } catch {
-    const agent = MOCK_AGENTS.find(a => a.slug === agentSlug)
-    const posts = agent ? MOCK_POSTS.filter(p => p.agentId === agent.id) : []
-    return {
-      items: posts,
-      total: posts.length,
-      page: 1,
-      pageSize: 20,
-      hasMore: false,
-    }
+    return getMockPosts(agentSlug)
   }
 }
 
