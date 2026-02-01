@@ -190,3 +190,143 @@ agentsRouter.delete('/:slug', authMiddleware, async (c) => {
   
   return c.json<ApiResponse<null>>({ success: true });
 });
+
+// ========================
+// Agent 自主注册流程
+// ========================
+
+// 生成随机认领码
+function generateClaimCode(): string {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  let code = '';
+  for (let i = 0; i < 6; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+}
+
+// 生成 API Key
+function generateApiKey(): string {
+  const uuid = crypto.randomUUID().replace(/-/g, '');
+  return `clp_${uuid}`;
+}
+
+// 注册请求类型
+interface RegisterRequest {
+  name: string;
+  slug: string;
+  description?: string;
+  avatarUrl?: string;
+  tags?: string[];
+  webhookUrl?: string;
+}
+
+// Agent 自主注册（无需认证）
+agentsRouter.post('/register', async (c) => {
+  const body = await c.req.json<RegisterRequest>();
+  
+  // 验证必填字段
+  if (!body.name || !body.slug) {
+    return c.json<ApiResponse<null>>({ 
+      success: false, 
+      error: 'name and slug are required' 
+    }, 400);
+  }
+  
+  // 验证 slug 格式
+  if (!/^[a-z0-9-]+$/.test(body.slug)) {
+    return c.json<ApiResponse<null>>({ 
+      success: false, 
+      error: 'slug must contain only lowercase letters, numbers, and hyphens' 
+    }, 400);
+  }
+  
+  // 检查 slug 是否已存在
+  const existing = await c.env.DB.prepare(
+    'SELECT id FROM agents WHERE slug = ?'
+  ).bind(body.slug).first();
+  
+  if (existing) {
+    return c.json<ApiResponse<null>>({ 
+      success: false, 
+      error: 'This slug is already taken' 
+    }, 409);
+  }
+  
+  const now = Date.now();
+  const id = crypto.randomUUID();
+  const claimCode = generateClaimCode();
+  const apiKey = generateApiKey();
+  const apiKeyHash = await crypto.subtle.digest(
+    'SHA-256',
+    new TextEncoder().encode(apiKey)
+  ).then(buf => Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join(''));
+  
+  // 创建未认领的 Agent
+  await c.env.DB.prepare(`
+    INSERT INTO agents (id, slug, name, avatar_url, description, tags, webhook_url, api_key_hash, claim_code, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).bind(
+    id,
+    body.slug,
+    body.name,
+    body.avatarUrl || null,
+    body.description || null,
+    JSON.stringify(body.tags || []),
+    body.webhookUrl || null,
+    apiKeyHash,
+    claimCode,
+    now,
+    now
+  ).run();
+  
+  return c.json({
+    success: true,
+    data: {
+      claimCode,
+      apiKey,
+      agentUrl: `https://clawpage.pages.dev/a/${body.slug}`,
+      message: '请将 claimCode 发送给您的用户，让他们在 ClawPage 完成认领。认领完成后，Agent 将在平台上显示。'
+    }
+  }, 201);
+});
+
+// 用户认领 Agent
+agentsRouter.post('/claim', async (c) => {
+  const body = await c.req.json<{ claimCode: string }>();
+  
+  if (!body.claimCode) {
+    return c.json<ApiResponse<null>>({ 
+      success: false, 
+      error: 'claimCode is required' 
+    }, 400);
+  }
+  
+  const code = body.claimCode.toUpperCase().trim();
+  
+  // 查找未认领的 Agent
+  const agent = await c.env.DB.prepare(
+    'SELECT * FROM agents WHERE claim_code = ? AND claimed_at IS NULL AND deleted_at IS NULL'
+  ).bind(code).first<DbAgent & { claim_code: string; claimed_at: number | null }>();
+  
+  if (!agent) {
+    return c.json<ApiResponse<null>>({ 
+      success: false, 
+      error: '认领码无效或已被使用' 
+    }, 404);
+  }
+  
+  // 标记为已认领
+  const now = Date.now();
+  await c.env.DB.prepare(
+    'UPDATE agents SET claimed_at = ?, updated_at = ? WHERE id = ?'
+  ).bind(now, now, agent.id).run();
+  
+  return c.json({
+    success: true,
+    data: {
+      agent: transformAgent(agent),
+      message: '认领成功！Agent 已激活并在平台上显示。'
+    }
+  });
+});

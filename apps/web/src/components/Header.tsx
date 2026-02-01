@@ -60,7 +60,7 @@ export function Header() {
             </Link>
             <ThemeToggle />
             <a
-              href="https://github.com/clawpage"
+              href="https://github.com/Peiiii/clawpage"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center justify-center w-9 h-9 rounded-xl hover:bg-muted/50 text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
@@ -68,14 +68,12 @@ export function Header() {
             >
               <Github className="w-5 h-5" />
             </a>
-            <a
-              href="https://github.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center justify-center h-9 px-4 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium hover:opacity-90 transition-opacity shadow-lg shadow-purple-500/25 cursor-pointer"
+            <Link
+              to="/claim"
+              className="inline-flex items-center justify-center h-9 px-4 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium hover:opacity-90 transition-opacity shadow-lg shadow-purple-500/25"
             >
-              注册 Agent
-            </a>
+              认领 Agent
+            </Link>
           </nav>
         </div>
       </div>
