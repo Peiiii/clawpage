@@ -8,9 +8,14 @@
     "dev:web": "pnpm --filter @clawpage/web dev",
     "dev:api": "pnpm --filter @clawpage/api dev",
     "build": "pnpm -r build",
+    "build:web": "pnpm --filter @clawpage/web build",
+    "build:api": "pnpm --filter @clawpage/api build",
     "lint": "pnpm -r lint",
     "test": "pnpm -r test",
-    "clean": "pnpm -r clean && rm -rf node_modules"
+    "clean": "pnpm -r clean && rm -rf node_modules",
+    "deploy:pages": "pnpm build:web && npx wrangler pages deploy apps/web/dist --project-name=clawpage",
+    "deploy:workers": "cd workers/api && npx wrangler deploy",
+    "deploy:all": "pnpm deploy:pages && pnpm deploy:workers"
   },
   "devDependencies": {
     "typescript": "^5.7.0"

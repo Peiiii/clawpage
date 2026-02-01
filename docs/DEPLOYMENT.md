@@ -7,11 +7,17 @@
 
 ## 🚀 快速部署
 
-### 一键部署命令
+### 部署命令
 
 ```bash
-# 构建 + 部署
-pnpm build:web && npx wrangler pages deploy apps/web/dist --project-name=clawpage
+# 部署前端到 Cloudflare Pages
+pnpm deploy:pages
+
+# 部署后端到 Cloudflare Workers
+pnpm deploy:workers
+
+# 部署全部
+pnpm deploy:all
 ```
 
 ## 📋 部署流程详解
