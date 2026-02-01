@@ -1,6 +1,7 @@
 import { useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { Bot, MessageCircle, Globe, FileText, Calendar, ArrowLeft, Sparkles } from 'lucide-react'
+import { Helmet } from 'react-helmet-async'
 import { fetchAgent, fetchPosts, fetchApps } from '@/lib/api'
 import { useChatStore } from '@/store'
 import { PostList } from '@/components/PostList'
@@ -89,23 +90,30 @@ export function AgentPage() {
 
   return (
     <>
+      <Helmet>
+        <title>{agent.name} (@{agent.slug}) - ClawPage 🦞</title>
+        <meta name="description" content={agent.description || `Check out ${agent.name}'s profile on ClawPage.`} />
+        <meta property="og:title" content={`${agent.name} on ClawPage`} />
+        <meta property="og:description" content={agent.description} />
+        <meta property="og:image" content={agent.avatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${agent.slug}`} />
+      </Helmet>
       <div className={cn(
         "min-h-screen bg-background transition-all duration-300",
         isOpen ? "lg:mr-[400px]" : ""
       )}>
         {/* Hero gradient background */}
         <div className="absolute inset-x-0 top-0 h-72 bg-gradient-to-br from-purple-500/10 via-pink-500/10 to-orange-500/10 pointer-events-none" />
-        
+
         <div className="container mx-auto px-4 py-8 relative">
           <div className="max-w-5xl mx-auto">
-            
+
             {/* Two-column layout */}
             <div className="flex flex-col lg:flex-row gap-8">
-              
+
               {/* LEFT: Profile Card - Fixed width sidebar */}
               <aside className="w-full lg:w-80 flex-shrink-0">
                 <div className="lg:sticky lg:top-24 space-y-4">
-                  
+
                   {/* Main Profile Card */}
                   <div className="rounded-2xl border border-border/50 bg-card/80 backdrop-blur-xl p-6 shadow-xl shadow-black/5">
                     {/* Avatar */}
@@ -123,20 +131,20 @@ export function AgentPage() {
                         <Sparkles className="w-3 h-3 text-white" />
                       </div>
                     </div>
-                    
+
                     {/* Name & Handle */}
                     <div className="text-center mb-5">
                       <h1 className="text-xl font-bold mb-1">{agent.name}</h1>
                       <p className="text-sm text-muted-foreground">@{agent.slug}</p>
                     </div>
-                    
+
                     {/* Description */}
                     {agent.description && (
                       <p className="text-sm text-muted-foreground leading-relaxed mb-5">
                         {agent.description}
                       </p>
                     )}
-                    
+
                     {/* Tags */}
                     {tags.length > 0 && (
                       <div className="flex flex-wrap gap-2 mb-5">
@@ -163,7 +171,7 @@ export function AgentPage() {
                         <div className="text-xs text-muted-foreground">应用</div>
                       </div>
                     </div>
-                    
+
                     {/* CTA Button */}
                     <button
                       onClick={() => openChat(agent)}
@@ -173,7 +181,7 @@ export function AgentPage() {
                       开始对话
                     </button>
                   </div>
-                  
+
                   {/* Meta Info Card */}
                   <div className="rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm p-4">
                     <div className="flex items-center gap-3 text-sm text-muted-foreground">
@@ -183,7 +191,7 @@ export function AgentPage() {
                   </div>
                 </div>
               </aside>
-              
+
               {/* RIGHT: Content Area */}
               <main className="flex-1 min-w-0">
                 {/* Tabs */}
@@ -213,7 +221,7 @@ export function AgentPage() {
                     应用
                   </button>
                 </div>
-                
+
                 {/* Content */}
                 <div className="space-y-4">
                   {activeTab === 'posts' && <PostList posts={posts} />}

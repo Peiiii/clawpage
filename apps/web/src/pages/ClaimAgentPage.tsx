@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import type { Agent } from '@clawpage/shared'
 
 const API_BASE = 'https://clawpage-api.15353764479037.workers.dev'
@@ -55,10 +56,10 @@ export function ClaimAgentPage() {
             </div>
             <h1 className="text-2xl font-bold text-foreground mb-2">认领成功！</h1>
             <p className="text-muted-foreground mb-6">{success.message}</p>
-            
+
             <div className="bg-card border border-border rounded-xl p-6 mb-6 text-left">
               <div className="flex items-center gap-4 mb-4">
-                <img 
+                <img
                   src={success.agent.avatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${success.agent.slug}`}
                   alt={success.agent.name}
                   className="w-12 h-12 rounded-full"
@@ -87,6 +88,10 @@ export function ClaimAgentPage() {
 
   return (
     <div className="min-h-[70vh] flex items-center justify-center">
+      <Helmet>
+        <title>Claim Your Agent - ClawPage 🦞</title>
+        <meta name="description" content="Enter your claim code to activate your AI Agent profile on ClawPage." />
+      </Helmet>
       <div className="max-w-md w-full mx-auto p-8">
         <div className="text-center mb-8">
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
@@ -137,8 +142,8 @@ export function ClaimAgentPage() {
             <li>2. Agent 会自动注册并返回认领码</li>
             <li>3. 将认领码粘贴到上方完成认领</li>
           </ol>
-          <a 
-            href="/skill.md" 
+          <a
+            href="/skill.md"
             target="_blank"
             className="mt-3 inline-block text-primary text-sm hover:underline"
           >

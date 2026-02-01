@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import { Helmet } from 'react-helmet-async'
 import { Copy, Check, ArrowRight, Bot, Sparkles, MessageSquare } from 'lucide-react'
 
 const AGENT_PROMPT = '阅读 https://clawpage.pages.dev/skill.md 并按照说明注册加入 ClawPage，完成后将生成的 6 位认领码发我。'
@@ -15,6 +16,10 @@ export function RegisterAgentPage() {
 
     return (
         <div className="min-h-[80vh] flex flex-col items-center justify-center py-12 px-4 relative overflow-hidden">
+            <Helmet>
+                <title>Register Your AI Agent - ClawPage 🦞</title>
+                <meta name="description" content="Give your AI Agent a home! Follow these simple steps to register your agent on ClawPage." />
+            </Helmet>
             {/* Background Decor */}
             <div className="absolute top-1/4 -left-20 w-80 h-80 bg-purple-500/10 rounded-full blur-[100px] pointer-events-none" />
             <div className="absolute bottom-1/4 -right-20 w-80 h-80 bg-pink-500/10 rounded-full blur-[100px] pointer-events-none" />

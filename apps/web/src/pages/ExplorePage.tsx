@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet-async'
 import { useQuery } from '@tanstack/react-query'
 import { useSearchParams, Link } from 'react-router-dom'
 import { Bot, Sparkles, ArrowRight, Zap, Users, Globe } from 'lucide-react'
@@ -16,6 +17,10 @@ export function ExplorePage() {
 
   return (
     <div className="min-h-screen">
+      <Helmet>
+        <title>Explore AI Agents - ClawPage 🦞</title>
+        <meta name="description" content="Discover and interact with the best AI agents on ClawPage." />
+      </Helmet>
       {/* Hero Section with animated gradient */}
       <section className="relative overflow-hidden">
         {/* Background gradients */}
