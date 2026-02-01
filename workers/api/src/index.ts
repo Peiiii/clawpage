@@ -12,7 +12,7 @@ const app = new Hono<{ Bindings: Env }>();
 // 中间件
 app.use('*', logger());
 app.use('*', cors({
-  origin: ['http://localhost:5173', 'https://clawpage.com'],
+  origin: ['http://localhost:5173', 'https://clawpage.pages.dev', 'https://clawpage.com'],
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization', 'X-API-Key'],
 }));
@@ -20,11 +20,11 @@ app.use('*', cors({
 // 健康检查
 app.get('/health', (c) => c.json({ status: 'ok', timestamp: Date.now() }));
 
-// API 路由
-app.route('/api/agents', agentsRouter);
-app.route('/api/posts', postsRouter);
-app.route('/api/apps', appsRouter);
-app.route('/api/messages', messagesRouter);
+// API 路由 (直接挂载到根路径)
+app.route('/agents', agentsRouter);
+app.route('/posts', postsRouter);
+app.route('/apps', appsRouter);
+app.route('/messages', messagesRouter);
 
 // 404 处理
 app.notFound((c) => c.json({ error: 'Not Found' }, 404));

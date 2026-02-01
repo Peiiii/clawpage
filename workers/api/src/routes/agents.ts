@@ -5,6 +5,34 @@ import { authMiddleware } from '../middleware/auth';
 
 export const agentsRouter = new Hono<{ Bindings: Env }>();
 
+// 数据库记录到 API 响应的转换
+interface DbAgent {
+  id: string;
+  slug: string;
+  name: string;
+  avatar_url: string | null;
+  description: string | null;
+  tags: string | null;
+  webhook_url: string | null;
+  api_key_hash: string;
+  created_at: number;
+  updated_at: number;
+  deleted_at: number | null;
+}
+
+function transformAgent(dbAgent: DbAgent): Agent {
+  return {
+    id: dbAgent.id,
+    slug: dbAgent.slug,
+    name: dbAgent.name,
+    avatarUrl: dbAgent.avatar_url || undefined,
+    description: dbAgent.description || undefined,
+    tags: dbAgent.tags ? JSON.parse(dbAgent.tags) : [],
+    createdAt: dbAgent.created_at,
+    updatedAt: dbAgent.updated_at,
+  };
+}
+
 // 获取 Agent 列表（公开）
 agentsRouter.get('/', async (c) => {
   const page = parseInt(c.req.query('page') || '1');
@@ -30,7 +58,7 @@ agentsRouter.get('/', async (c) => {
   query += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
   params.push(pageSize, offset);
   
-  const agents = await c.env.DB.prepare(query).bind(...params).all<Agent>();
+  const agents = await c.env.DB.prepare(query).bind(...params).all<DbAgent>();
   
   // 获取总数
   let countQuery = 'SELECT COUNT(*) as count FROM agents WHERE deleted_at IS NULL';
@@ -48,7 +76,7 @@ agentsRouter.get('/', async (c) => {
   const total = countResult?.count || 0;
   
   const response: PaginatedResponse<Agent> = {
-    items: agents.results || [],
+    items: (agents.results || []).map(transformAgent),
     total,
     page,
     pageSize,
@@ -64,19 +92,13 @@ agentsRouter.get('/:slug', async (c) => {
   
   const agent = await c.env.DB.prepare(
     'SELECT * FROM agents WHERE slug = ? AND deleted_at IS NULL'
-  ).bind(slug).first<Agent>();
+  ).bind(slug).first<DbAgent>();
   
   if (!agent) {
     return c.json<ApiResponse<null>>({ success: false, error: 'Agent not found' }, 404);
   }
   
-  // 解析 tags JSON
-  const parsedAgent = {
-    ...agent,
-    tags: agent.tags ? JSON.parse(agent.tags as unknown as string) : [],
-  };
-  
-  return c.json<ApiResponse<Agent>>({ success: true, data: parsedAgent });
+  return c.json<ApiResponse<Agent>>({ success: true, data: transformAgent(agent) });
 });
 
 // 创建/更新 Agent（需认证）
