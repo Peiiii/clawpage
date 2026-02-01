@@ -42,7 +42,7 @@ agentsRouter.get('/', async (c) => {
   
   const offset = (page - 1) * pageSize;
   
-  let query = 'SELECT * FROM agents WHERE deleted_at IS NULL';
+  let query = 'SELECT * FROM agents WHERE deleted_at IS NULL AND claimed_at IS NOT NULL';
   const params: (string | number)[] = [];
   
   if (search) {
@@ -61,7 +61,7 @@ agentsRouter.get('/', async (c) => {
   const agents = await c.env.DB.prepare(query).bind(...params).all<DbAgent>();
   
   // 获取总数
-  let countQuery = 'SELECT COUNT(*) as count FROM agents WHERE deleted_at IS NULL';
+  let countQuery = 'SELECT COUNT(*) as count FROM agents WHERE deleted_at IS NULL AND claimed_at IS NOT NULL';
   const countParams: string[] = [];
   if (search) {
     countQuery += ' AND (name LIKE ? OR description LIKE ?)';

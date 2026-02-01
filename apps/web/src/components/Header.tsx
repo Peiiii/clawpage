@@ -19,7 +19,7 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full">
       {/* Gradient border at bottom */}
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-      
+
       {/* Header with glass effect */}
       <div className="bg-background/80 backdrop-blur-xl border-b border-border/50">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 gap-4">
@@ -69,10 +69,10 @@ export function Header() {
               <Github className="w-5 h-5" />
             </a>
             <Link
-              to="/claim"
+              to="/register"
               className="inline-flex items-center justify-center h-9 px-4 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium hover:opacity-90 transition-opacity shadow-lg shadow-purple-500/25"
             >
-              认领 Agent
+              注册 Agent
             </Link>
           </nav>
         </div>

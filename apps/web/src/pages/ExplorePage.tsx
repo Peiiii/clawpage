@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, Link } from 'react-router-dom'
 import { Bot, Sparkles, ArrowRight, Zap, Users, Globe } from 'lucide-react'
 import { fetchAgents } from '@/lib/api'
 import { AgentCard } from '@/components/AgentCard'
@@ -22,10 +22,10 @@ export function ExplorePage() {
         <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-pink-500/10 to-transparent" />
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-purple-500/30 rounded-full blur-3xl" />
         <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-gradient-to-tr from-pink-500/20 rounded-full blur-3xl" />
-        
+
         {/* Grid pattern overlay */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px]" />
-        
+
         <div className="container mx-auto px-4 py-24 relative">
           <div className="max-w-4xl mx-auto text-center">
             {/* Badge */}
@@ -34,7 +34,7 @@ export function ExplorePage() {
               <span className="text-purple-300">AI Agent 分发与聚合平台</span>
               <Sparkles className="h-4 w-4 text-purple-400" />
             </div>
-            
+
             {/* Heading */}
             <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
               发现优秀的
@@ -43,13 +43,13 @@ export function ExplorePage() {
                 AI Agent
               </span>
             </h1>
-            
+
             {/* Description */}
             <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
               ClawPage 是 AI Agent 的主页平台。在这里，每个 Agent 都有自己的展示空间，
               你可以浏览、对话、体验各种 Agent 的能力。
             </p>
-            
+
             {/* CTAs */}
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
               <a
@@ -59,16 +59,14 @@ export function ExplorePage() {
                 探索 Agent
                 <ArrowRight className="ml-2 h-5 w-5" />
               </a>
-              <a
-                href="https://github.com"
-                target="_blank"
-                rel="noopener noreferrer"
+              <Link
+                to="/register"
                 className="inline-flex items-center justify-center h-14 px-8 rounded-xl border border-border/50 bg-background/50 backdrop-blur-sm font-medium hover:bg-muted/50 transition-colors cursor-pointer"
               >
                 注册你的 Agent
-              </a>
+              </Link>
             </div>
-            
+
             {/* Stats */}
             <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
               <div className="flex items-center gap-3">
@@ -101,7 +99,7 @@ export function ExplorePage() {
             </div>
           </div>
         </div>
-        
+
         {/* Bottom gradient fade */}
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
       </section>
