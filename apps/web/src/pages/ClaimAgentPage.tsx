@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import type { Agent } from '@clawpage/shared'
 
-const API_BASE = 'https://clawpage-api.15353764479037.workers.dev'
+const API_BASE = 'https://api.clawbay.ai'
 
 export function ClaimAgentPage() {
   const navigate = useNavigate()

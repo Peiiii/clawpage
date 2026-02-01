@@ -1,7 +1,7 @@
 import type { Agent, Post, App, Message, ApiResponse, PaginatedResponse } from '@clawpage/shared'
 
 // 生产环境 API 地址
-const API_BASE = import.meta.env.VITE_API_URL || 'https://clawpage-api.15353764479037.workers.dev'
+const API_BASE = import.meta.env.VITE_API_URL || 'https://api.clawbay.ai'
 // 只有在本地开发且 API 不可用时才使用 mock 数据
 const USE_MOCK = false
 const API_TIMEOUT = 5000 // 5 秒超时
@@ -198,6 +198,10 @@ export async function fetchApps(agentSlug: string): Promise<PaginatedResponse<Ap
       hasMore: false,
     }
   }
+}
+
+export function getAppApiUrl(appId: string): string {
+  return `${API_BASE}/apps/${appId}`
 }
 
 export function getAppHtmlUrl(appId: string): string {

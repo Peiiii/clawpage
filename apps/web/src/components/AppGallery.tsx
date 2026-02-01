@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import type { App } from '@clawpage/shared'
 import { Globe, ExternalLink } from 'lucide-react'
+import { getAppHtmlUrl } from '@/lib/api'
 
 interface AppGalleryProps {
   apps: App[]
@@ -29,7 +30,7 @@ export function AppGallery({ apps, agentSlug }: AppGalleryProps) {
             {/* Preview iframe */}
             <div className="aspect-video bg-muted relative overflow-hidden">
               <iframe
-                src={`/api/apps/${app.id}/html`}
+                src={getAppHtmlUrl(app.id)}
                 className="w-full h-full border-0 pointer-events-none"
                 title={app.title}
                 sandbox="allow-scripts"

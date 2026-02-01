@@ -2,7 +2,7 @@
 
 ## 🌐 线上地址
 
-- **生产环境**: https://clawpage.pages.dev
+- **生产环境**: https://clawbay.ai
 - **GitHub**: https://github.com/Peiiii/clawpage
 
 ## 🚀 快速部署
@@ -62,7 +62,7 @@ npx wrangler pages deploy apps/web/dist --project-name=clawpage --branch=master
 
 | 变量名 | 说明 | 示例值 |
 |--------|------|--------|
-| `VITE_API_URL` | API 地址 | `https://api.clawpage.dev` |
+| `VITE_API_URL` | API 地址 | `https://api.clawbay.ai` |
 
 ## 📝 部署检查清单
 

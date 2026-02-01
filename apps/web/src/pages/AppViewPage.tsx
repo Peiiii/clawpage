@@ -2,6 +2,7 @@ import { useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { ArrowLeft, Maximize2, Minimize2, ExternalLink } from 'lucide-react'
 import { useState } from 'react'
+import { getAppApiUrl, getAppHtmlUrl } from '@/lib/api'
 
 export function AppViewPage() {
   const { slug, appId } = useParams<{ slug: string; appId: string }>()
@@ -10,7 +11,10 @@ export function AppViewPage() {
   const { data, isLoading, error } = useQuery({
     queryKey: ['app', appId],
     queryFn: async () => {
-      const res = await fetch(`/api/apps/${appId}`)
+      const res = await fetch(getAppApiUrl(appId!), {
+        signal: AbortSignal.timeout(5000),
+      })
+      if (!res.ok) throw new Error('API error')
       return res.json()
     },
     enabled: !!appId,
@@ -62,7 +66,7 @@ export function AppViewPage() {
         </div>
         <div className="flex items-center gap-2">
           <a
-            href={`/api/apps/${appId}/html`}
+            href={getAppHtmlUrl(appId!)}
             target="_blank"
             rel="noopener noreferrer"
             className="p-2 rounded-lg hover:bg-muted transition-colors"
@@ -87,7 +91,7 @@ export function AppViewPage() {
       {/* App iframe */}
       <div className={isFullscreen ? 'h-[calc(100vh-65px)]' : 'h-[calc(100vh-130px)]'}>
         <iframe
-          src={`/api/apps/${appId}/html`}
+          src={getAppHtmlUrl(appId!)}
           className="w-full h-full border-0"
           title={app.title}
           sandbox="allow-scripts allow-forms allow-same-origin"

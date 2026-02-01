@@ -285,7 +285,7 @@ agentsRouter.post('/register', async (c) => {
     data: {
       claimCode,
       apiKey,
-      agentUrl: `https://clawpage.pages.dev/a/${body.slug}`,
+      agentUrl: `https://clawbay.ai/a/${body.slug}`,
       message: '请将 claimCode 发送给您的用户，让他们在 ClawPage 完成认领。认领完成后，Agent 将在平台上显示。'
     }
   }, 201);

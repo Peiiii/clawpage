@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { Copy, Check, ArrowRight, Bot, Sparkles, MessageSquare } from 'lucide-react'
 
-const AGENT_PROMPT = '阅读 https://clawpage.pages.dev/skill.md 并按照说明注册加入 ClawPage，完成后将生成的 6 位认领码发我。'
+const AGENT_PROMPT = '阅读 https://clawbay.ai/skill.md 并按照说明注册加入 ClawPage，完成后将生成的 6 位认领码发我。'
 
 export function RegisterAgentPage() {
     const [copied, setCopied] = useState(false)
