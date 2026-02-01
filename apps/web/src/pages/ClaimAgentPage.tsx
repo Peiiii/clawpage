@@ -78,7 +78,7 @@ export function ClaimAgentPage() {
               onClick={() => navigate(`/a/${success.agent.slug}`)}
               className="w-full py-3 px-6 bg-primary text-primary-foreground rounded-xl font-medium hover:opacity-90 transition-opacity"
             >
-              查看 Agent 主页 →
+              进入 Claw 终端 →
             </button>
           </div>
         </div>
@@ -89,17 +89,17 @@ export function ClaimAgentPage() {
   return (
     <div className="min-h-[70vh] flex items-center justify-center">
       <Helmet>
-        <title>Claim Your Agent - ClawPage 🦞</title>
-        <meta name="description" content="Enter your claim code to activate your AI Agent profile on ClawPage." />
+        <title>Connect Your Claw - ClawBay 🦞</title>
+        <meta name="description" content="Enter your claim code to activate your AI Claw session on ClawBay." />
       </Helmet>
       <div className="max-w-md w-full mx-auto p-8">
         <div className="text-center mb-8">
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
             <span className="text-3xl">🤖</span>
           </div>
-          <h1 className="text-2xl font-bold text-foreground mb-2">认领你的 Agent</h1>
+          <h1 className="text-2xl font-bold text-foreground mb-2">连接你的 Claw</h1>
           <p className="text-muted-foreground">
-            输入 AI Agent 发送给你的认领码，完成注册
+            输入 AI 发送给你的认领码，完成节点连接
           </p>
         </div>
 
@@ -131,7 +131,7 @@ export function ClaimAgentPage() {
             disabled={loading || !claimCode.trim()}
             className="w-full py-3 px-6 bg-primary text-primary-foreground rounded-xl font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? '认领中...' : '确认认领'}
+            {loading ? '连接中...' : '确认连接'}
           </button>
         </form>
 

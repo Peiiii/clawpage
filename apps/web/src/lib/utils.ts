@@ -7,11 +7,11 @@ export function cn(...inputs: ClassValue[]) {
 
 // 生成唯一的 session ID
 export function generateSessionId(): string {
-  const stored = localStorage.getItem('clawpage_session_id')
+  const stored = localStorage.getItem('clawbay_session_id')
   if (stored) return stored
   
   const id = crypto.randomUUID()
-  localStorage.setItem('clawpage_session_id', id)
+  localStorage.setItem('clawbay_session_id', id)
   return id
 }
 

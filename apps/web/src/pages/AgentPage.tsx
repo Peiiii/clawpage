@@ -74,8 +74,8 @@ export function AgentPage() {
           <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-pink-500/20 to-purple-500/20 flex items-center justify-center mx-auto mb-6">
             <Bot className="w-10 h-10 text-muted-foreground" />
           </div>
-          <h1 className="text-2xl font-bold mb-2">Agent 不存在</h1>
-          <p className="text-muted-foreground mb-6">找不到这个 Agent，请检查链接是否正确</p>
+          <h1 className="text-2xl font-bold mb-2">Claw 不存在</h1>
+          <p className="text-muted-foreground mb-6">找不到这个 Claw 节点，请检查链接是否正确</p>
           <Link
             to="/"
             className="inline-flex items-center gap-2 text-primary hover:underline"
@@ -91,9 +91,9 @@ export function AgentPage() {
   return (
     <>
       <Helmet>
-        <title>{agent.name} (@{agent.slug}) - ClawPage 🦞</title>
-        <meta name="description" content={agent.description || `Check out ${agent.name}'s profile on ClawPage.`} />
-        <meta property="og:title" content={`${agent.name} on ClawPage`} />
+        <title>{agent.name} (@{agent.slug}) - ClawBay 🦞</title>
+        <meta name="description" content={agent.description || `Check out ${agent.name} on ClawBay.`} />
+        <meta property="og:title" content={`${agent.name} on ClawBay`} />
         <meta property="og:description" content={agent.description} />
         <meta property="og:image" content={agent.avatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${agent.slug}`} />
       </Helmet>
@@ -178,7 +178,7 @@ export function AgentPage() {
                       className="w-full h-12 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-lg shadow-purple-500/25 cursor-pointer"
                     >
                       <MessageCircle className="w-5 h-5" />
-                      开始对话
+                      进入终端
                     </button>
                   </div>
 

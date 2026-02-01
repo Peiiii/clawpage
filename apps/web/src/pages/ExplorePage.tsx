@@ -18,8 +18,8 @@ export function ExplorePage() {
   return (
     <div className="min-h-screen">
       <Helmet>
-        <title>Explore AI Agents - ClawPage 🦞</title>
-        <meta name="description" content="Discover and interact with the best AI agents on ClawPage." />
+        <title>Explore Claws - ClawBay 🦞</title>
+        <meta name="description" content="Discover, Register, and Connect to any Claw on ClawBay." />
       </Helmet>
       {/* Hero Section with animated gradient */}
       <section className="relative overflow-hidden">
@@ -36,23 +36,23 @@ export function ExplorePage() {
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 text-sm font-medium mb-8">
               <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-purple-300">AI Agent 分发与聚合平台</span>
+              <span className="text-purple-300">发现、注册、连接每一个 Claw</span>
               <Sparkles className="h-4 w-4 text-purple-400" />
             </div>
 
             {/* Heading */}
             <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-              发现优秀的
+              探索主动式 AI
               <br />
               <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">
-                AI Agent
+                Claw 门户
               </span>
             </h1>
 
             {/* Description */}
             <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
-              ClawPage 是 AI Agent 的主页平台。在这里，每个 Agent 都有自己的展示空间，
-              你可以浏览、对话、体验各种 Agent 的能力。
+              ClawBay 是主动式 AI (Proactive AI) 时代的基础设施。
+              在这里，你可以注册、发现并连接每一个强大的 Claw 节点。
             </p>
 
             {/* CTAs */}
@@ -61,14 +61,14 @@ export function ExplorePage() {
                 href="#agents"
                 className="inline-flex items-center justify-center h-14 px-8 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold hover:opacity-90 transition-all shadow-xl shadow-purple-500/25 cursor-pointer"
               >
-                探索 Agent
+                连接 Claw
                 <ArrowRight className="ml-2 h-5 w-5" />
               </a>
               <Link
                 to="/register"
                 className="inline-flex items-center justify-center h-14 px-8 rounded-xl border border-border/50 bg-background/50 backdrop-blur-sm font-medium hover:bg-muted/50 transition-colors cursor-pointer"
               >
-                注册你的 Agent
+                注册你的 Claw
               </Link>
             </div>
 
@@ -80,7 +80,7 @@ export function ExplorePage() {
                 </div>
                 <div className="text-left">
                   <div className="text-xl font-bold">{data?.total || 6}+</div>
-                  <div className="text-xs text-muted-foreground">Agent 入驻</div>
+                  <div className="text-xs text-muted-foreground">Claw 节点</div>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -89,7 +89,7 @@ export function ExplorePage() {
                 </div>
                 <div className="text-left">
                   <div className="text-xl font-bold">1K+</div>
-                  <div className="text-xs text-muted-foreground">活跃用户</div>
+                  <div className="text-xs text-muted-foreground">活跃连接</div>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -98,7 +98,7 @@ export function ExplorePage() {
                 </div>
                 <div className="text-left">
                   <div className="text-xl font-bold">10K+</div>
-                  <div className="text-xs text-muted-foreground">对话次数</div>
+                  <div className="text-xs text-muted-foreground">交互次数</div>
                 </div>
               </div>
             </div>
@@ -114,10 +114,10 @@ export function ExplorePage() {
         <div className="flex items-center justify-between mb-10">
           <div>
             <h2 className="text-2xl md:text-3xl font-bold mb-2">
-              {search ? `搜索结果: "${search}"` : '热门 Agent'}
+              {search ? `搜索结果: "${search}"` : '热门 Claw'}
             </h2>
             <p className="text-muted-foreground">
-              探索各类 AI Agent，找到适合你的助手
+              探索各类高性能 Claw，体验主动式 AI 的力量
             </p>
           </div>
           {data && (
@@ -151,10 +151,10 @@ export function ExplorePage() {
               <Bot className="w-8 h-8 text-muted-foreground" />
             </div>
             <h3 className="text-lg font-medium mb-2">
-              {search ? '没有找到匹配的 Agent' : '还没有 Agent 注册'}
+              {search ? '没有找到匹配的 Claw' : '还没有 Claw 注册'}
             </h3>
             <p className="text-muted-foreground">
-              {search ? '试试其他关键词' : '成为第一个入驻的 Agent！'}
+              {search ? '试试其他关键词' : '成为第一个注册的 Claw 节点！'}
             </p>
           </div>
         )}

@@ -1,15 +1,16 @@
-# ClawPage - Agent Homepage Platform
+# ClawBay - Infrastructure for Proactive AI
 
 [![GitHub](https://img.shields.io/badge/GitHub-Peiiii%2Fclawpage-blue?logo=github)](https://github.com/Peiiii/clawpage)
 
-AI Agent 分发与聚合平台，让每个 Agent 都有自己的主页。
+**发现、注册、连接每一个 Claw。**  
+ClawBay 是主动式 AI (Proactive AI) 时代的门户与基础设施，提供类似 DNS 的注册服务与统一的终端访问入口。
 
 ## ✨ 特性
 
-- 🤖 **Agent 主页** - 每个 AI Agent 拥有独立展示空间
-- 💬 **即时对话** - 侧边栏实时与 Agent 对话
-- 🎨 **现代设计** - 玻璃质感 + 渐变效果的高端 UI
-- 🌙 **主题切换** - 支持亮色/暗色模式
+- 🔍 **发现 (Discover)** - 探索公开的各种新型态自主 Agent (Claw)
+- 📝 **注册 (Register)** - 登记你的个人或公开 Claw 节点到全局网关
+- ⚡ **连接 (Connect)** - 统一的终端界面，即刻访问并运行任何注册的 Claw
+- 🎨 **现代设计** - 充满科技感的玻璃质感 UI，适配未来的 Agent 时代
 
 ## 🛠 技术栈
 
