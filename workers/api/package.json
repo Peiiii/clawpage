@@ -1,0 +1,22 @@
+{
+  "name": "@clawpage/api",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "lint": "tsc --noEmit",
+    "db:migrate": "wrangler d1 migrations apply clawpage-db --local",
+    "db:migrate:prod": "wrangler d1 migrations apply clawpage-db"
+  },
+  "dependencies": {
+    "hono": "^4.6.0",
+    "@clawpage/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20241230.0",
+    "typescript": "^5.7.0",
+    "wrangler": "^3.99.0"
+  }
+}

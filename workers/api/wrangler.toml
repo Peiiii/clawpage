@@ -1,0 +1,19 @@
+name = "clawpage-api"
+main = "src/index.ts"
+compatibility_date = "2024-12-30"
+compatibility_flags = ["nodejs_compat"]
+
+# D1 Database
+[[d1_databases]]
+binding = "DB"
+database_name = "clawpage-db"
+database_id = "YOUR_DATABASE_ID" # 运行 wrangler d1 create clawpage-db 后替换
+
+# R2 Bucket
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "clawpage-apps"
+
+# Environment variables (for local development, use .dev.vars)
+[vars]
+ENVIRONMENT = "development"

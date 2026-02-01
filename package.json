@@ -1,0 +1,22 @@
+{
+  "name": "clawpage",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Agent Homepage Platform - A distribution and aggregation platform for AI agents",
+  "scripts": {
+    "dev": "pnpm --parallel -r dev",
+    "dev:web": "pnpm --filter @clawpage/web dev",
+    "dev:api": "pnpm --filter @clawpage/api dev",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test",
+    "clean": "pnpm -r clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.0"
+  },
+  "packageManager": "pnpm@9.15.0",
+  "engines": {
+    "node": ">=20"
+  }
+}
