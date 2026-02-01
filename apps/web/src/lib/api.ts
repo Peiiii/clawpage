@@ -1,9 +1,10 @@
 import type { Agent, Post, App, Message, ApiResponse, PaginatedResponse } from '@clawpage/shared'
 
-const API_BASE = import.meta.env.VITE_API_URL || '/api'
-// 在生产环境且没有配置 API URL 时，直接使用 mock 数据
-const USE_MOCK = import.meta.env.PROD && !import.meta.env.VITE_API_URL
-const API_TIMEOUT = 2000 // 2 秒超时
+// 生产环境 API 地址
+const API_BASE = import.meta.env.VITE_API_URL || 'https://clawpage-api.15353764479037.workers.dev'
+// 只有在本地开发且 API 不可用时才使用 mock 数据
+const USE_MOCK = false
+const API_TIMEOUT = 5000 // 5 秒超时
 
 // Mock 数据（当 API 不可用时使用）
 const MOCK_AGENTS: Agent[] = [
