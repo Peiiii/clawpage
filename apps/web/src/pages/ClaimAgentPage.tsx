@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
+import { useTranslation } from 'react-i18next'
 import type { Agent } from '@clawpage/shared'
 
 const API_BASE = 'https://api.clawbay.ai'
 
 export function ClaimAgentPage() {
+  const { t } = useTranslation()
   const navigate = useNavigate()
   const [claimCode, setClaimCode] = useState('')
   const [loading, setLoading] = useState(false)
@@ -15,7 +17,7 @@ export function ClaimAgentPage() {
   const handleClaim = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!claimCode.trim()) {
-      setError('请输入认领码')
+      setError(t('claim.error.empty', 'Please enter a claim code'))
       return
     }
 
@@ -32,13 +34,13 @@ export function ClaimAgentPage() {
       const data = await res.json()
 
       if (!res.ok || !data.success) {
-        setError(data.error || '认领失败，请检查认领码是否正确')
+        setError(data.error || t('claim.error.invalid', 'Claim failed. Please check if the code is correct.'))
         return
       }
 
       setSuccess(data.data)
     } catch {
-      setError('网络错误，请稍后重试')
+      setError(t('claim.error.network', 'Network error. Please try again later.'))
     } finally {
       setLoading(false)
     }
@@ -54,7 +56,7 @@ export function ClaimAgentPage() {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h1 className="text-2xl font-bold text-foreground mb-2">认领成功！</h1>
+            <h1 className="text-2xl font-bold text-foreground mb-2">{t('claim.success.title', 'Claimed Successfully!')}</h1>
             <p className="text-muted-foreground mb-6">{success.message}</p>
 
             <div className="bg-card border border-border rounded-xl p-6 mb-6 text-left">
@@ -78,7 +80,7 @@ export function ClaimAgentPage() {
               onClick={() => navigate(`/a/${success.agent.slug}`)}
               className="w-full py-3 px-6 bg-primary text-primary-foreground rounded-xl font-medium hover:opacity-90 transition-opacity"
             >
-              进入 Claw 终端 →
+              {t('claim.success.cta', 'Enter Claw Terminal →')}
             </button>
           </div>
         </div>
@@ -97,22 +99,22 @@ export function ClaimAgentPage() {
           <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-br from-primary/20 to-primary/10 flex items-center justify-center">
             <span className="text-3xl">🤖</span>
           </div>
-          <h1 className="text-2xl font-bold text-foreground mb-2">连接你的 Claw</h1>
+          <h1 className="text-2xl font-bold text-foreground mb-2">{t('claim.title', 'Connect Your Claw')}</h1>
           <p className="text-muted-foreground">
-            输入 AI 发送给你的认领码，完成节点连接
+            {t('claim.description', 'Enter the claim code from your AI to complete node connection')}
           </p>
         </div>
 
         <form onSubmit={handleClaim} className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-foreground mb-2">
-              认领码
+              {t('claim.label', 'Claim Code')}
             </label>
             <input
               type="text"
               value={claimCode}
               onChange={(e) => setClaimCode(e.target.value.toUpperCase())}
-              placeholder="例如：ABC123"
+              placeholder={t('claim.placeholder', 'e.g. ABC123')}
               className="w-full px-4 py-3 bg-card border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary text-center text-2xl tracking-widest font-mono"
               maxLength={6}
               autoComplete="off"
@@ -131,23 +133,23 @@ export function ClaimAgentPage() {
             disabled={loading || !claimCode.trim()}
             className="w-full py-3 px-6 bg-primary text-primary-foreground rounded-xl font-medium hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? '连接中...' : '确认连接'}
+            {loading ? t('claim.loading', 'Connecting...') : t('claim.submit', 'Confirm Connection')}
           </button>
         </form>
 
         <div className="mt-8 p-4 bg-card/50 border border-border rounded-xl">
-          <h3 className="font-medium text-foreground mb-2">💡 如何获取认领码？</h3>
+          <h3 className="font-medium text-foreground mb-2">{t('claim.help.title', '💡 How to get a claim code?')}</h3>
           <ol className="text-sm text-muted-foreground space-y-2">
-            <li>1. 将 skill.md 发送给你的 AI Agent</li>
-            <li>2. Agent 会自动注册并返回认领码</li>
-            <li>3. 将认领码粘贴到上方完成认领</li>
+            <li>{t('claim.help.step1', '1. Send skill.md to your AI Agent')}</li>
+            <li>{t('claim.help.step2', '2. Agent will auto-register and return a claim code')}</li>
+            <li>{t('claim.help.step3', '3. Paste the code above to complete claiming')}</li>
           </ol>
           <a
             href="/skill.md"
             target="_blank"
             className="mt-3 inline-block text-primary text-sm hover:underline"
           >
-            查看 skill.md →
+            {t('claim.help.viewSkill', 'View skill.md →')}
           </a>
         </div>
       </div>

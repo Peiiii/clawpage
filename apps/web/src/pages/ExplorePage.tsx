@@ -1,11 +1,13 @@
 import { Helmet } from 'react-helmet-async'
 import { useQuery } from '@tanstack/react-query'
 import { useSearchParams, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { Bot, Sparkles, ArrowRight, Zap, Users, Globe } from 'lucide-react'
 import { fetchAgents } from '@/lib/api'
 import { AgentCard } from '@/components/AgentCard'
 
 export function ExplorePage() {
+  const { t } = useTranslation()
   const [searchParams] = useSearchParams()
   const search = searchParams.get('search') || ''
   const tag = searchParams.get('tag') || ''
@@ -19,7 +21,7 @@ export function ExplorePage() {
     <div className="min-h-screen">
       <Helmet>
         <title>ClawBay — Where Claws Meet Users 🦞</title>
-        <meta name="description" content="Publish, Discover, Interact. The platform for AI Agents and users." />
+        <meta name="description" content="Publish, Discover, Interact. Discover the best AI Agents on ClawBay." />
       </Helmet>
       {/* Hero Section with animated gradient */}
       <section className="relative overflow-hidden">
@@ -36,23 +38,22 @@ export function ExplorePage() {
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 text-sm font-medium mb-8">
               <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-purple-300">Publish, Discover, Interact</span>
+              <span className="text-purple-300">{t('hero.badge', 'Publish, Discover, Interact')}</span>
               <Sparkles className="h-4 w-4 text-purple-400" />
             </div>
 
             {/* Heading */}
             <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-              Where Claws
+              {t('hero.title1', 'Where Claws')}
               <br />
               <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">
-                Meet Users
+                {t('hero.title2', 'Meet Users')}
               </span>
             </h1>
 
             {/* Description */}
             <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
-              ClawBay 是 Claw 与用户相遇的地方。
-              在这里发布你的 Claw，发现更多 Claw，与它们直接互动。
+              {t('hero.description', 'ClawBay is where Claws meet users. Publish your Claw here, discover more Claws, and interact with them directly.')}
             </p>
 
             {/* CTAs */}
@@ -61,14 +62,14 @@ export function ExplorePage() {
                 href="#agents"
                 className="inline-flex items-center justify-center h-14 px-8 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold hover:opacity-90 transition-all shadow-xl shadow-purple-500/25 cursor-pointer"
               >
-                连接 Claw
+                {t('hero.cta.connect', 'Connect Claw')}
                 <ArrowRight className="ml-2 h-5 w-5" />
               </a>
               <Link
                 to="/register"
                 className="inline-flex items-center justify-center h-14 px-8 rounded-xl border border-border/50 bg-background/50 backdrop-blur-sm font-medium hover:bg-muted/50 transition-colors cursor-pointer"
               >
-                注册你的 Claw
+                {t('hero.cta.register', 'Register Your Claw')}
               </Link>
             </div>
 
@@ -80,7 +81,7 @@ export function ExplorePage() {
                 </div>
                 <div className="text-left">
                   <div className="text-xl font-bold">{data?.total || 6}+</div>
-                  <div className="text-xs text-muted-foreground">Claw 节点</div>
+                  <div className="text-xs text-muted-foreground">{t('stats.nodes', 'Claw Nodes')}</div>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -89,7 +90,7 @@ export function ExplorePage() {
                 </div>
                 <div className="text-left">
                   <div className="text-xl font-bold">1K+</div>
-                  <div className="text-xs text-muted-foreground">活跃连接</div>
+                  <div className="text-xs text-muted-foreground">{t('stats.connections', 'Active Connections')}</div>
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -98,7 +99,7 @@ export function ExplorePage() {
                 </div>
                 <div className="text-left">
                   <div className="text-xl font-bold">10K+</div>
-                  <div className="text-xs text-muted-foreground">交互次数</div>
+                  <div className="text-xs text-muted-foreground">{t('stats.interactions', 'Interactions')}</div>
                 </div>
               </div>
             </div>
@@ -114,15 +115,15 @@ export function ExplorePage() {
         <div className="flex items-center justify-between mb-10">
           <div>
             <h2 className="text-2xl md:text-3xl font-bold mb-2">
-              {search ? `搜索结果: "${search}"` : '热门 Claw'}
+              {search ? t('explore.titleSearch', { query: search, defaultValue: `Searching: "{{query}}"` }) : t('explore.title', 'Explore Claws')}
             </h2>
             <p className="text-muted-foreground">
-              探索各类高性能 Claw，体验主动式 AI 的力量
+              {t('explore.subtitle', 'Find the perfect AI agent for your needs')}
             </p>
           </div>
           {data && (
             <span className="text-sm text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-lg">
-              共 {data.total} 个
+              {t('explore.total', { count: data.total, defaultValue: '{{count}} Claws' })}
             </span>
           )}
         </div>
@@ -140,8 +141,8 @@ export function ExplorePage() {
             <div className="w-16 h-16 rounded-2xl bg-red-500/10 flex items-center justify-center mb-4">
               <Globe className="w-8 h-8 text-red-400" />
             </div>
-            <h3 className="text-lg font-medium mb-2">加载失败</h3>
-            <p className="text-muted-foreground">请检查网络连接后重试</p>
+            <h3 className="text-lg font-medium mb-2">{t('explore.loadError.title', 'Failed to load')}</h3>
+            <p className="text-muted-foreground">{t('explore.loadError.description', 'Please check your connection and try again')}</p>
           </div>
         )}
 
@@ -151,10 +152,10 @@ export function ExplorePage() {
               <Bot className="w-8 h-8 text-muted-foreground" />
             </div>
             <h3 className="text-lg font-medium mb-2">
-              {search ? '没有找到匹配的 Claw' : '还没有 Claw 注册'}
+              {search ? t('explore.empty.titleSearch', 'No results found') : t('explore.empty.title', 'No Claws yet')}
             </h3>
             <p className="text-muted-foreground">
-              {search ? '试试其他关键词' : '成为第一个注册的 Claw 节点！'}
+              {search ? t('explore.empty.descriptionSearch', 'Try adjusting your search terms') : t('explore.empty.description', 'Be the first to register a Claw!')}
             </p>
           </div>
         )}

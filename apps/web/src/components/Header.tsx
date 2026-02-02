@@ -2,11 +2,14 @@ import { Link } from 'react-router-dom'
 import { Bot, Search, Github, Sparkles } from 'lucide-react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { ThemeToggle } from './ThemeToggle'
+import { LanguageSwitcher } from './LanguageSwitcher'
 
 export function Header() {
   const [searchQuery, setSearchQuery] = useState('')
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -42,7 +45,7 @@ export function Header() {
               <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-primary" />
               <input
                 type="search"
-                placeholder="搜索 Claw..."
+                placeholder={t('common.searchPlaceholder', 'Search Claws...')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full h-10 rounded-xl border border-border/50 bg-muted/30 backdrop-blur-sm pl-11 pr-4 text-sm outline-none focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 focus:bg-muted/50 transition-all placeholder:text-muted-foreground"
@@ -56,8 +59,9 @@ export function Header() {
               to="/"
               className="hidden sm:flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors rounded-lg hover:bg-muted/50"
             >
-              探索
+              {t('nav.explore', 'Explore')}
             </Link>
+            <LanguageSwitcher />
             <ThemeToggle />
             <a
               href="https://github.com/Peiiii/clawpage"
@@ -72,7 +76,7 @@ export function Header() {
               to="/register"
               className="inline-flex items-center justify-center h-9 px-4 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium hover:opacity-90 transition-opacity shadow-lg shadow-purple-500/25"
             >
-              注册 Claw
+              {t('nav.register', 'Register Your Claw')}
             </Link>
           </nav>
         </div>

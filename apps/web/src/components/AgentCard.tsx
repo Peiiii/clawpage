@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import type { Agent } from '@clawpage/shared'
+import { useTranslation } from 'react-i18next'
 import { Bot, ArrowUpRight, Sparkles } from 'lucide-react'
 
 interface AgentCardProps {
@@ -7,6 +8,7 @@ interface AgentCardProps {
 }
 
 export function AgentCard({ agent }: AgentCardProps) {
+  const { t } = useTranslation()
   const tags = typeof agent.tags === 'string' ? JSON.parse(agent.tags) : agent.tags || []
 
   return (
@@ -17,10 +19,10 @@ export function AgentCard({ agent }: AgentCardProps) {
       <div className="relative h-full rounded-2xl border border-border/50 bg-card/50 backdrop-blur-sm p-6 hover:border-purple-500/30 hover:bg-card/80 transition-all duration-300 overflow-hidden">
         {/* Background gradient on hover */}
         <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-pink-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-        
+
         {/* Glow effect */}
         <div className="absolute -top-20 -right-20 w-40 h-40 bg-purple-500/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-        
+
         <div className="relative">
           {/* Header: Avatar & Link icon */}
           <div className="flex items-start justify-between mb-4">
@@ -41,7 +43,7 @@ export function AgentCard({ agent }: AgentCardProps) {
                 <Sparkles className="w-2.5 h-2.5 text-white" />
               </div>
             </div>
-            
+
             <div className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
               <ArrowUpRight className="w-4 h-4 text-muted-foreground" />
             </div>
@@ -57,7 +59,7 @@ export function AgentCard({ agent }: AgentCardProps) {
 
           {/* Description */}
           <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2 mb-4 min-h-[2.5rem]">
-            {agent.description || '这个 Agent 还没有添加简介'}
+            {agent.description || t('agent.noDescription', 'This agent has not added a bio yet')}
           </p>
 
           {/* Tags */}

@@ -2,6 +2,7 @@ import { useParams, Link } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { Bot, MessageCircle, Globe, FileText, Calendar, ArrowLeft, Sparkles } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
+import { useTranslation } from 'react-i18next'
 import { fetchAgent, fetchPosts, fetchApps } from '@/lib/api'
 import { useChatStore } from '@/store'
 import { PostList } from '@/components/PostList'
@@ -13,6 +14,7 @@ import { useState } from 'react'
 type TabType = 'posts' | 'apps'
 
 export function AgentPage() {
+  const { t } = useTranslation()
   const { slug } = useParams<{ slug: string }>()
   const [activeTab, setActiveTab] = useState<TabType>('posts')
   const { openChat, isOpen } = useChatStore()
@@ -74,14 +76,14 @@ export function AgentPage() {
           <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-pink-500/20 to-purple-500/20 flex items-center justify-center mx-auto mb-6">
             <Bot className="w-10 h-10 text-muted-foreground" />
           </div>
-          <h1 className="text-2xl font-bold mb-2">Claw 不存在</h1>
-          <p className="text-muted-foreground mb-6">找不到这个 Claw 节点，请检查链接是否正确</p>
+          <h1 className="text-2xl font-bold mb-2">{t('agent.notFound.title', 'Claw Not Found')}</h1>
+          <p className="text-muted-foreground mb-6">{t('agent.notFound.description', "We couldn't find this Claw. Please check if the URL is correct.")}</p>
           <Link
             to="/"
             className="inline-flex items-center gap-2 text-primary hover:underline"
           >
             <ArrowLeft className="w-4 h-4" />
-            返回首页
+            {t('agent.notFound.backHome', 'Back to Home')}
           </Link>
         </div>
       </div>
@@ -163,12 +165,12 @@ export function AgentPage() {
                     <div className="flex items-center justify-center gap-6 py-4 border-y border-border/50 mb-5">
                       <div className="text-center">
                         <div className="text-lg font-bold">{postsData?.total || posts.length}</div>
-                        <div className="text-xs text-muted-foreground">帖子</div>
+                        <div className="text-xs text-muted-foreground">{t('agent.posts', 'Posts')}</div>
                       </div>
                       <div className="w-px h-8 bg-border/50" />
                       <div className="text-center">
                         <div className="text-lg font-bold">{appsData?.total || apps.length}</div>
-                        <div className="text-xs text-muted-foreground">应用</div>
+                        <div className="text-xs text-muted-foreground">{t('agent.apps', 'Apps')}</div>
                       </div>
                     </div>
 
@@ -178,7 +180,7 @@ export function AgentPage() {
                       className="w-full h-12 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-lg shadow-purple-500/25 cursor-pointer"
                     >
                       <MessageCircle className="w-5 h-5" />
-                      进入终端
+                      {t('agent.enterTerminal', 'Enter Terminal')}
                     </button>
                   </div>
 
@@ -186,7 +188,7 @@ export function AgentPage() {
                   <div className="rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm p-4">
                     <div className="flex items-center gap-3 text-sm text-muted-foreground">
                       <Calendar className="w-4 h-4" />
-                      <span>加入于 {formatTime(agent.createdAt)}</span>
+                      <span>{t('agent.joinedAt', 'Joined')} {formatTime(agent.createdAt)}</span>
                     </div>
                   </div>
                 </div>
@@ -206,7 +208,7 @@ export function AgentPage() {
                     )}
                   >
                     <FileText className="w-4 h-4" />
-                    帖子
+                    {t('agent.posts', 'Posts')}
                   </button>
                   <button
                     onClick={() => setActiveTab('apps')}
@@ -218,7 +220,7 @@ export function AgentPage() {
                     )}
                   >
                     <Globe className="w-4 h-4" />
-                    应用
+                    {t('agent.apps', 'Apps')}
                   </button>
                 </div>
 
