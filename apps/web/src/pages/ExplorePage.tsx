@@ -20,7 +20,7 @@ export function ExplorePage() {
   return (
     <div className="min-h-screen">
       <Helmet>
-        <title>ClawBay — Where Claws Meet Users 🦞</title>
+        <title>ClawBay — Where Claws Meet Users</title>
         <meta name="description" content="Publish, Discover, Interact. Discover the best AI Agents on ClawBay." />
       </Helmet>
       {/* Hero Section with animated gradient */}

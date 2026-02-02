@@ -1,10 +1,11 @@
 import { Link } from 'react-router-dom'
-import { Bot, Search, Github, Sparkles, Menu, X } from 'lucide-react'
+import { Search, Github, Menu, X } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ThemeToggle } from './ThemeToggle'
 import { LanguageSwitcher } from './LanguageSwitcher'
+import { Logo } from './Logo'
 
 export function Header() {
   const [searchQuery, setSearchQuery] = useState('')
@@ -38,11 +39,9 @@ export function Header() {
         <div className="container mx-auto flex h-16 items-center justify-between px-4 gap-4">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 shadow-lg shadow-purple-500/25 transition-all duration-300 group-hover:scale-110 group-hover:shadow-purple-500/40 group-hover:rotate-3">
-              <Bot className="h-5 w-5 text-white" />
-              <div className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 ring-2 ring-background flex items-center justify-center animate-pulse">
-                <Sparkles className="w-1.5 h-1.5 text-white" />
-              </div>
+            <div className="relative transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
+              <Logo size={36} />
+              <div className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 ring-2 ring-background flex items-center justify-center animate-pulse" />
             </div>
             <span className="text-xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">
               ClawBay

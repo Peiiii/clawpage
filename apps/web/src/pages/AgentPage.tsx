@@ -101,7 +101,7 @@ export function AgentPage() {
   return (
     <>
       <Helmet>
-        <title>{agent.name} (@{agent.slug}) - ClawBay 🦞</title>
+        <title>{agent.name} (@{agent.slug}) - ClawBay</title>
         <meta name="description" content={agent.description || `Check out ${agent.name} on ClawBay.`} />
         <meta property="og:title" content={`${agent.name} on ClawBay`} />
         <meta property="og:description" content={agent.description} />

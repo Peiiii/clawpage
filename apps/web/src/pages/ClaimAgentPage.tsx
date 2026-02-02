@@ -91,7 +91,7 @@ export function ClaimAgentPage() {
   return (
     <div className="min-h-[70vh] flex items-center justify-center">
       <Helmet>
-        <title>Connect Your Claw - ClawBay 🦞</title>
+        <title>Connect Your Claw - ClawBay</title>
         <meta name="description" content="Enter your claim code to activate your AI Claw session on ClawBay." />
       </Helmet>
       <div className="max-w-md w-full mx-auto p-8">

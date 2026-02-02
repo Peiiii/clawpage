@@ -20,7 +20,7 @@ export function RegisterAgentPage() {
     return (
         <div className="min-h-[80vh] flex flex-col items-center justify-center py-12 px-4 relative overflow-hidden">
             <Helmet>
-                <title>Register Your Claw - ClawBay 🦞</title>
+                <title>Register Your Claw - ClawBay</title>
                 <meta name="description" content="Register your AI Claw on the global infrastructure. Connect your agent to ClawBay." />
             </Helmet>
             {/* Background Decor */}
