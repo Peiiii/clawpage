@@ -91,32 +91,32 @@ export function ExplorePage() {
             </div>
 
             {/* Stats */}
-            <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
-              <div className="flex items-center gap-3 group cursor-default">
-                <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center group-hover:bg-purple-500/20 transition-colors">
-                  <Bot className="w-5 h-5 text-purple-400 group-hover:scale-110 transition-transform" />
+            <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-8 md:gap-12">
+              <div className="flex items-center gap-3 group cursor-default bg-card/30 backdrop-blur-sm rounded-2xl px-4 py-3 border border-border/20 hover:border-purple-500/30 transition-all">
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-purple-500/20 to-purple-500/5 flex items-center justify-center group-hover:from-purple-500/30 group-hover:to-purple-500/10 transition-all">
+                  <Bot className="w-5 h-5 text-purple-500 group-hover:scale-110 transition-transform" />
                 </div>
                 <div className="text-left">
-                  <div className="text-xl font-bold">{data?.total || 6}+</div>
-                  <div className="text-xs text-muted-foreground">{t('stats.nodes', 'Claw Nodes')}</div>
+                  <div className="text-2xl font-bold bg-gradient-to-r from-purple-500 to-purple-400 bg-clip-text text-transparent">{data?.total || 6}+</div>
+                  <div className="text-xs text-muted-foreground font-medium">{t('stats.nodes', 'Claw Nodes')}</div>
                 </div>
               </div>
-              <div className="flex items-center gap-3 group cursor-default">
-                <div className="w-10 h-10 rounded-xl bg-pink-500/10 flex items-center justify-center group-hover:bg-pink-500/20 transition-colors">
-                  <Users className="w-5 h-5 text-pink-400 group-hover:scale-110 transition-transform" />
+              <div className="flex items-center gap-3 group cursor-default bg-card/30 backdrop-blur-sm rounded-2xl px-4 py-3 border border-border/20 hover:border-pink-500/30 transition-all">
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-pink-500/20 to-pink-500/5 flex items-center justify-center group-hover:from-pink-500/30 group-hover:to-pink-500/10 transition-all">
+                  <Users className="w-5 h-5 text-pink-500 group-hover:scale-110 transition-transform" />
                 </div>
                 <div className="text-left">
-                  <div className="text-xl font-bold">1K+</div>
-                  <div className="text-xs text-muted-foreground">{t('stats.connections', 'Active Connections')}</div>
+                  <div className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-pink-400 bg-clip-text text-transparent">1K+</div>
+                  <div className="text-xs text-muted-foreground font-medium">{t('stats.connections', 'Active Connections')}</div>
                 </div>
               </div>
-              <div className="flex items-center gap-3 group cursor-default">
-                <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center group-hover:bg-orange-500/20 transition-colors">
-                  <Zap className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" />
+              <div className="flex items-center gap-3 group cursor-default bg-card/30 backdrop-blur-sm rounded-2xl px-4 py-3 border border-border/20 hover:border-orange-500/30 transition-all">
+                <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-orange-500/20 to-orange-500/5 flex items-center justify-center group-hover:from-orange-500/30 group-hover:to-orange-500/10 transition-all">
+                  <Zap className="w-5 h-5 text-orange-500 group-hover:scale-110 transition-transform" />
                 </div>
                 <div className="text-left">
-                  <div className="text-xl font-bold">10K+</div>
-                  <div className="text-xs text-muted-foreground">{t('stats.interactions', 'Interactions')}</div>
+                  <div className="text-2xl font-bold bg-gradient-to-r from-orange-500 to-orange-400 bg-clip-text text-transparent">10K+</div>
+                  <div className="text-xs text-muted-foreground font-medium">{t('stats.interactions', 'Interactions')}</div>
                 </div>
               </div>
             </div>
@@ -178,7 +178,7 @@ export function ExplorePage() {
         )}
 
         {data && data.items && data.items.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 stagger-children">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 stagger-children">
             {data.items.map((agent) => (
               <AgentCard key={agent.id} agent={agent} />
             ))}

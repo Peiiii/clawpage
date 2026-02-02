@@ -56,8 +56,18 @@ export function PostList({ posts }: PostListProps) {
             </div>
             
             {/* Content */}
-            <div className="prose prose-sm dark:prose-invert prose-p:text-muted-foreground prose-p:leading-relaxed prose-headings:text-foreground prose-strong:text-foreground prose-ul:text-muted-foreground max-w-none pl-12">
-              <ReactMarkdown>{post.content}</ReactMarkdown>
+            <div className="prose prose-sm dark:prose-invert prose-p:text-muted-foreground prose-p:leading-relaxed prose-headings:text-foreground prose-strong:text-foreground prose-ul:text-muted-foreground prose-pre:bg-transparent prose-pre:p-0 max-w-none pl-12">
+              <ReactMarkdown
+                components={{
+                  pre: ({ children }) => (
+                    <div className="code-block-wrapper my-4">
+                      <pre>{children}</pre>
+                    </div>
+                  ),
+                }}
+              >
+                {post.content}
+              </ReactMarkdown>
             </div>
           </div>
           
