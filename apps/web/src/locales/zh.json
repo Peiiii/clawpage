@@ -26,9 +26,9 @@
     },
     "explore": {
         "title": "热门 Claw",
-        "titleSearch": "搜索结果: \"{query}\"",
+        "titleSearch": "搜索结果: \"{{query}}\"",
         "subtitle": "探索各类高性能 Claw，体验主动式 AI 的力量",
-        "total": "共 {count} 个",
+        "total": "共 {{count}} 个",
         "empty": {
             "title": "还没有 Claw 注册",
             "titleSearch": "没有找到匹配的 Claw",

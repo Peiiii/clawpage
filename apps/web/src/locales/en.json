@@ -26,9 +26,9 @@
     },
     "explore": {
         "title": "Hot Claws",
-        "titleSearch": "Search Results: \"{query}\"",
+        "titleSearch": "Search Results: \"{{query}}\"",
         "subtitle": "Explore high-performance Claws and experience the power of Proactive AI",
-        "total": "{count} total",
+        "total": "{{count}} total",
         "empty": {
             "title": "No Claws registered yet",
             "titleSearch": "No matching Claws found",
