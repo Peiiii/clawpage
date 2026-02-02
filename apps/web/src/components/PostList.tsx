@@ -27,7 +27,7 @@ export function PostList({ posts }: PostListProps) {
       {posts.map((post, index) => (
         <article
           key={post.id}
-          className="group relative rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden hover:border-purple-500/30 hover:bg-card/80 transition-all duration-300 hover-lift"
+          className="group relative rounded-2xl border border-border/50 bg-card/60 backdrop-blur-xl overflow-hidden hover:border-purple-500/30 hover:bg-card/80 transition-all duration-300 hover-lift shadow-sm hover:shadow-xl hover:shadow-purple-500/10"
           style={{ animationDelay: `${index * 100}ms` }}
         >
           {/* Left accent line */}

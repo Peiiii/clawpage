@@ -108,11 +108,18 @@ export function AgentPage() {
         <meta property="og:image" content={agent.avatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${agent.slug}`} />
       </Helmet>
       <div className={cn(
-        "min-h-screen bg-background transition-all duration-300",
+        "min-h-screen bg-background transition-all duration-300 relative",
         isOpen ? "lg:mr-[400px]" : ""
       )}>
         {/* Hero gradient background */}
-        <div className="absolute inset-x-0 top-0 h-72 bg-gradient-to-br from-purple-500/10 via-pink-500/10 to-orange-500/10 pointer-events-none" />
+        <div className="absolute inset-x-0 top-0 h-96 bg-gradient-to-br from-purple-500/10 via-pink-500/10 to-orange-500/10 pointer-events-none" />
+        
+        {/* Subtle grid pattern */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
+        
+        {/* Floating orbs */}
+        <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl pointer-events-none animate-pulse" />
+        <div className="absolute top-40 right-20 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl pointer-events-none animate-pulse" style={{ animationDelay: '1s' }} />
 
         <div className="container mx-auto px-4 py-8 relative">
           <div className="max-w-5xl mx-auto">
@@ -150,18 +157,18 @@ export function AgentPage() {
 
                     {/* Description */}
                     {agent.description && (
-                      <p className="text-sm text-muted-foreground leading-relaxed mb-5">
+                      <p className="text-sm text-muted-foreground/80 leading-relaxed mb-5 text-center">
                         {agent.description}
                       </p>
                     )}
 
                     {/* Tags */}
                     {tags.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mb-5">
+                      <div className="flex flex-wrap justify-center gap-2 mb-5">
                         {tags.map((tag: string) => (
                           <span
                             key={tag}
-                            className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-primary/10 text-primary border border-primary/20"
+                            className="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-gradient-to-r from-purple-500/10 to-pink-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20 hover:border-purple-500/40 hover:from-purple-500/20 hover:to-pink-500/20 transition-all cursor-default"
                           >
                             {tag}
                           </span>
@@ -170,15 +177,19 @@ export function AgentPage() {
                     )}
 
                     {/* Stats */}
-                    <div className="flex items-center justify-center gap-6 py-4 border-y border-border/50 mb-5">
-                      <div className="text-center">
-                        <div className="text-lg font-bold">{postsData?.total || posts.length}</div>
-                        <div className="text-xs text-muted-foreground">{t('agent.posts', 'Posts')}</div>
+                    <div className="flex items-center justify-center gap-8 py-5 border-y border-border/50 mb-5 bg-muted/20 -mx-6 px-6">
+                      <div className="text-center group cursor-default">
+                        <div className="text-2xl font-bold bg-gradient-to-r from-purple-500 to-purple-400 bg-clip-text text-transparent group-hover:scale-110 transition-transform inline-block">
+                          {postsData?.total || posts.length}
+                        </div>
+                        <div className="text-xs text-muted-foreground font-medium mt-0.5">{t('agent.posts', 'Posts')}</div>
                       </div>
-                      <div className="w-px h-8 bg-border/50" />
-                      <div className="text-center">
-                        <div className="text-lg font-bold">{appsData?.total || apps.length}</div>
-                        <div className="text-xs text-muted-foreground">{t('agent.apps', 'Apps')}</div>
+                      <div className="w-px h-10 bg-gradient-to-b from-transparent via-border to-transparent" />
+                      <div className="text-center group cursor-default">
+                        <div className="text-2xl font-bold bg-gradient-to-r from-pink-500 to-pink-400 bg-clip-text text-transparent group-hover:scale-110 transition-transform inline-block">
+                          {appsData?.total || apps.length}
+                        </div>
+                        <div className="text-xs text-muted-foreground font-medium mt-0.5">{t('agent.apps', 'Apps')}</div>
                       </div>
                     </div>
 

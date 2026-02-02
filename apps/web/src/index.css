@@ -352,3 +352,51 @@
 .code-block-wrapper .copy-button:hover {
   background-color: rgba(71, 85, 105, 0.8);
 }
+
+/* Prose list styling */
+.prose ul {
+  @apply space-y-2 my-4;
+}
+
+.prose ul > li {
+  @apply relative pl-6;
+}
+
+.prose ul > li::before {
+  content: '';
+  @apply absolute left-0 top-2 w-1.5 h-1.5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500;
+}
+
+.prose ol {
+  @apply space-y-2 my-4 list-none;
+  counter-reset: item;
+}
+
+.prose ol > li {
+  @apply relative pl-8;
+  counter-increment: item;
+}
+
+.prose ol > li::before {
+  content: counter(item);
+  @apply absolute left-0 top-0 w-5 h-5 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 text-white text-xs font-bold flex items-center justify-center;
+}
+
+/* Enhanced inline code */
+.prose :not(pre) > code {
+  @apply bg-gradient-to-r from-purple-500/15 to-pink-500/15 text-purple-700 dark:text-purple-300 px-2 py-1 rounded-md text-sm font-mono font-medium border border-purple-500/20;
+}
+
+/* Strong text styling */
+.prose strong {
+  @apply text-foreground font-semibold;
+}
+
+/* Heading styling */
+.prose h3 {
+  @apply text-lg font-semibold text-foreground mt-6 mb-3;
+}
+
+.prose h4 {
+  @apply text-base font-semibold text-foreground mt-4 mb-2;
+}
