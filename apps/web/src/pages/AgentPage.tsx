@@ -197,35 +197,41 @@ export function AgentPage() {
               {/* RIGHT: Content Area */}
               <main className="flex-1 min-w-0">
                 {/* Tabs */}
-                <div className="flex items-center gap-1 p-1 rounded-xl bg-muted/50 backdrop-blur-sm mb-6 w-fit">
+                <div className="flex items-center gap-1 p-1 rounded-xl bg-muted/50 backdrop-blur-sm mb-6 w-fit border border-border/30">
                   <button
                     onClick={() => setActiveTab('posts')}
                     className={cn(
-                      "flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer",
+                      "flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 cursor-pointer",
                       activeTab === 'posts'
-                        ? "bg-background text-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground"
+                        ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/25"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                     )}
                   >
                     <FileText className="w-4 h-4" />
                     {t('agent.posts', 'Posts')}
+                    <span className="ml-1 px-1.5 py-0.5 text-xs bg-white/20 rounded-md">
+                      {posts.length}
+                    </span>
                   </button>
                   <button
                     onClick={() => setActiveTab('apps')}
                     className={cn(
-                      "flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer",
+                      "flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-300 cursor-pointer",
                       activeTab === 'apps'
-                        ? "bg-background text-foreground shadow-sm"
-                        : "text-muted-foreground hover:text-foreground"
+                        ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/25"
+                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                     )}
                   >
                     <Globe className="w-4 h-4" />
                     {t('agent.apps', 'Apps')}
+                    <span className="ml-1 px-1.5 py-0.5 text-xs bg-white/20 rounded-md">
+                      {apps.length}
+                    </span>
                   </button>
                 </div>
 
-                {/* Content */}
-                <div className="space-y-4">
+                {/* Content with fade transition */}
+                <div className="space-y-4 transition-opacity duration-300">
                   {activeTab === 'posts' && <PostList posts={posts} />}
                   {activeTab === 'apps' && <AppGallery apps={apps} agentSlug={agent.slug} />}
                 </div>

@@ -11,7 +11,7 @@ export function PostList({ posts }: PostListProps) {
   if (posts.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center mb-4">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center mb-4 float">
           <BookOpen className="w-8 h-8 text-muted-foreground" />
         </div>
         <h3 className="text-lg font-medium mb-2">还没有发布任何帖子</h3>
@@ -23,29 +23,33 @@ export function PostList({ posts }: PostListProps) {
   }
 
   return (
-    <div className="space-y-4">
-      {posts.map((post) => (
+    <div className="space-y-4 stagger-children">
+      {posts.map((post, index) => (
         <article
           key={post.id}
-          className="group relative rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden hover:border-primary/30 hover:bg-card/80 transition-all duration-200"
+          className="group relative rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden hover:border-purple-500/30 hover:bg-card/80 transition-all duration-300 hover-lift"
+          style={{ animationDelay: `${index * 100}ms` }}
         >
           {/* Left accent line */}
-          <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-all duration-300" />
           
-          <div className="p-6">
+          {/* Shimmer effect on hover */}
+          <div className="absolute inset-0 shimmer opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          
+          <div className="p-6 relative">
             {/* Header */}
             <div className="flex items-start justify-between gap-4 mb-4">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center">
-                  <FileText className="w-4 h-4 text-purple-400" />
+                <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center group-hover:from-purple-500/30 group-hover:to-pink-500/30 transition-all">
+                  <FileText className="w-4 h-4 text-purple-400 group-hover:scale-110 transition-transform" />
                 </div>
                 {post.title && (
-                  <h3 className="text-lg font-semibold group-hover:text-primary transition-colors">
+                  <h3 className="text-lg font-semibold group-hover:text-purple-500 transition-colors duration-300">
                     {post.title}
                   </h3>
                 )}
               </div>
-              <span className="flex items-center gap-1.5 text-xs text-muted-foreground flex-shrink-0">
+              <span className="flex items-center gap-1.5 text-xs text-muted-foreground flex-shrink-0 bg-muted/30 px-2 py-1 rounded-full">
                 <Clock className="w-3.5 h-3.5" />
                 {formatTime(post.createdAt)}
               </span>

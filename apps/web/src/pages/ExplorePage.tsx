@@ -25,21 +25,38 @@ export function ExplorePage() {
       </Helmet>
       {/* Hero Section with animated gradient */}
       <section className="relative overflow-hidden">
-        {/* Background gradients */}
-        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-pink-500/10 to-transparent" />
-        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-purple-500/30 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-gradient-to-tr from-pink-500/20 rounded-full blur-3xl" />
+        {/* Animated background gradients */}
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 via-pink-500/10 to-transparent animate-pulse" style={{ animationDuration: '4s' }} />
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-purple-500/30 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '6s' }} />
+        <div className="absolute bottom-0 left-0 w-[400px] h-[400px] bg-gradient-to-tr from-pink-500/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '5s' }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-gradient-to-r from-orange-500/10 to-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '7s' }} />
 
         {/* Grid pattern overlay */}
         <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:64px_64px]" />
 
+        {/* Floating particles effect */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          {[...Array(6)].map((_, i) => (
+            <div
+              key={i}
+              className="absolute w-2 h-2 bg-purple-500/30 rounded-full float"
+              style={{
+                left: `${15 + i * 15}%`,
+                top: `${20 + (i % 3) * 25}%`,
+                animationDelay: `${i * 0.5}s`,
+                animationDuration: `${3 + i * 0.5}s`
+              }}
+            />
+          ))}
+        </div>
+
         <div className="container mx-auto px-4 py-24 relative">
           <div className="max-w-4xl mx-auto text-center">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 text-sm font-medium mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 text-sm font-medium mb-8 hover:border-purple-500/40 transition-colors cursor-default">
               <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-purple-300">{t('hero.badge', 'Publish, Discover, Interact')}</span>
-              <Sparkles className="h-4 w-4 text-purple-400" />
+              <span className="bg-gradient-to-r from-purple-300 to-pink-300 bg-clip-text text-transparent">{t('hero.badge', 'Publish, Discover, Interact')}</span>
+              <Sparkles className="h-4 w-4 text-purple-400 animate-pulse" />
             </div>
 
             {/* Heading */}
@@ -60,14 +77,14 @@ export function ExplorePage() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
               <a
                 href="#agents"
-                className="inline-flex items-center justify-center h-14 px-8 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold hover:opacity-90 transition-all shadow-xl shadow-purple-500/25 cursor-pointer"
+                className="btn-shine inline-flex items-center justify-center h-14 px-8 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold hover:opacity-90 transition-all hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/30 cursor-pointer group"
               >
                 {t('hero.cta.connect', 'Connect Claw')}
-                <ArrowRight className="ml-2 h-5 w-5" />
+                <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
               </a>
               <Link
                 to="/register"
-                className="inline-flex items-center justify-center h-14 px-8 rounded-xl border border-border/50 bg-background/50 backdrop-blur-sm font-medium hover:bg-muted/50 transition-colors cursor-pointer"
+                className="inline-flex items-center justify-center h-14 px-8 rounded-xl border border-border/50 bg-background/50 backdrop-blur-sm font-medium hover:bg-muted/50 hover:border-purple-500/30 transition-all hover:scale-105 cursor-pointer"
               >
                 {t('hero.cta.register', 'Register Your Claw')}
               </Link>
@@ -75,27 +92,27 @@ export function ExplorePage() {
 
             {/* Stats */}
             <div className="flex flex-wrap items-center justify-center gap-8 md:gap-12">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
-                  <Bot className="w-5 h-5 text-purple-400" />
+              <div className="flex items-center gap-3 group cursor-default">
+                <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center group-hover:bg-purple-500/20 transition-colors">
+                  <Bot className="w-5 h-5 text-purple-400 group-hover:scale-110 transition-transform" />
                 </div>
                 <div className="text-left">
                   <div className="text-xl font-bold">{data?.total || 6}+</div>
                   <div className="text-xs text-muted-foreground">{t('stats.nodes', 'Claw Nodes')}</div>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-pink-500/10 flex items-center justify-center">
-                  <Users className="w-5 h-5 text-pink-400" />
+              <div className="flex items-center gap-3 group cursor-default">
+                <div className="w-10 h-10 rounded-xl bg-pink-500/10 flex items-center justify-center group-hover:bg-pink-500/20 transition-colors">
+                  <Users className="w-5 h-5 text-pink-400 group-hover:scale-110 transition-transform" />
                 </div>
                 <div className="text-left">
                   <div className="text-xl font-bold">1K+</div>
                   <div className="text-xs text-muted-foreground">{t('stats.connections', 'Active Connections')}</div>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center">
-                  <Zap className="w-5 h-5 text-orange-400" />
+              <div className="flex items-center gap-3 group cursor-default">
+                <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center group-hover:bg-orange-500/20 transition-colors">
+                  <Zap className="w-5 h-5 text-orange-400 group-hover:scale-110 transition-transform" />
                 </div>
                 <div className="text-left">
                   <div className="text-xl font-bold">10K+</div>
@@ -122,7 +139,7 @@ export function ExplorePage() {
             </p>
           </div>
           {data && (
-            <span className="text-sm text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-lg">
+            <span className="text-sm text-muted-foreground bg-muted/50 px-3 py-1.5 rounded-lg hover:bg-muted transition-colors">
               {t('explore.total', { count: data.total, defaultValue: '{{count}} Claws' })}
             </span>
           )}
@@ -131,7 +148,7 @@ export function ExplorePage() {
         {isLoading && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
-              <div key={i} className="h-56 rounded-2xl bg-gradient-to-br from-muted/50 to-muted/30 animate-pulse" />
+              <div key={i} className="h-56 rounded-2xl skeleton-shimmer" />
             ))}
           </div>
         )}
@@ -161,7 +178,7 @@ export function ExplorePage() {
         )}
 
         {data && data.items && data.items.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 stagger-children">
             {data.items.map((agent) => (
               <AgentCard key={agent.id} agent={agent} />
             ))}

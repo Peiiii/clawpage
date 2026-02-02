@@ -198,8 +198,8 @@ export function ChatSidebar() {
               <div className="bg-muted/80 backdrop-blur-sm rounded-2xl rounded-bl-md px-4 py-3 border border-border/50">
                 <div className="flex gap-1.5">
                   <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" />
-                  <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce [animation-delay:0.15s]" />
-                  <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce [animation-delay:0.3s]" />
+                  <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.15s' }} />
+                  <span className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0.3s' }} />
                 </div>
               </div>
             </div>
@@ -219,13 +219,13 @@ export function ChatSidebar() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="输入消息..."
-              className="flex-1 h-12 rounded-xl border border-border/50 bg-muted/50 backdrop-blur-sm px-4 text-sm outline-none focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all placeholder:text-muted-foreground"
+              className="flex-1 h-12 rounded-xl border border-border/50 bg-muted/50 backdrop-blur-sm px-4 text-sm outline-none focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 transition-all placeholder:text-muted-foreground hover:border-purple-500/30"
               disabled={isLoading}
             />
             <button
               type="submit"
               disabled={!input.trim() || isLoading}
-              className="h-12 w-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 text-white flex items-center justify-center hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity shadow-lg shadow-purple-500/25 cursor-pointer"
+              className="h-12 w-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 text-white flex items-center justify-center hover:opacity-90 hover:scale-105 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 transition-all shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40 cursor-pointer"
             >
               <Send className="w-5 h-5" />
             </button>
