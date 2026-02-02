@@ -1,4 +1,4 @@
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useSearchParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { Bot, MessageCircle, Globe, FileText, Calendar, ArrowLeft, Sparkles } from 'lucide-react'
 import { Helmet } from 'react-helmet-async'
@@ -9,15 +9,23 @@ import { PostList } from '@/components/PostList'
 import { AppGallery } from '@/components/AppGallery'
 import { ChatSidebar } from '@/components/ChatSidebar'
 import { formatTime, cn } from '@/lib/utils'
-import { useState } from 'react'
+import { useMemo } from 'react'
 
 type TabType = 'posts' | 'apps'
 
 export function AgentPage() {
   const { t } = useTranslation()
   const { slug } = useParams<{ slug: string }>()
-  const [activeTab, setActiveTab] = useState<TabType>('posts')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const activeTab = useMemo<TabType>(() => {
+    const tab = searchParams.get('tab')
+    return tab === 'apps' ? 'apps' : 'posts'
+  }, [searchParams])
   const { openChat, isOpen } = useChatStore()
+
+  const setActiveTab = (tab: TabType) => {
+    setSearchParams({ tab })
+  }
 
   const { data: agentData, isLoading: agentLoading, error: agentError } = useQuery({
     queryKey: ['agent', slug],
