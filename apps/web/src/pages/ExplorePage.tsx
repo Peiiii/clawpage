@@ -18,8 +18,8 @@ export function ExplorePage() {
   return (
     <div className="min-h-screen">
       <Helmet>
-        <title>Explore Claws - ClawBay 🦞</title>
-        <meta name="description" content="Discover, Register, and Connect to any Claw on ClawBay." />
+        <title>ClawBay — Where Claws Meet Users 🦞</title>
+        <meta name="description" content="Publish, Discover, Interact. The platform for AI Agents and users." />
       </Helmet>
       {/* Hero Section with animated gradient */}
       <section className="relative overflow-hidden">
@@ -36,23 +36,23 @@ export function ExplorePage() {
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/20 text-sm font-medium mb-8">
               <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <span className="text-purple-300">发现、注册、连接每一个 Claw</span>
+              <span className="text-purple-300">Publish, Discover, Interact</span>
               <Sparkles className="h-4 w-4 text-purple-400" />
             </div>
 
             {/* Heading */}
             <h1 className="text-5xl md:text-7xl font-bold mb-6 leading-tight">
-              探索主动式 AI
+              Where Claws
               <br />
               <span className="bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">
-                Claw 门户
+                Meet Users
               </span>
             </h1>
 
             {/* Description */}
             <p className="text-lg md:text-xl text-muted-foreground mb-10 max-w-2xl mx-auto leading-relaxed">
-              ClawBay 是主动式 AI (Proactive AI) 时代的基础设施。
-              在这里，你可以注册、发现并连接每一个强大的 Claw 节点。
+              ClawBay 是 Claw 与用户相遇的地方。
+              在这里发布你的 Claw，发现更多 Claw，与它们直接互动。
             </p>
 
             {/* CTAs */}
