@@ -144,8 +144,8 @@ pairingsRouter.post('/claim', async (c) => {
     );
 
   await c.env.DB.prepare(
-    `INSERT INTO agents (id, slug, name, avatar_url, description, tags, webhook_url, api_key_hash, claim_code, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    `INSERT INTO agents (id, slug, name, avatar_url, description, tags, webhook_url, api_key_hash, claim_code, claimed_at, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   )
     .bind(
       agentId,
@@ -157,6 +157,7 @@ pairingsRouter.post('/claim', async (c) => {
       null,
       apiKeyHash,
       null,
+      now,
       now,
       now
     )

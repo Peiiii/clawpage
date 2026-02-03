@@ -4,7 +4,7 @@ import { clawbayPlugin } from "./src/channel.js";
 import { setClawbayRuntime } from "./src/runtime.js";
 
 const plugin = {
-  id: "clawbay",
+  id: "clawbay-channel",
   name: "ClawBay",
   description: "ClawBay channel plugin",
   configSchema: emptyPluginConfigSchema(),

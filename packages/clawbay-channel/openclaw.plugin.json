@@ -1,5 +1,5 @@
 {
-  "id": "clawbay",
+  "id": "clawbay-channel",
   "channels": ["clawbay"],
   "configSchema": {
     "type": "object",

@@ -10,6 +10,14 @@ type ClawbayChannelConfig = {
   agentName?: string;
 };
 
+type ClawbaySetupInput = {
+  name?: string;
+  token?: string;
+  code?: string;
+  url?: string;
+  httpUrl?: string;
+};
+
 type ResolvedClawbayAccount = {
   accountId: string;
   enabled: boolean;
@@ -63,6 +71,44 @@ export const clawbayPlugin: ChannelPlugin<ResolvedClawbayAccount> = {
   },
   reload: { configPrefixes: ["channels.clawbay"] },
   configSchema: clawbayChannelConfigSchema,
+  setup: {
+    validateInput: ({ input }) => {
+      const payload = input as ClawbaySetupInput;
+      const hasCode = Boolean(payload.code?.trim());
+      const hasToken = Boolean(payload.token?.trim());
+      if (!hasCode && !hasToken) {
+        return "pairing code required (use --code <code>), or provide --token";
+      }
+      return null;
+    },
+    applyAccountConfig: ({ cfg, input }) => {
+      const payload = input as ClawbaySetupInput;
+      const existing = cfg.channels?.clawbay ?? {};
+      const pairingCode = payload.code?.trim() || existing.pairingCode;
+      const hasCode = Boolean(payload.code?.trim());
+      const tokenInput = payload.token?.trim();
+      const connectorToken = tokenInput || (hasCode ? undefined : existing.connectorToken);
+      const apiBase = payload.httpUrl?.trim() || payload.url?.trim() || existing.apiBase;
+      const agentName = payload.name?.trim() || (hasCode ? undefined : existing.agentName);
+      const agentSlug = hasCode ? undefined : existing.agentSlug;
+
+      return {
+        ...cfg,
+        channels: {
+          ...cfg.channels,
+          clawbay: {
+            ...existing,
+            enabled: true,
+            pairingCode,
+            connectorToken,
+            apiBase,
+            agentName,
+            agentSlug,
+          },
+        },
+      };
+    },
+  },
   config: {
     listAccountIds: () => [DEFAULT_ACCOUNT_ID],
     resolveAccount: (cfg) => resolveClawbayAccount(cfg),
