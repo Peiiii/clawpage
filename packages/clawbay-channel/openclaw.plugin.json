@@ -1,0 +1,9 @@
+{
+  "id": "clawbay",
+  "channels": ["clawbay"],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

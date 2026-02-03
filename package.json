@@ -11,13 +11,19 @@
     "build:web": "pnpm --filter @clawpage/web build",
     "build:api": "pnpm --filter @clawpage/api build",
     "lint": "pnpm -r lint",
+    "typecheck": "tsc -p apps/web/tsconfig.json --noEmit && tsc -p workers/api/tsconfig.json --noEmit && tsc -p packages/shared/tsconfig.json --noEmit",
     "test": "pnpm -r test",
+    "changeset": "changeset",
+    "release:check": "pnpm build && pnpm lint && pnpm typecheck",
+    "release:version": "pnpm changeset version",
+    "release:publish": "pnpm release:check && pnpm changeset publish && pnpm changeset tag",
     "clean": "pnpm -r clean && rm -rf node_modules",
     "deploy:pages": "pnpm build:web && npx wrangler pages deploy apps/web/dist --project-name=clawpage",
     "deploy:workers": "cd workers/api && npx wrangler deploy",
     "deploy:all": "pnpm deploy:pages && pnpm deploy:workers"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.29.8",
     "typescript": "^5.7.0"
   },
   "packageManager": "pnpm@9.15.0",

@@ -1,15 +1,16 @@
 import { useState, useEffect, useRef } from 'react'
 import { Send, Bot, User, Sparkles } from 'lucide-react'
 import { useChatStore } from '@/store'
-import { fetchMessages, sendMessage } from '@/lib/api'
+import { fetchMessages } from '@/lib/api'
 import { generateSessionId, cn } from '@/lib/utils'
-import type { Message } from '@clawpage/shared'
+import { useChatStream } from '@/hooks/useChatStream'
 
 export function ChatPanel() {
-  const { currentAgent, messages, setMessages, addMessage, isLoading, setLoading } = useChatStore()
+  const { currentAgent, messages, setMessages, isLoading } = useChatStore()
   const [input, setInput] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const sessionId = generateSessionId()
+  const { sendMessage } = useChatStream(sessionId)
 
   // Load messages when agent changes
   useEffect(() => {
@@ -31,70 +32,10 @@ export function ChatPanel() {
 
     const content = input.trim()
     setInput('')
-    setLoading(true)
-
-    // Optimistic update
-    const tempMessage: Message = {
-      id: crypto.randomUUID(),
-      agentId: currentAgent.id,
-      sessionId,
-      role: 'user',
-      content,
-      status: 'sent',
-      createdAt: Date.now(),
-    }
-    addMessage(tempMessage)
-
     try {
-      const response = await sendMessage(currentAgent.slug, sessionId, content)
-      
-      if (response.success) {
-        let attempts = 0
-        const pollInterval = setInterval(async () => {
-          attempts++
-          if (attempts > 10) {
-            clearInterval(pollInterval)
-            addMockAgentResponse()
-            setLoading(false)
-            return
-          }
-          
-          const data = await fetchMessages(currentAgent.slug, sessionId)
-          const latestMessages = data.items
-          if (latestMessages.length > messages.length + 1) {
-            setMessages(latestMessages)
-            clearInterval(pollInterval)
-            setLoading(false)
-          }
-        }, 1000)
-      }
+      await sendMessage(content)
     } catch {
-      addMockAgentResponse()
-    }
-    
-    function addMockAgentResponse() {
-      setTimeout(() => {
-        const mockResponses = [
-          `你好！我是 ${currentAgent?.name}，很高兴收到你的消息。有什么我可以帮助你的吗？`,
-          `感谢你的问题！让我来帮你解答...`,
-          `这是一个很好的想法！我来详细说明一下...`,
-          `我理解你的意思了。根据我的分析...`,
-          `收到！让我来处理这个请求...`,
-        ]
-        const randomResponse = mockResponses[Math.floor(Math.random() * mockResponses.length)]
-        
-        const agentMessage: Message = {
-          id: crypto.randomUUID(),
-          agentId: currentAgent?.id || '',
-          sessionId,
-          role: 'agent',
-          content: randomResponse,
-          status: 'sent',
-          createdAt: Date.now(),
-        }
-        addMessage(agentMessage)
-        setLoading(false)
-      }, 1000 + Math.random() * 1000)
+      // Ignore and let UI handle failed state
     }
   }
 

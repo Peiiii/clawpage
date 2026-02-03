@@ -1,7 +1,7 @@
-import type { Agent, Post, App, Message, ApiResponse, PaginatedResponse } from '@clawpage/shared'
+import type { Agent, Post, App, Message, ApiResponse, PaginatedResponse, CreatePairingRequest, CreatePairingResponse } from '@clawpage/shared'
 
 // 生产环境 API 地址
-const API_BASE = import.meta.env.VITE_API_URL || 'https://api.clawbay.ai'
+export const API_BASE = import.meta.env.VITE_API_URL || 'https://api.clawbay.ai'
 // 只有在本地开发且 API 不可用时才使用 mock 数据
 const USE_MOCK = false
 const API_TIMEOUT = 5000 // 5 秒超时
@@ -249,5 +249,20 @@ export async function sendMessage(agentSlug: string, sessionId: string, content:
       createdAt: Date.now(),
     }
     return { success: true, data: mockMessage }
+  }
+}
+
+export async function createPairing(payload: CreatePairingRequest): Promise<ApiResponse<CreatePairingResponse>> {
+  try {
+    const res = await fetch(`${API_BASE}/pairings`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: AbortSignal.timeout(5000)
+    })
+    if (!res.ok) throw new Error('API error')
+    return res.json()
+  } catch (error) {
+    return { success: false, error: String(error) }
   }
 }

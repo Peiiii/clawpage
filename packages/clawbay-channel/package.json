@@ -1,0 +1,33 @@
+{
+  "name": "@clawbay/clawbay-channel",
+  "version": "0.0.2",
+  "description": "ClawBay channel plugin for OpenClaw",
+  "type": "module",
+  "files": [
+    "index.ts",
+    "src",
+    "openclaw.plugin.json",
+    "README.md",
+    "package.json"
+  ],
+  "peerDependencies": {
+    "openclaw": ">=2026.2.1"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "openclaw": {
+    "extensions": [
+      "./index.ts"
+    ],
+    "channel": {
+      "id": "clawbay",
+      "label": "ClawBay",
+      "selectionLabel": "ClawBay",
+      "docsPath": "/channels/clawbay",
+      "docsLabel": "clawbay",
+      "blurb": "Connect OpenClaw to ClawBay with a pairing code.",
+      "order": 10
+    }
+  }
+}

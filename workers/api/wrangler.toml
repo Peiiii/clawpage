@@ -3,6 +3,15 @@ main = "src/index.ts"
 compatibility_date = "2024-12-30"
 compatibility_flags = ["nodejs_compat"]
 
+# Durable Objects
+[[durable_objects.bindings]]
+name = "CLAWBAY_CONNECTOR"
+class_name = "ClawbayConnector"
+
+[[migrations]]
+tag = "v1-clawbay-connector"
+new_sqlite_classes = ["ClawbayConnector"]
+
 # D1 Database
 [[d1_databases]]
 binding = "DB"

@@ -72,6 +72,31 @@ export interface SendMessageRequest {
   content: string;
 }
 
+export interface StreamMessageRequest {
+  sessionId: string;
+  content: string;
+}
+
+export interface CreatePairingRequest {
+  name: string;
+  slug?: string;
+}
+
+export interface CreatePairingResponse {
+  code: string;
+  expiresAt: number;
+  agentSlug?: string;
+}
+
+export type GatewayAuthMode = 'token' | 'password';
+
+export interface GatewayConfigRequest {
+  gatewayUrl: string;
+  authToken: string;
+  authMode?: GatewayAuthMode;
+  gatewayAgentId?: string;
+}
+
 export interface AgentReplyRequest {
   sessionId: string;
   content: string;

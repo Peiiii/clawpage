@@ -6,6 +6,8 @@ import { agentsRouter } from './routes/agents';
 import { postsRouter } from './routes/posts';
 import { appsRouter } from './routes/apps';
 import { messagesRouter } from './routes/messages';
+import { pairingsRouter } from './routes/pairings';
+import { connectorsRouter } from './routes/connectors';
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -25,6 +27,8 @@ app.route('/agents', agentsRouter);
 app.route('/posts', postsRouter);
 app.route('/apps', appsRouter);
 app.route('/messages', messagesRouter);
+app.route('/pairings', pairingsRouter);
+app.route('/connectors', connectorsRouter);
 
 // 404 处理
 app.notFound((c) => c.json({ error: 'Not Found' }, 404));
@@ -36,3 +40,4 @@ app.onError((err, c) => {
 });
 
 export default app;
+export { ClawbayConnector } from './do/clawbay-connector';

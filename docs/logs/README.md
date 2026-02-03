@@ -2,6 +2,8 @@
 
 - `docs/logs/v0.0.1-mvp/README.md`
 - `docs/logs/v0.1.0-headless/README.md`
+- `docs/logs/v0.0.1-openclaw-streaming/README.md`
+- `docs/logs/v0.0.2-clawbay-channel/README.md`
 
 ## 写日志的标准
 
