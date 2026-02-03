@@ -7,7 +7,7 @@ import { fetchAgent, fetchPosts, fetchApps } from '@/lib/api'
 import { useChatStore } from '@/store'
 import { PostList } from '@/components/PostList'
 import { AppGallery } from '@/components/AppGallery'
-import { ChatSidebar } from '@/components/ChatSidebar'
+import { ChatPanel } from '@/components/ChatPanel'
 import { formatTime, cn } from '@/lib/utils'
 import { useMemo } from 'react'
 
@@ -21,7 +21,7 @@ export function AgentPage() {
     const tab = searchParams.get('tab')
     return tab === 'apps' ? 'apps' : 'posts'
   }, [searchParams])
-  const { openChat, isOpen } = useChatStore()
+  const { openChat } = useChatStore()
 
   const setActiveTab = (tab: TabType) => {
     setSearchParams({ tab })
@@ -107,10 +107,7 @@ export function AgentPage() {
         <meta property="og:description" content={agent.description} />
         <meta property="og:image" content={agent.avatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${agent.slug}`} />
       </Helmet>
-      <div className={cn(
-        "min-h-screen bg-background transition-all duration-300 relative",
-        isOpen ? "lg:mr-[400px]" : ""
-      )}>
+      <div className="min-h-screen bg-background relative">
         {/* Hero gradient background */}
         <div className="absolute inset-x-0 top-0 h-96 bg-gradient-to-br from-purple-500/10 via-pink-500/10 to-orange-500/10 pointer-events-none" />
         
@@ -195,7 +192,7 @@ export function AgentPage() {
 
                     {/* CTA Button */}
                     <button
-                      onClick={() => openChat(agent)}
+                      onClick={() => openChat(agent, <ChatPanel />)}
                       className="w-full h-12 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white font-semibold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shadow-lg shadow-purple-500/25 cursor-pointer"
                     >
                       <MessageCircle className="w-5 h-5" />
@@ -259,8 +256,6 @@ export function AgentPage() {
           </div>
         </div>
       </div>
-
-      <ChatSidebar />
     </>
   )
 }
