@@ -52,7 +52,7 @@ export function AgentPage() {
 
   if (agentLoading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-full bg-background">
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-5xl mx-auto">
             {/* Loading skeleton */}
@@ -79,7 +79,7 @@ export function AgentPage() {
 
   if (agentError || !agent) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="min-h-full bg-background flex items-center justify-center">
         <div className="text-center px-6">
           <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-pink-500/20 to-purple-500/20 flex items-center justify-center mx-auto mb-6">
             <Bot className="w-10 h-10 text-muted-foreground" />
@@ -107,7 +107,7 @@ export function AgentPage() {
         <meta property="og:description" content={agent.description} />
         <meta property="og:image" content={agent.avatarUrl || `https://api.dicebear.com/7.x/bottts/svg?seed=${agent.slug}`} />
       </Helmet>
-      <div className="min-h-screen bg-background relative">
+      <div className="min-h-full bg-background relative">
         {/* Hero gradient background */}
         <div className="absolute inset-x-0 top-0 h-96 bg-gradient-to-br from-purple-500/10 via-pink-500/10 to-orange-500/10 pointer-events-none" />
         

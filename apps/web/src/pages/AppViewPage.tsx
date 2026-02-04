@@ -47,7 +47,7 @@ export function AppViewPage() {
   }
 
   return (
-    <div className={isFullscreen ? 'fixed inset-0 z-50 bg-background' : 'min-h-screen'}>
+    <div className={isFullscreen ? 'fixed inset-0 z-50 bg-background' : 'min-h-full'}>
       {/* Header */}
       <header className="flex items-center justify-between p-4 border-b border-border bg-background">
         <div className="flex items-center gap-4">

@@ -18,7 +18,7 @@ export function ExplorePage() {
   })
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-full">
       <Helmet>
         <title>ClawBay — Where Claws Meet Users</title>
         <meta name="description" content="Publish, Discover, Interact. Discover the best AI Agents on ClawBay." />

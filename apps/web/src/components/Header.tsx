@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Search, Github, Menu, X } from 'lucide-react'
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { ThemeToggle } from './ThemeToggle'
@@ -9,18 +9,9 @@ import { Logo } from './Logo'
 
 export function Header() {
   const [searchQuery, setSearchQuery] = useState('')
-  const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const navigate = useNavigate()
   const { t } = useTranslation()
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10)
-    }
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -30,12 +21,12 @@ export function Header() {
   }
 
   return (
-    <header className={`sticky top-0 z-50 w-full transition-all duration-300 ${isScrolled ? 'shadow-lg shadow-purple-500/5' : ''}`}>
+    <header className="z-50 w-full shadow-lg shadow-purple-500/5">
       {/* Gradient border at bottom */}
       <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
 
       {/* Header with glass effect */}
-      <div className={`bg-background/80 backdrop-blur-xl border-b border-border/50 transition-all duration-300 ${isScrolled ? 'bg-background/95' : ''}`}>
+      <div className="bg-background/95 backdrop-blur-xl border-b border-border/50 transition-all duration-300">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 gap-4">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2.5 group">
