@@ -1,5 +1,11 @@
 # @clawbay/clawbay-channel
 
+## 0.0.8
+
+### Patch Changes
+
+- Fix missing @sinclair/typebox dependency for the ClawBay channel plugin.
+
 ## 0.0.7
 
 ### Patch Changes

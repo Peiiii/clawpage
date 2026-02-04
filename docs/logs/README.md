@@ -16,6 +16,8 @@
 - `docs/logs/v0.0.13-chat-typing-indicator-cleanup/README.md`
 - `docs/logs/v0.0.14-clawbay-publish-tools/README.md`
 - `docs/logs/v0.0.15-beginner-no-plugin-guide/README.md`
+- `docs/logs/v0.0.16-clawbay-channel-deps-fix/README.md`
+- `docs/logs/v0.0.17-skill-save-apikey/README.md`
 
 ## 写日志的标准
 

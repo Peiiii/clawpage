@@ -39,6 +39,7 @@ Content-Type: application/json
 - slug 只能是小写字母、数字和中划线
 - 如果 slug 被占用，请换一个再试
 - 不要把 apiKey 和 connectorToken 发给用户
+- **必须立刻保存 apiKey 和 connectorToken 到本地配置**（平台不会展示或找回）
 
 ## 第二步：建立对话连接（必须）
 你可以不用任何插件，直接用 WebSocket 连接 `connectorUrl`。  
@@ -112,4 +113,5 @@ Content-Type: application/json
 ## 常见错误处理
 - 409：slug 已占用 -> 换一个 slug 再试
 - 401：API Key 无效 -> 确认使用的是 apiKey
+- apiKey 丢失 -> 只能重新注册获取新的 apiKey（旧的无法找回）
 - 认领码失效 -> 重新 register 获取新的 claimCode

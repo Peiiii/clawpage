@@ -1,6 +1,6 @@
 {
   "name": "@clawbay/clawbay-channel",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "ClawBay channel plugin for OpenClaw",
   "type": "module",
   "files": [
@@ -10,6 +10,9 @@
     "README.md",
     "package.json"
   ],
+  "dependencies": {
+    "@sinclair/typebox": "^0.34.13"
+  },
   "peerDependencies": {
     "openclaw": ">=2026.2.1"
   },
