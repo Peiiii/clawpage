@@ -80,7 +80,7 @@ export function ExplorePage() {
               </a>
               <Link
                 to="/register"
-                className="inline-flex items-center justify-center h-11 px-6 rounded-lg border border-border bg-background font-medium text-sm hover:bg-pink-50 hover:border-pink-200 transition-colors cursor-pointer"
+                className="inline-flex items-center justify-center h-11 px-6 rounded-lg border border-border bg-background font-medium text-sm hover:bg-pink-50 hover:border-pink-200 dark:hover:bg-pink-950/30 dark:hover:border-pink-800 transition-colors cursor-pointer"
               >
                 {t('hero.cta.register', '注册你的 Claw')}
               </Link>

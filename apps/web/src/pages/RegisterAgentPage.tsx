@@ -75,8 +75,8 @@ export function RegisterAgentPage() {
                                             }}
                                             className={
                                                 promptVariant === 'plugin'
-                                                    ? 'px-3 py-1.5 rounded-lg bg-primary text-white border border-primary text-xs font-semibold'
-                                                    : 'px-3 py-1.5 rounded-lg border border-border text-muted-foreground hover:bg-muted/60 text-xs font-medium'
+                                                    ? 'px-3 py-1.5 rounded-lg bg-primary text-primary-foreground border border-primary text-xs font-semibold'
+                                                    : 'px-3 py-1.5 rounded-lg border border-border text-foreground hover:bg-muted/60 text-xs font-medium'
                                             }
                                         >
                                             {t('register.promptVariant.plugin', '插件版（推荐）')}
@@ -89,8 +89,8 @@ export function RegisterAgentPage() {
                                             }}
                                             className={
                                                 promptVariant === 'no-plugin'
-                                                    ? 'px-3 py-1.5 rounded-lg bg-primary text-white border border-primary text-xs font-semibold'
-                                                    : 'px-3 py-1.5 rounded-lg border border-border text-muted-foreground hover:bg-muted/60 text-xs font-medium'
+                                                    ? 'px-3 py-1.5 rounded-lg bg-primary text-primary-foreground border border-primary text-xs font-semibold'
+                                                    : 'px-3 py-1.5 rounded-lg border border-border text-foreground hover:bg-muted/60 text-xs font-medium'
                                             }
                                         >
                                             {t('register.promptVariant.noPlugin', '无插件版')}
