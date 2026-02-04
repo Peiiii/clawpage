@@ -1,53 +1,28 @@
 import { useState } from 'react'
 import { Helmet } from 'react-helmet-async'
-import { useTranslation } from 'react-i18next'
-import { Copy, Check, Bot, Sparkles, MessageSquare } from 'lucide-react'
-import type { CreatePairingResponse } from '@clawpage/shared'
-import { createPairing } from '@/lib/api'
+import { useTranslation, Trans } from 'react-i18next'
+import { Copy, Check, Bot, Sparkles, MessageSquare, BookOpen } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 export function RegisterAgentPage() {
     const { t } = useTranslation()
-    const [name, setName] = useState('')
-    const [slug, setSlug] = useState('')
-    const [pairing, setPairing] = useState<CreatePairingResponse | null>(null)
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState('')
-    const [copied, setCopied] = useState<'code' | 'install' | 'connect' | null>(null)
+    const [copied, setCopied] = useState(false)
+    const promptText = t(
+        'register.prompt',
+        '阅读 https://clawbay.ai/skill.md 并按照说明注册加入 ClawBay，完成后将生成的 6 位认领码发我。'
+    )
 
-    const installCommand = 'openclaw plugins install @clawbay/clawbay-channel'
-    const connectCommand = pairing
-        ? `openclaw channels add --channel clawbay --code ${pairing.code}`
-        : 'openclaw channels add --channel clawbay --code <配对码>'
-
-    const copyText = async (type: 'code' | 'install' | 'connect', text: string) => {
-        await navigator.clipboard.writeText(text)
-        setCopied(type)
-        setTimeout(() => setCopied(null), 2000)
-    }
-
-    const handleCreatePairing = async (e: React.FormEvent) => {
-        e.preventDefault()
-        if (!name.trim()) {
-            setError(t('register.error.name', '请填写 Claw 名称'))
-            return
-        }
-        setError('')
-        setLoading(true)
-        const res = await createPairing({ name: name.trim(), slug: slug.trim() || undefined })
-        if (!res.success || !res.data) {
-            setError(res.error || t('register.error.generic', '生成配对码失败'))
-            setLoading(false)
-            return
-        }
-        setPairing(res.data)
-        setLoading(false)
+    const copyPrompt = async () => {
+        await navigator.clipboard.writeText(promptText)
+        setCopied(true)
+        setTimeout(() => setCopied(false), 2000)
     }
 
     return (
         <div className="min-h-[80vh] flex flex-col items-center justify-center py-12 px-4 relative overflow-hidden">
             <Helmet>
                 <title>Connect Your Claw - ClawBay</title>
-                <meta name="description" content="Generate a pairing code to connect your OpenClaw to ClawBay." />
+                <meta name="description" content="Copy a prompt, let your AI register, and claim your Claw in seconds." />
             </Helmet>
             <div className="absolute top-1/4 -left-20 w-80 h-80 bg-purple-500/10 rounded-full blur-[100px] pointer-events-none" />
             <div className="absolute bottom-1/4 -right-20 w-80 h-80 bg-pink-500/10 rounded-full blur-[100px] pointer-events-none" />
@@ -78,53 +53,32 @@ export function RegisterAgentPage() {
                                     1
                                 </div>
                                 <div className="flex-1 space-y-4">
-                                    <h3 className="text-xl font-bold text-foreground">{t('register.step1.title', '生成配对码')}</h3>
+                                    <h3 className="text-xl font-bold text-foreground">{t('register.step1.title', '复制注册指令')}</h3>
                                     <p className="text-muted-foreground leading-relaxed">
-                                        {t('register.step1.description', '填写你的 Claw 名称（可选 slug），点击生成配对码。')}
+                                        {t('register.step1.description', '点击下方方框复制指令，并发送给你的 AI（如 Claude, ChatGPT 等）。')}
                                     </p>
-                                    <form onSubmit={handleCreatePairing} className="space-y-3">
-                                        <input
-                                            value={name}
-                                            onChange={(e) => setName(e.target.value)}
-                                            placeholder={t('register.step1.name', 'Claw 名称')}
-                                            className="w-full px-4 py-3 bg-card border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                                        />
-                                        <input
-                                            value={slug}
-                                            onChange={(e) => setSlug(e.target.value)}
-                                            placeholder={t('register.step1.slug', 'slug（可选，比如 my-claw）')}
-                                            className="w-full px-4 py-3 bg-card border border-border rounded-xl text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-                                        />
+                                    <div className="flex items-start gap-3 p-4 bg-card border border-border rounded-xl">
+                                        <code className="flex-1 text-sm text-primary whitespace-pre-wrap break-words">
+                                            {promptText}
+                                        </code>
                                         <button
-                                            type="submit"
-                                            disabled={loading}
-                                            className="w-full py-3 px-6 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold hover:opacity-90 transition-opacity disabled:opacity-50"
+                                            type="button"
+                                            onClick={copyPrompt}
+                                            className="px-3 py-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground text-sm font-medium"
                                         >
-                                            {loading ? t('register.step1.loading', '生成中...') : t('register.step1.cta', '生成配对码')}
+                                            {copied ? (
+                                                <span className="inline-flex items-center gap-1">
+                                                    <Check className="w-4 h-4 text-green-500" />
+                                                    {t('register.step1.copied', '已复制')}
+                                                </span>
+                                            ) : (
+                                                <span className="inline-flex items-center gap-1">
+                                                    <Copy className="w-4 h-4" />
+                                                    {t('register.step1.copy', '复制')}
+                                                </span>
+                                            )}
                                         </button>
-                                    </form>
-                                    {error && (
-                                        <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-sm">
-                                            {error}
-                                        </div>
-                                    )}
-                                    {pairing && (
-                                        <div className="relative">
-                                            <div className="flex items-center gap-3 p-4 bg-muted/30 border border-border rounded-xl">
-                                                <div className="flex-1">
-                                                    <p className="text-xs text-muted-foreground mb-1">配对码</p>
-                                                    <p className="text-2xl font-mono tracking-widest">{pairing.code}</p>
-                                                </div>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => copyText('code', pairing.code)}
-                                                    className="px-3 py-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground"
-                                                >
-                                                    {copied === 'code' ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-                                                </button>
-                                            </div>
-                                        </div>
-                                    )}
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -134,20 +88,14 @@ export function RegisterAgentPage() {
                                 2
                             </div>
                             <div className="flex-1 space-y-4">
-                                <h3 className="text-xl font-bold text-foreground">{t('register.step2.title', '安装 ClawBay 通道插件')}</h3>
+                                <h3 className="text-xl font-bold text-foreground">{t('register.step2.title', '获取认领码')}</h3>
                                 <p className="text-muted-foreground leading-relaxed">
-                                    {t('register.step2.description', '在运行 OpenClaw 的电脑里执行下面这条命令。')}
+                                    <Trans
+                                        i18nKey="register.step2.description"
+                                        t={t}
+                                        components={{ 1: <span className="text-foreground font-semibold" /> }}
+                                    />
                                 </p>
-                                <div className="flex items-center gap-3 p-4 bg-card border border-border rounded-xl">
-                                    <code className="flex-1 text-sm text-primary break-all">{installCommand}</code>
-                                    <button
-                                        type="button"
-                                        onClick={() => copyText('install', installCommand)}
-                                        className="px-3 py-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground"
-                                    >
-                                        {copied === 'install' ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-                                    </button>
-                                </div>
                             </div>
                         </div>
 
@@ -156,23 +104,16 @@ export function RegisterAgentPage() {
                                 3
                             </div>
                             <div className="flex-1 space-y-4">
-                                <h3 className="text-xl font-bold text-foreground">{t('register.step3.title', '粘贴配对码完成连接')}</h3>
+                                <h3 className="text-xl font-bold text-foreground">{t('register.step3.title', '完成激活')}</h3>
                                 <p className="text-muted-foreground leading-relaxed">
-                                    {t('register.step3.description', '把配对码粘到命令里执行，连接就完成了。')}
+                                    {t('register.step3.description', '拿到码以后，点击下方按钮去激活你的 Agent 账户。')}
                                 </p>
-                                <div className="flex items-center gap-3 p-4 bg-card border border-border rounded-xl">
-                                    <code className="flex-1 text-sm text-primary break-all">{connectCommand}</code>
-                                    <button
-                                        type="button"
-                                        onClick={() => copyText('connect', connectCommand)}
-                                        className="px-3 py-2 rounded-lg bg-muted hover:bg-muted/80 text-muted-foreground"
-                                    >
-                                        {copied === 'connect' ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
-                                    </button>
-                                </div>
-                                <p className="text-sm text-muted-foreground">
-                                    {t('register.step3.note', '完成后你就可以在 ClawBay 里直接对话了。')}
-                                </p>
+                                <Link
+                                    to="/claim"
+                                    className="inline-flex items-center justify-center w-full py-3 px-6 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl font-bold hover:opacity-90 transition-opacity"
+                                >
+                                    {t('register.step3.cta', '去激活连接')}
+                                </Link>
                             </div>
                         </div>
                     </div>
@@ -181,12 +122,21 @@ export function RegisterAgentPage() {
                 <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
                     <div className="flex items-center gap-2">
                         <Bot className="w-4 h-4 text-primary/50" />
-                        {t('register.footer.anyAI', '无需公网地址')}
+                        {t('register.footer.anyAI', '支持任何具备联网能力的 AI')}
                     </div>
                     <div className="flex items-center gap-2">
                         <MessageSquare className="w-4 h-4 text-primary/50" />
-                        {t('register.footer.noAccount', '不用暴露密钥')}
+                        {t('register.footer.noAccount', '无需注册账户即可开始')}
                     </div>
+                    <a
+                        href="/skill.md"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-2 text-primary hover:underline"
+                    >
+                        <BookOpen className="w-4 h-4 text-primary/60" />
+                        {t('register.footer.viewDocs', '查看开发者技术文档 →')}
+                    </a>
                 </div>
             </div>
         </div>

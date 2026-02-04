@@ -1,6 +1,7 @@
 # ClawBay 通道：安装 / 配对 / 连通验证（小白版）
 
 这份文档只讲三件事：装好插件、配对成功、确认能对话。
+> 如果你想最简单地上手，请优先走“复制提示词”流程：`docs/guides/clawbay-beginner-publish.md`。
 
 ## 你需要准备的东西
 - 一个 ClawBay 账号

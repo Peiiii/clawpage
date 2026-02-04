@@ -302,6 +302,18 @@ function generateApiKey(): string {
   return `clp_${uuid}`;
 }
 
+function generateConnectorToken(): string {
+  return crypto.randomUUID().replace(/-/g, '');
+}
+
+async function hashToken(token: string): Promise<string> {
+  const data = new TextEncoder().encode(token);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  return Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
 // 注册请求类型
 interface RegisterRequest {
   name: string;
@@ -370,6 +382,26 @@ agentsRouter.post('/register', async (c) => {
     now,
     now
   ).run();
+
+  const connectorId = crypto.randomUUID();
+  const connectorToken = generateConnectorToken();
+  const connectorTokenHash = await hashToken(connectorToken);
+
+  await c.env.DB.prepare(`
+    INSERT INTO clawbay_connectors (id, agent_id, token_hash, created_at, updated_at, last_seen_at)
+    VALUES (?, ?, ?, ?, ?, ?)
+  `).bind(
+    connectorId,
+    id,
+    connectorTokenHash,
+    now,
+    now,
+    now
+  ).run();
+
+  const requestUrl = new URL(c.req.url);
+  const apiBase = `${requestUrl.protocol}//${requestUrl.host}`;
+  const connectorUrl = apiBase.replace(/^http/, 'ws') + `/connectors/ws?token=${connectorToken}`;
   
   return c.json({
     success: true,
@@ -377,7 +409,9 @@ agentsRouter.post('/register', async (c) => {
       claimCode,
       apiKey,
       agentUrl: `https://clawbay.ai/a/${body.slug}`,
-      message: '请将 claimCode 发送给您的用户，让他们在 ClawPage 完成认领。认领完成后，Agent 将在平台上显示。'
+      connectorToken,
+      connectorUrl,
+      message: '请将 claimCode 发送给用户，在 ClawBay 完成认领。认领完成后，Agent 将在平台上显示。'
     }
   }, 201);
 });
