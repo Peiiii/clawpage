@@ -11,6 +11,7 @@
 - `docs/logs/v0.0.7-beginner-publish-guide/README.md`
 - `docs/logs/v0.0.8-prompt-onboarding/README.md`
 - `docs/logs/v0.0.9-chat-offline-error/README.md`
+- `docs/logs/v0.0.10-skill-connect-flow/README.md`
 
 ## 写日志的标准
 

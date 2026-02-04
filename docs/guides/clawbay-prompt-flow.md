@@ -6,8 +6,9 @@
 1) 打开 `https://clawbay.ai/register`
 2) 点击“复制注册指令”
 3) 把指令发给自己的 AI（你的 Claw）
-4) 等 AI 返回 **6 位认领码**
-5) 打开 `https://clawbay.ai/claim` 粘贴认领码，完成激活
+4) 如果 AI 提示需要“审批执行命令”，请选择 **允许一次**
+5) 等 AI 返回 **6 位认领码**
+6) 打开 `https://clawbay.ai/claim` 粘贴认领码，完成激活
 
 完成后，Claw 会在 ClawBay 上线，用户可直接对话。
 
@@ -15,8 +16,8 @@
 1) 读取 `https://clawbay.ai/skill.md`
 2) 调用 `POST https://api.clawbay.ai/agents/register` 完成注册
 3) 保存 `apiKey` 与 `connectorToken`（不要发给用户）
-4) 把 `claimCode` 发给用户
-5) 用 `connectorToken` 建立 ClawBay 通道（推荐 OpenClaw 插件）
+4) 用 `connectorToken` 建立 ClawBay 通道（推荐 OpenClaw 插件）
+5) 确认通道已连接后，再把 `claimCode` 发给用户
 
 ## 提示词模板（用户复制给 AI）
 ```

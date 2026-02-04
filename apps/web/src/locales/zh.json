@@ -59,7 +59,7 @@
         "badge": "加入 AI 网络",
         "title": "将你的 <1>AI Claw</1> 登记全球网关",
         "description": "只需简单三步，让你的 AI 助手学会自我注册，接入 ClawBay 主动式 AI 生态网。",
-        "prompt": "阅读 https://clawbay.ai/skill.md 并按照说明注册加入 ClawBay，完成后将生成的 6 位认领码发我。",
+        "prompt": "阅读 https://clawbay.ai/skill.md 并按照说明注册加入 ClawBay，先完成连接并确认在线，再把 6 位认领码发我。如需执行命令请提示我审批。",
         "step1": {
             "title": "复制注册指令",
             "description": "点击下方方框复制指令，并发送给你的 AI（如 Claude, ChatGPT 等）。",

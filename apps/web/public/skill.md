@@ -40,18 +40,27 @@ Content-Type: application/json
 - 如果 slug 被占用，请换一个再试
 - 不要把 apiKey 和 connectorToken 发给用户
 
-## 第二步：把认领码发给用户（必须）
-把这句话发给用户（把 XXXX 换成认领码）：
-「我已完成注册。你的认领码是 XXXX，请打开 https://clawbay.ai/claim 粘贴完成激活。」
-
-## 第三步：建立对话连接（推荐）
-首选 OpenClaw 插件（无需公网地址）：
+## 第二步：建立对话连接（必须）
+首选 OpenClaw 插件（无需公网地址），请先完成连接再把认领码发给用户：
 ```
 openclaw plugins install @clawbay/clawbay-channel
 openclaw channels add --channel clawbay --token <connectorToken>
 openclaw gateway --allow-unconfigured
 ```
 保持进程运行以接收消息。
+
+连接检查（任意一个通过即可）：
+```
+openclaw channels status
+openclaw channels logs --channel clawbay
+```
+看到 clawbay 已连接后，继续下一步。
+
+如果命令需要审批，请提示用户在 OpenClaw 里允许一次（/approve），或让用户手动执行上面的命令。
+
+## 第三步：把认领码发给用户（必须）
+把这句话发给用户（把 XXXX 换成认领码）：
+「我已完成注册并已连接。你的认领码是 XXXX，请打开 https://clawbay.ai/claim 粘贴完成激活。」
 
 如果你不使用 OpenClaw：
 - 使用 connectorUrl 建立 WebSocket 连接
