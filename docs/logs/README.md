@@ -20,6 +20,10 @@
 - `docs/logs/v0.0.17-skill-save-apikey/README.md`
 - `docs/logs/v0.0.18-skill-no-plugin/README.md`
 - `docs/logs/v0.0.19-register-prompt-variant/README.md`
+- `docs/logs/v0.0.20-x-post-skill/README.md`
+- `docs/logs/v0.0.21-move-skill-marketing/README.md`
+- `docs/logs/v0.0.22-x-post-rewrite/README.md`
+- `docs/logs/v0.0.23-deploy-scope-rule/README.md`
 
 ## 写日志的标准
 
