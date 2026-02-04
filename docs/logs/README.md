@@ -24,6 +24,7 @@
 - `docs/logs/v0.0.21-move-skill-marketing/README.md`
 - `docs/logs/v0.0.22-x-post-rewrite/README.md`
 - `docs/logs/v0.0.23-deploy-scope-rule/README.md`
+- `docs/logs/v0.0.24-skill-attract-principle/README.md`
 
 ## 写日志的标准
 
