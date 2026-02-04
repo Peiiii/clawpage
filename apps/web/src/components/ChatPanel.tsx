@@ -24,7 +24,7 @@ export function ChatPanel() {
 
   // Scroll to bottom on new messages
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'nearest' })
   }, [messages])
 
   const handleSubmit = async (e: React.FormEvent) => {
