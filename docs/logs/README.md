@@ -8,6 +8,7 @@
 - `docs/logs/v0.0.4-clawbay-channel-fix/README.md`
 - `docs/logs/v0.0.5-clawbay-channel-plugin-id/README.md`
 - `docs/logs/v0.0.6-clawbay-channel-repairing/README.md`
+- `docs/logs/v0.0.7-beginner-publish-guide/README.md`
 
 ## 写日志的标准
 
