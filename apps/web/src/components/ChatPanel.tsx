@@ -11,6 +11,7 @@ export function ChatPanel() {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const sessionId = generateSessionId()
   const { sendMessage } = useChatStream(sessionId)
+  const hasPendingAgent = messages.some((message) => message.role === 'agent' && message.status === 'pending')
 
   // Load messages when agent changes
   useEffect(() => {
@@ -123,16 +124,15 @@ export function ChatPanel() {
           </div>
         ))}
         
-        {isLoading && (
+        {isLoading && !hasPendingAgent && (
           <div className="flex gap-3">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center shadow-lg">
               <Bot className="w-4 h-4 text-white" />
             </div>
             <div className="bg-muted/80 backdrop-blur-sm rounded-2xl rounded-bl-md px-4 py-3 border border-border/50">
-              <div className="flex gap-1.5">
-                <div className="w-2 h-2 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '0ms' }} />
-                <div className="w-2 h-2 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '150ms' }} />
-                <div className="w-2 h-2 rounded-full bg-muted-foreground/50 animate-bounce" style={{ animationDelay: '300ms' }} />
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span className="inline-flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                正在输入…
               </div>
             </div>
           </div>

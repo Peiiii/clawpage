@@ -15,6 +15,7 @@ export function useChatStream(sessionId: string) {
     updateMessage,
   } = useChatStore()
   const runIdMap = useRef(new Map<string, string>())
+  const runIdCreated = useRef(new Set<string>())
 
   const formatErrorMessage = useCallback((raw?: string) => {
     if (!raw) {
@@ -54,40 +55,69 @@ export function useChatStream(sessionId: string) {
           onAck: ({ runId }) => {
             const agentMessageId = `stream-${runId}`
             runIdMap.current.set(runId, agentMessageId)
-            addMessage({
-              id: agentMessageId,
-              agentId: currentAgent.id,
-              sessionId,
-              role: 'agent',
-              content: '',
-              status: 'pending',
-              createdAt: Date.now(),
-            })
           },
           onDelta: ({ runId, delta }) => {
             const messageId = runIdMap.current.get(runId)
             if (!messageId) return
+            if (!runIdCreated.current.has(runId) && currentAgent) {
+              addMessage({
+                id: messageId,
+                agentId: currentAgent.id,
+                sessionId,
+                role: 'agent',
+                content: '',
+                status: 'pending',
+                createdAt: Date.now(),
+              })
+              runIdCreated.current.add(runId)
+            }
             appendMessageContent(messageId, delta)
           },
           onFinal: ({ runId, content: finalContent }) => {
             const messageId = runIdMap.current.get(runId)
-            if (messageId) {
-              updateMessage(messageId, {
-                content: finalContent,
-                status: 'delivered',
-              })
+            if (messageId && currentAgent) {
+              if (runIdCreated.current.has(runId)) {
+                updateMessage(messageId, {
+                  content: finalContent,
+                  status: 'delivered',
+                })
+              } else {
+                addMessage({
+                  id: messageId,
+                  agentId: currentAgent.id,
+                  sessionId,
+                  role: 'agent',
+                  content: finalContent,
+                  status: 'delivered',
+                  createdAt: Date.now(),
+                })
+                runIdCreated.current.add(runId)
+              }
             }
             runIdMap.current.delete(runId)
+            runIdCreated.current.delete(runId)
             setLoading(false)
           },
           onError: ({ runId, error }) => {
             const errorMessage = formatErrorMessage(error)
             const messageId = runIdMap.current.get(runId)
             if (messageId) {
-              updateMessage(messageId, {
-                content: errorMessage,
-                status: 'failed',
-              })
+              if (runIdCreated.current.has(runId)) {
+                updateMessage(messageId, {
+                  content: errorMessage,
+                  status: 'failed',
+                })
+              } else if (currentAgent) {
+                addMessage({
+                  id: messageId,
+                  agentId: currentAgent.id,
+                  sessionId,
+                  role: 'agent',
+                  content: errorMessage,
+                  status: 'failed',
+                  createdAt: Date.now(),
+                })
+              }
             } else if (currentAgent) {
               addMessage({
                 id: crypto.randomUUID(),
@@ -100,6 +130,7 @@ export function useChatStream(sessionId: string) {
               })
             }
             runIdMap.current.delete(runId)
+            runIdCreated.current.delete(runId)
             setLoading(false)
           },
         },

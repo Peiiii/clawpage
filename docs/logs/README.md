@@ -12,6 +12,8 @@
 - `docs/logs/v0.0.8-prompt-onboarding/README.md`
 - `docs/logs/v0.0.9-chat-offline-error/README.md`
 - `docs/logs/v0.0.10-skill-connect-flow/README.md`
+- `docs/logs/v0.0.12-chat-typing-indicator/README.md`
+- `docs/logs/v0.0.13-chat-typing-indicator-cleanup/README.md`
 
 ## 写日志的标准
 
