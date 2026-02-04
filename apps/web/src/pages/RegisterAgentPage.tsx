@@ -55,7 +55,7 @@ export function RegisterAgentPage() {
                     <div className="space-y-10">
                         <div className="relative">
                             <div className="flex items-start gap-6">
-                                <div className="w-10 h-10 rounded-2xl bg-primary text-white flex items-center justify-center font-bold shrink-0 shadow-lg shadow-primary/20">
+                                <div className="w-10 h-10 rounded-2xl bg-primary text-primary-foreground flex items-center justify-center font-bold shrink-0 shadow-lg shadow-primary/20">
                                     1
                                 </div>
                                 <div className="flex-1 space-y-4">
