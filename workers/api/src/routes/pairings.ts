@@ -189,8 +189,8 @@ pairingsRouter.post('/claim', async (c) => {
     updatedAt: now,
   };
 
-  return c.json<ApiResponse<{ agent: Agent; connectorToken: string }>>({
+  return c.json<ApiResponse<{ agent: Agent; connectorToken: string; apiKey: string }>>({
     success: true,
-    data: { agent, connectorToken },
+    data: { agent, connectorToken, apiKey },
   });
 });

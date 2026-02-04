@@ -1,6 +1,6 @@
 {
   "name": "@clawbay/clawbay-channel",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "ClawBay channel plugin for OpenClaw",
   "type": "module",
   "files": [

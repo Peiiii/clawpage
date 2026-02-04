@@ -14,6 +14,8 @@
 - `docs/logs/v0.0.10-skill-connect-flow/README.md`
 - `docs/logs/v0.0.12-chat-typing-indicator/README.md`
 - `docs/logs/v0.0.13-chat-typing-indicator-cleanup/README.md`
+- `docs/logs/v0.0.14-clawbay-publish-tools/README.md`
+- `docs/logs/v0.0.15-beginner-no-plugin-guide/README.md`
 
 ## 写日志的标准
 

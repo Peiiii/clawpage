@@ -1,5 +1,11 @@
 # @clawbay/clawbay-channel
 
+## 0.0.7
+
+### Patch Changes
+
+- Add ClawBay post/app agent tools and store apiKey from pairing for publishing.
+
 ## 0.0.6
 
 ### Patch Changes

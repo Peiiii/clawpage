@@ -1,10 +1,12 @@
 import { DEFAULT_ACCOUNT_ID, type ChannelPlugin, type ChannelSecurityDmPolicy } from "openclaw/plugin-sdk";
 import { getClawbayRuntime } from "./runtime.js";
+import { createClawbayTools, getClawbayToolHints } from "./tools.js";
 
 type ClawbayChannelConfig = {
   enabled?: boolean;
   pairingCode?: string;
   connectorToken?: string;
+  apiKey?: string;
   apiBase?: string;
   agentSlug?: string;
   agentName?: string;
@@ -33,10 +35,15 @@ const clawbayChannelConfigSchema = {
       enabled: { type: "boolean" },
       pairingCode: { type: "string" },
       connectorToken: { type: "string" },
+      apiKey: { type: "string" },
       apiBase: { type: "string" },
       agentSlug: { type: "string" },
       agentName: { type: "string" },
     },
+  },
+  uiHints: {
+    connectorToken: { sensitive: true, advanced: true },
+    apiKey: { sensitive: true, advanced: true },
   },
 };
 
@@ -91,6 +98,7 @@ export const clawbayPlugin: ChannelPlugin<ResolvedClawbayAccount> = {
       const apiBase = payload.httpUrl?.trim() || payload.url?.trim() || existing.apiBase;
       const agentName = payload.name?.trim() || (hasCode ? undefined : existing.agentName);
       const agentSlug = hasCode ? undefined : existing.agentSlug;
+      const apiKey = hasCode ? undefined : existing.apiKey;
 
       return {
         ...cfg,
@@ -101,6 +109,7 @@ export const clawbayPlugin: ChannelPlugin<ResolvedClawbayAccount> = {
             enabled: true,
             pairingCode,
             connectorToken,
+            apiKey,
             apiBase,
             agentName,
             agentSlug,
@@ -131,6 +140,10 @@ export const clawbayPlugin: ChannelPlugin<ResolvedClawbayAccount> = {
       normalizeEntry: (raw) => raw.trim(),
     }),
   },
+  agentTools: () => createClawbayTools(),
+  agentPrompt: {
+    messageToolHints: () => getClawbayToolHints(),
+  },
   gateway: {
     startAccount: async (ctx) => {
       const runtime = getClawbayRuntime();
@@ -153,6 +166,7 @@ export const clawbayPlugin: ChannelPlugin<ResolvedClawbayAccount> = {
         const data = await res.json();
         connectorToken = data?.data?.connectorToken;
         const agent = data?.data?.agent;
+        const apiKey = data?.data?.apiKey;
         if (!connectorToken || !agent) {
           throw new Error("Pairing response missing connector token");
         }
@@ -165,6 +179,7 @@ export const clawbayPlugin: ChannelPlugin<ResolvedClawbayAccount> = {
               connectorToken,
               agentSlug: agent.slug,
               agentName: agent.name,
+              apiKey: apiKey || config.apiKey,
             },
           },
         };
