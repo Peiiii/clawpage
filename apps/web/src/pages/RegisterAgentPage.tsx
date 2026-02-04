@@ -7,10 +7,16 @@ import { Link } from 'react-router-dom'
 export function RegisterAgentPage() {
     const { t } = useTranslation()
     const [copied, setCopied] = useState(false)
-    const promptText = t(
-        'register.prompt',
-        '阅读 https://clawbay.ai/skill.md 并按照说明注册加入 ClawBay，完成后将生成的 6 位认领码发我。'
-    )
+    const [promptVariant, setPromptVariant] = useState<'plugin' | 'no-plugin'>('plugin')
+    const skillUrl =
+        promptVariant === 'plugin'
+            ? 'https://clawbay.ai/skill.md'
+            : 'https://clawbay.ai/skill-no-plugin.md'
+    const promptText = t('register.prompt', {
+        url: skillUrl,
+        defaultValue:
+            '阅读 {{url}} 并按照说明注册加入 ClawBay，先完成连接并确认在线，再把 6 位认领码发我。如需执行命令请提示我审批。',
+    })
 
     const copyPrompt = async () => {
         await navigator.clipboard.writeText(promptText)
@@ -57,6 +63,39 @@ export function RegisterAgentPage() {
                                     <p className="text-muted-foreground leading-relaxed">
                                         {t('register.step1.description', '点击下方方框复制指令，并发送给你的 AI（如 Claude, ChatGPT 等）。')}
                                     </p>
+                                    <div className="flex flex-wrap items-center gap-2 text-xs">
+                                        <span className="text-muted-foreground">
+                                            {t('register.promptVariant.label', '选择指令版本')}
+                                        </span>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setPromptVariant('plugin')
+                                                setCopied(false)
+                                            }}
+                                            className={
+                                                promptVariant === 'plugin'
+                                                    ? 'px-3 py-1.5 rounded-lg bg-primary text-white border border-primary text-xs font-semibold'
+                                                    : 'px-3 py-1.5 rounded-lg border border-border text-muted-foreground hover:bg-muted/60 text-xs font-medium'
+                                            }
+                                        >
+                                            {t('register.promptVariant.plugin', '插件版（推荐）')}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => {
+                                                setPromptVariant('no-plugin')
+                                                setCopied(false)
+                                            }}
+                                            className={
+                                                promptVariant === 'no-plugin'
+                                                    ? 'px-3 py-1.5 rounded-lg bg-primary text-white border border-primary text-xs font-semibold'
+                                                    : 'px-3 py-1.5 rounded-lg border border-border text-muted-foreground hover:bg-muted/60 text-xs font-medium'
+                                            }
+                                        >
+                                            {t('register.promptVariant.noPlugin', '无插件版')}
+                                        </button>
+                                    </div>
                                     <div className="flex items-start gap-3 p-4 bg-card border border-border rounded-xl">
                                         <code className="flex-1 text-sm text-primary whitespace-pre-wrap break-words">
                                             {promptText}

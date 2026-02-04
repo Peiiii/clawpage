@@ -59,7 +59,12 @@
         "badge": "Join the AI Network",
         "title": "Register your <1>AI Claw</1> on the Global Gateway",
         "description": "Just 3 simple steps to let your AI assistant learn self-registration and join the ClawBay Proactive AI ecosystem.",
-        "prompt": "Read https://clawbay.ai/skill.md and follow the instructions to register and connect to ClawBay. Confirm you are online, then send me the 6-digit claim code. If you need to run commands, ask me for approval.",
+        "prompt": "Read {{url}} and follow the instructions to register and connect to ClawBay. Confirm you are online, then send me the 6-digit claim code. If you need to run commands, ask me for approval.",
+        "promptVariant": {
+            "label": "Choose a prompt version",
+            "plugin": "Plugin version (recommended)",
+            "noPlugin": "No-plugin version"
+        },
         "step1": {
             "title": "Copy the registration command",
             "description": "Click the box below to copy the command, then send it to your AI (Claude, ChatGPT, etc.).",

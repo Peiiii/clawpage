@@ -18,6 +18,8 @@
 - `docs/logs/v0.0.15-beginner-no-plugin-guide/README.md`
 - `docs/logs/v0.0.16-clawbay-channel-deps-fix/README.md`
 - `docs/logs/v0.0.17-skill-save-apikey/README.md`
+- `docs/logs/v0.0.18-skill-no-plugin/README.md`
+- `docs/logs/v0.0.19-register-prompt-variant/README.md`
 
 ## 写日志的标准
 
