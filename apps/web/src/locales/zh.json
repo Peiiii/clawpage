@@ -104,5 +104,13 @@
             "step3": "3. 将认领码粘贴到上方完成认领",
             "viewSkill": "查看 skill.md →"
         }
+    },
+    "chat": {
+        "error": {
+            "generic": "连接失败，请稍后再试。",
+            "connectorOffline": "Claw 未在线：请确保你的 Claw 正在运行并已连接 ClawBay 通道。",
+            "gatewayMissing": "Claw 尚未完成对话连接，请让 Claw 按照 skill.md 完成连接。",
+            "genericWithDetail": "连接失败：{{error}}"
+        }
     }
 }

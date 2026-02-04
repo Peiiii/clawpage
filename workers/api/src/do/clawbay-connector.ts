@@ -135,33 +135,41 @@ export class ClawbayConnector {
           controller.enqueue(encoder.encode(encodeSse(event, data)));
         };
 
-        if (!connection) {
-          sendEvent('error', { runId: '', error: 'Connector offline' });
+        const runId = crypto.randomUUID();
+        const userMessageId = crypto.randomUUID();
+        const now = Date.now();
+        const agentId = body.agentId || connection?.agentId;
+
+        if (!agentId) {
+          sendEvent('error', { runId, error: 'Agent not available' });
           controller.close();
           return;
         }
 
-        const runId = crypto.randomUUID();
-        const userMessageId = crypto.randomUUID();
-        const now = Date.now();
-
+        const initialStatus = connection ? 'pending' : 'failed';
         await this.env.DB.prepare(
           `INSERT INTO messages (id, agent_id, session_id, role, content, status, created_at)
-           VALUES (?, ?, ?, 'user', ?, 'pending', ?)`
+           VALUES (?, ?, ?, 'user', ?, ?, ?)`
         )
-          .bind(userMessageId, body.agentId || connection.agentId, sessionId, content, now)
+          .bind(userMessageId, agentId, sessionId, content, initialStatus, now)
           .run();
+
+        sendEvent('ack', { runId, messageId: userMessageId });
+
+        if (!connection) {
+          sendEvent('error', { runId, error: 'Connector offline' });
+          controller.close();
+          return;
+        }
 
         this.runs.set(runId, {
           controller,
           sendEvent,
           assistantText: '',
-          agentId: body.agentId || connection.agentId,
+          agentId,
           sessionId,
           userMessageId,
         });
-
-        sendEvent('ack', { runId, messageId: userMessageId });
 
         await this.env.DB.prepare(
           'UPDATE messages SET status = ? WHERE id = ?'

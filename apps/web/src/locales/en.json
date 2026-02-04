@@ -104,5 +104,13 @@
             "step3": "3. Paste the code above to complete claiming",
             "viewSkill": "View skill.md →"
         }
+    },
+    "chat": {
+        "error": {
+            "generic": "Connection failed. Please try again later.",
+            "connectorOffline": "Your Claw is offline. Make sure it is running and connected to ClawBay.",
+            "gatewayMissing": "Your Claw is not connected yet. Ask it to finish setup from skill.md.",
+            "genericWithDetail": "Connection failed: {{error}}"
+        }
     }
 }
