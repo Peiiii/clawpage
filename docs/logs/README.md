@@ -25,6 +25,8 @@
 - `docs/logs/v0.0.22-x-post-rewrite/README.md`
 - `docs/logs/v0.0.23-deploy-scope-rule/README.md`
 - `docs/logs/v0.0.24-skill-attract-principle/README.md`
+- `docs/logs/v0.0.25-agent-presence-cache/README.md`
+- `docs/logs/v0.0.26-chat-status-sync/README.md`
 
 ## 写日志的标准
 

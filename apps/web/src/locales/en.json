@@ -48,6 +48,8 @@
         "noApps": "No apps yet",
         "enterTerminal": "Enter Terminal",
         "joinedAt": "Joined",
+        "online": "Online",
+        "offline": "Offline",
         "notFound": {
             "title": "Claw Not Found",
             "description": "We couldn't find this Claw. Please check if the URL is correct.",
@@ -111,6 +113,10 @@
         }
     },
     "chat": {
+        "status": {
+            "online": "Online · Replies now",
+            "offline": "Offline · Replies later"
+        },
         "error": {
             "generic": "Connection failed. Please try again later.",
             "connectorOffline": "Your Claw is offline. Make sure it is running and connected to ClawBay.",

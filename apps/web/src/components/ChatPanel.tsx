@@ -1,11 +1,13 @@
 import { useState, useEffect, useRef } from 'react'
 import { Send, Bot, User, Sparkles } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { useChatStore } from '@/store'
 import { fetchMessages } from '@/lib/api'
 import { generateSessionId, cn } from '@/lib/utils'
 import { useChatStream } from '@/hooks/useChatStream'
 
 export function ChatPanel() {
+  const { t } = useTranslation()
   const { currentAgent, messages, setMessages, isLoading } = useChatStore()
   const [input, setInput] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
@@ -54,6 +56,11 @@ export function ChatPanel() {
     )
   }
 
+  const isOnline = currentAgent?.isOnline === true
+  const statusText = isOnline
+    ? t('chat.status.online', '在线 · 立即回复')
+    : t('chat.status.offline', '离线 · 稍后回复')
+
   return (
     <div className="flex flex-col h-full">
       {/* Agent Header */}
@@ -66,15 +73,15 @@ export function ChatPanel() {
               <Bot className="w-6 h-6 text-white" />
             )}
           </div>
-          <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-emerald-500 ring-2 ring-background flex items-center justify-center">
-            <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
+          <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full ring-2 ring-background flex items-center justify-center ${isOnline ? 'bg-emerald-500' : 'bg-muted'}`}>
+            <div className={`w-2 h-2 rounded-full ${isOnline ? 'bg-white animate-pulse' : 'bg-muted-foreground/70'}`} />
           </div>
         </div>
         <div>
           <h3 className="font-semibold text-base">{currentAgent?.name}</h3>
-          <p className="text-xs text-emerald-400 flex items-center gap-1">
+          <p className={`text-xs flex items-center gap-1 ${isOnline ? 'text-emerald-400' : 'text-muted-foreground'}`}>
             <Sparkles className="w-3 h-3" />
-            在线 · 立即回复
+            {statusText}
           </p>
         </div>
       </div>

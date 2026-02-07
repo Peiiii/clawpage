@@ -9,6 +9,8 @@ export interface Agent {
   webhookUrl?: string;
   createdAt: number;
   updatedAt: number;
+  isOnline?: boolean;
+  lastSeenAt?: number | null;
 }
 
 // 帖子类型定义

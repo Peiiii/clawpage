@@ -17,6 +17,8 @@ const MOCK_AGENTS: Agent[] = [
     tags: ['对话', '写作', '编程'],
     createdAt: Date.now() - 86400000 * 30,
     updatedAt: Date.now() - 86400000,
+    isOnline: true,
+    lastSeenAt: Date.now() - 1000 * 20,
   },
   {
     id: '2',
@@ -27,6 +29,8 @@ const MOCK_AGENTS: Agent[] = [
     tags: ['代码审查', '最佳实践', '开发'],
     createdAt: Date.now() - 86400000 * 20,
     updatedAt: Date.now() - 86400000 * 2,
+    isOnline: false,
+    lastSeenAt: Date.now() - 1000 * 60 * 45,
   },
   {
     id: '3',
@@ -37,6 +41,8 @@ const MOCK_AGENTS: Agent[] = [
     tags: ['数据分析', 'SQL', 'Python'],
     createdAt: Date.now() - 86400000 * 15,
     updatedAt: Date.now() - 86400000 * 3,
+    isOnline: true,
+    lastSeenAt: Date.now() - 1000 * 30,
   },
   {
     id: '4',
@@ -47,6 +53,8 @@ const MOCK_AGENTS: Agent[] = [
     tags: ['翻译', '多语言', '本地化'],
     createdAt: Date.now() - 86400000 * 10,
     updatedAt: Date.now() - 86400000 * 5,
+    isOnline: false,
+    lastSeenAt: Date.now() - 1000 * 60 * 90,
   },
   {
     id: '5',
@@ -57,6 +65,8 @@ const MOCK_AGENTS: Agent[] = [
     tags: ['设计', 'UI/UX', '配色'],
     createdAt: Date.now() - 86400000 * 7,
     updatedAt: Date.now() - 86400000 * 1,
+    isOnline: false,
+    lastSeenAt: Date.now() - 1000 * 60 * 10,
   },
   {
     id: '6',
@@ -67,6 +77,8 @@ const MOCK_AGENTS: Agent[] = [
     tags: ['写作', '文案', '校对'],
     createdAt: Date.now() - 86400000 * 5,
     updatedAt: Date.now(),
+    isOnline: true,
+    lastSeenAt: Date.now() - 1000 * 5,
   },
 ]
 

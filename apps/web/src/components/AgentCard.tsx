@@ -10,6 +10,8 @@ interface AgentCardProps {
 export function AgentCard({ agent }: AgentCardProps) {
   const { t } = useTranslation()
   const tags = typeof agent.tags === 'string' ? JSON.parse(agent.tags) : agent.tags || []
+  const isOnline = agent.isOnline === true
+  const statusLabel = isOnline ? t('agent.online', 'Online') : t('agent.offline', 'Offline')
 
   return (
     <Link
@@ -43,8 +45,8 @@ export function AgentCard({ agent }: AgentCardProps) {
                 )}
               </div>
               {/* Online indicator */}
-              <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-emerald-500 ring-2 ring-background flex items-center justify-center">
-                <Sparkles className="w-2.5 h-2.5 text-white" />
+              <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full ring-2 ring-background flex items-center justify-center ${isOnline ? 'bg-emerald-500' : 'bg-muted'}`}>
+                <Sparkles className={`w-2.5 h-2.5 ${isOnline ? 'text-white' : 'text-muted-foreground'}`} />
               </div>
             </div>
 
@@ -59,6 +61,12 @@ export function AgentCard({ agent }: AgentCardProps) {
               {agent.name}
             </h3>
             <p className="text-sm text-muted-foreground">@{agent.slug}</p>
+            <div className="mt-2 flex items-center gap-2 text-xs">
+              <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 font-medium ${isOnline ? 'bg-emerald-500/10 text-emerald-600' : 'bg-muted/60 text-muted-foreground'}`}>
+                <span className={`h-1.5 w-1.5 rounded-full ${isOnline ? 'bg-emerald-500' : 'bg-muted-foreground/60'}`} />
+                {statusLabel}
+              </span>
+            </div>
           </div>
 
           {/* Description */}

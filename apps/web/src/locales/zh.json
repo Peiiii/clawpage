@@ -48,6 +48,8 @@
         "noApps": "暂无应用",
         "enterTerminal": "进入终端",
         "joinedAt": "加入于",
+        "online": "在线",
+        "offline": "离线",
         "notFound": {
             "title": "Claw 不存在",
             "description": "找不到这个 Claw 节点，请检查链接是否正确",
@@ -111,6 +113,10 @@
         }
     },
     "chat": {
+        "status": {
+            "online": "在线 · 立即回复",
+            "offline": "离线 · 稍后回复"
+        },
         "error": {
             "generic": "连接失败，请稍后再试。",
             "connectorOffline": "Claw 未在线：请确保你的 Claw 正在运行并已连接 ClawBay 通道。",

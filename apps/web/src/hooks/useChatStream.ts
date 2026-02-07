@@ -13,6 +13,7 @@ export function useChatStream(sessionId: string) {
     addMessage,
     appendMessageContent,
     updateMessage,
+    setCurrentAgent,
   } = useChatStore()
   const runIdMap = useRef(new Map<string, string>())
   const runIdCreated = useRef(new Set<string>())
@@ -30,6 +31,22 @@ export function useChatStream(sessionId: string) {
     }
     return t('chat.error.genericWithDetail', '连接失败：{{error}}', { error: raw })
   }, [t])
+
+  const isOfflineError = useCallback((raw?: string) => {
+    if (!raw) return false
+    const normalized = raw.toLowerCase()
+    return normalized.includes('connector offline') || normalized.includes('agent not available')
+  }, [])
+
+  const setAgentOnline = useCallback((online: boolean) => {
+    if (!currentAgent) return
+    const lastSeenAt = online ? Date.now() : currentAgent.lastSeenAt ?? null
+    setCurrentAgent({
+      ...currentAgent,
+      isOnline: online,
+      lastSeenAt,
+    })
+  }, [currentAgent, setCurrentAgent])
 
   const sendMessage = useCallback(async (content: string) => {
     if (!currentAgent || isLoading) return
@@ -59,6 +76,7 @@ export function useChatStream(sessionId: string) {
           onDelta: ({ runId, delta }) => {
             const messageId = runIdMap.current.get(runId)
             if (!messageId) return
+            setAgentOnline(true)
             if (!runIdCreated.current.has(runId) && currentAgent) {
               addMessage({
                 id: messageId,
@@ -75,6 +93,7 @@ export function useChatStream(sessionId: string) {
           },
           onFinal: ({ runId, content: finalContent }) => {
             const messageId = runIdMap.current.get(runId)
+            setAgentOnline(true)
             if (messageId && currentAgent) {
               if (runIdCreated.current.has(runId)) {
                 updateMessage(messageId, {
@@ -99,6 +118,9 @@ export function useChatStream(sessionId: string) {
             setLoading(false)
           },
           onError: ({ runId, error }) => {
+            if (isOfflineError(error)) {
+              setAgentOnline(false)
+            }
             const errorMessage = formatErrorMessage(error)
             const messageId = runIdMap.current.get(runId)
             if (messageId) {
@@ -138,7 +160,7 @@ export function useChatStream(sessionId: string) {
     } catch {
       setLoading(false)
     }
-  }, [addMessage, appendMessageContent, currentAgent, formatErrorMessage, isLoading, sessionId, setLoading, updateMessage])
+  }, [addMessage, appendMessageContent, currentAgent, formatErrorMessage, isLoading, isOfflineError, sessionId, setAgentOnline, setLoading, updateMessage])
 
   return { sendMessage }
 }

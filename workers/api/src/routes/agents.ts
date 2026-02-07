@@ -5,6 +5,9 @@ import { authMiddleware, agentAuthMiddleware } from '../middleware/auth';
 
 export const agentsRouter = new Hono<{ Bindings: Env }>();
 
+const PRESENCE_CACHE_TTL_SECONDS = 60;
+const PRESENCE_ONLINE_WINDOW_MS = 120_000;
+
 // 数据库记录到 API 响应的转换
 interface DbAgent {
   id: string;
@@ -20,7 +23,11 @@ interface DbAgent {
   deleted_at: number | null;
 }
 
-function transformAgent(dbAgent: DbAgent): Agent {
+type DbAgentWithPresence = DbAgent & { last_seen_at: number | null };
+
+function transformAgent(dbAgent: DbAgentWithPresence, now: number): Agent {
+  const lastSeenAt = dbAgent.last_seen_at ?? null;
+  const isOnline = lastSeenAt !== null && now - lastSeenAt <= PRESENCE_ONLINE_WINDOW_MS;
   return {
     id: dbAgent.id,
     slug: dbAgent.slug,
@@ -30,11 +37,30 @@ function transformAgent(dbAgent: DbAgent): Agent {
     tags: dbAgent.tags ? JSON.parse(dbAgent.tags) : [],
     createdAt: dbAgent.created_at,
     updatedAt: dbAgent.updated_at,
+    isOnline,
+    lastSeenAt,
   };
+}
+
+async function matchPresenceCache(request: Request): Promise<Response | null> {
+  const cache = caches.default;
+  const cached = await cache.match(request);
+  return cached ?? null;
+}
+
+async function putPresenceCache(request: Request, response: Response): Promise<void> {
+  const cache = caches.default;
+  await cache.put(request, response);
 }
 
 // 获取 Agent 列表（公开）
 agentsRouter.get('/', async (c) => {
+  const cacheKey = new Request(c.req.url, { method: 'GET' });
+  const cached = await matchPresenceCache(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
   const page = parseInt(c.req.query('page') || '1');
   const pageSize = parseInt(c.req.query('pageSize') || '20');
   const search = c.req.query('search') || '';
@@ -42,23 +68,32 @@ agentsRouter.get('/', async (c) => {
   
   const offset = (page - 1) * pageSize;
   
-  let query = 'SELECT * FROM agents WHERE deleted_at IS NULL AND claimed_at IS NOT NULL';
+  let query = `
+    SELECT a.*, c.last_seen_at
+    FROM agents a
+    LEFT JOIN (
+      SELECT agent_id, MAX(last_seen_at) AS last_seen_at
+      FROM clawbay_connectors
+      GROUP BY agent_id
+    ) c ON c.agent_id = a.id
+    WHERE a.deleted_at IS NULL AND a.claimed_at IS NOT NULL
+  `;
   const params: (string | number)[] = [];
   
   if (search) {
-    query += ' AND (name LIKE ? OR description LIKE ?)';
+    query += ' AND (a.name LIKE ? OR a.description LIKE ?)';
     params.push(`%${search}%`, `%${search}%`);
   }
   
   if (tag) {
-    query += ' AND tags LIKE ?';
+    query += ' AND a.tags LIKE ?';
     params.push(`%"${tag}"%`);
   }
   
-  query += ' ORDER BY created_at DESC LIMIT ? OFFSET ?';
+  query += ' ORDER BY a.created_at DESC LIMIT ? OFFSET ?';
   params.push(pageSize, offset);
   
-  const agents = await c.env.DB.prepare(query).bind(...params).all<DbAgent>();
+  const agents = await c.env.DB.prepare(query).bind(...params).all<DbAgentWithPresence>();
   
   // 获取总数
   let countQuery = 'SELECT COUNT(*) as count FROM agents WHERE deleted_at IS NULL AND claimed_at IS NOT NULL';
@@ -74,31 +109,54 @@ agentsRouter.get('/', async (c) => {
   
   const countResult = await c.env.DB.prepare(countQuery).bind(...countParams).first<{ count: number }>();
   const total = countResult?.count || 0;
+  const now = Date.now();
   
   const response: PaginatedResponse<Agent> = {
-    items: (agents.results || []).map(transformAgent),
+    items: (agents.results || []).map((agent) => transformAgent(agent, now)),
     total,
     page,
     pageSize,
     hasMore: offset + pageSize < total,
   };
   
-  return c.json(response);
+  const jsonResponse = c.json(response);
+  jsonResponse.headers.set('Cache-Control', `public, max-age=${PRESENCE_CACHE_TTL_SECONDS}`);
+  await putPresenceCache(cacheKey, jsonResponse.clone());
+  return jsonResponse;
 });
 
 // 获取单个 Agent（公开）
 agentsRouter.get('/:slug', async (c) => {
+  const cacheKey = new Request(c.req.url, { method: 'GET' });
+  const cached = await matchPresenceCache(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
   const slug = c.req.param('slug');
   
   const agent = await c.env.DB.prepare(
-    'SELECT * FROM agents WHERE slug = ? AND deleted_at IS NULL'
-  ).bind(slug).first<DbAgent>();
+    `
+      SELECT a.*, c.last_seen_at
+      FROM agents a
+      LEFT JOIN (
+        SELECT agent_id, MAX(last_seen_at) AS last_seen_at
+        FROM clawbay_connectors
+        GROUP BY agent_id
+      ) c ON c.agent_id = a.id
+      WHERE a.slug = ? AND a.deleted_at IS NULL
+    `
+  ).bind(slug).first<DbAgentWithPresence>();
   
   if (!agent) {
     return c.json<ApiResponse<null>>({ success: false, error: 'Agent not found' }, 404);
   }
   
-  return c.json<ApiResponse<Agent>>({ success: true, data: transformAgent(agent) });
+  const now = Date.now();
+  const jsonResponse = c.json<ApiResponse<Agent>>({ success: true, data: transformAgent(agent, now) });
+  jsonResponse.headers.set('Cache-Control', `public, max-age=${PRESENCE_CACHE_TTL_SECONDS}`);
+  await putPresenceCache(cacheKey, jsonResponse.clone());
+  return jsonResponse;
 });
 
 // 创建/更新 Agent（需认证）
@@ -396,7 +454,7 @@ agentsRouter.post('/register', async (c) => {
     connectorTokenHash,
     now,
     now,
-    now
+    null
   ).run();
 
   const requestUrl = new URL(c.req.url);
@@ -450,7 +508,7 @@ agentsRouter.post('/claim', async (c) => {
   return c.json({
     success: true,
     data: {
-      agent: transformAgent(agent),
+      agent: transformAgent({ ...agent, last_seen_at: null }, now),
       message: '认领成功！Agent 已激活并在平台上显示。'
     }
   });

@@ -49,6 +49,8 @@ export function AgentPage() {
   const tags = agent?.tags || []
   const posts = postsData?.items || []
   const apps = appsData?.items || []
+  const isOnline = agent?.isOnline === true
+  const statusLabel = isOnline ? t('agent.online', 'Online') : t('agent.offline', 'Offline')
 
   if (agentLoading) {
     return (
@@ -141,8 +143,8 @@ export function AgentPage() {
                         )}
                       </div>
                       {/* Online indicator */}
-                      <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500 ring-4 ring-background flex items-center justify-center">
-                        <Sparkles className="w-3 h-3 text-white" />
+                      <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full ring-4 ring-background flex items-center justify-center ${isOnline ? 'bg-emerald-500' : 'bg-muted'}`}>
+                        <Sparkles className={`w-3 h-3 ${isOnline ? 'text-white' : 'text-muted-foreground'}`} />
                       </div>
                     </div>
 
@@ -150,6 +152,12 @@ export function AgentPage() {
                     <div className="text-center mb-5">
                       <h1 className="text-xl font-bold mb-1">{agent.name}</h1>
                       <p className="text-sm text-muted-foreground">@{agent.slug}</p>
+                      <div className="mt-2 flex items-center justify-center">
+                        <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${isOnline ? 'bg-emerald-500/10 text-emerald-600' : 'bg-muted/60 text-muted-foreground'}`}>
+                          <span className={`h-1.5 w-1.5 rounded-full ${isOnline ? 'bg-emerald-500' : 'bg-muted-foreground/60'}`} />
+                          {statusLabel}
+                        </span>
+                      </div>
                     </div>
 
                     {/* Description */}
