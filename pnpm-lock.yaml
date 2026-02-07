@@ -111,6 +111,9 @@ importers:
 
   packages/clawbay-channel:
     dependencies:
+      '@sinclair/typebox':
+        specifier: ^0.34.13
+        version: 0.34.48
       openclaw:
         specifier: '>=2026.2.1'
         version: 2026.2.1(@napi-rs/canvas@0.1.89)(@types/express@5.0.6)(node-llama-cpp@3.15.1(typescript@5.9.3))(signal-polyfill@0.2.2)
@@ -4773,7 +4776,7 @@ packages:
   tar@6.2.1:
     resolution: {integrity: sha512-DZ4yORTwrbTj/7MZYq2w+/ZFdI6OZ/f9SFHR+71gIVUZhOQPHzVCLpvRnPgyaMpfWxxk/4ONva3GQSyNIKRv6A==}
     engines: {node: '>=10'}
-    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exhorbitant rates) by contacting i@izs.me
+    deprecated: Old versions of tar are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
 
   tar@7.5.7:
     resolution: {integrity: sha512-fov56fJiRuThVFXD6o6/Q354S7pnWMJIVlDBYijsTNx6jKSE4pvrDTs6lUnmGvNyfJwFQQwWy3owKz1ucIhveQ==}
