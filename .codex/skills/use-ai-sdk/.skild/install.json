@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "name": "use-ai-sdk",
+  "platform": "codex",
+  "scope": "project",
+  "source": "vercel/ai/skills/use-ai-sdk",
+  "sourceType": "degit-shorthand",
+  "installedAt": "2026-02-07T17:16:57.403Z",
+  "contentHash": "8132afcb7e7c48acb498b4d5411ea3891590660690673e0e6ac253cfa4bbfa98",
+  "hasSkillMd": true,
+  "skill": {
+    "frontmatter": {
+      "name": "ai-sdk",
+      "description": "Answer questions about the AI SDK and help build AI-powered features. Use when developers: (1) Ask about AI SDK functions like generateText, streamText, ToolLoopAgent, embed, or tools, (2) Want to build AI agents, chatbots, RAG systems, or text generation features, (3) Have questions about AI providers (OpenAI, Anthropic, Google, etc.), streaming, tool calling, structured output, or embeddings, (4) Use React hooks like useChat or useCompletion. Triggers on: \"AI SDK\", \"Vercel AI SDK\", \"generateText\", \"streamText\", \"add AI to my app\", \"build an agent\", \"tool calling\", \"structured output\", \"useChat\"."
+    },
+    "validation": {
+      "ok": true,
+      "issues": [],
+      "frontmatter": {
+        "name": "ai-sdk",
+        "description": "Answer questions about the AI SDK and help build AI-powered features. Use when developers: (1) Ask about AI SDK functions like generateText, streamText, ToolLoopAgent, embed, or tools, (2) Want to build AI agents, chatbots, RAG systems, or text generation features, (3) Have questions about AI providers (OpenAI, Anthropic, Google, etc.), streaming, tool calling, structured output, or embeddings, (4) Use React hooks like useChat or useCompletion. Triggers on: \"AI SDK\", \"Vercel AI SDK\", \"generateText\", \"streamText\", \"add AI to my app\", \"build an agent\", \"tool calling\", \"structured output\", \"useChat\"."
+      }
+    }
+  }
+}

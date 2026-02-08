@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "updatedAt": "2026-02-07T17:16:57.405Z",
+  "entries": {
+    "use-ai-sdk": {
+      "name": "use-ai-sdk",
+      "platform": "codex",
+      "scope": "project",
+      "source": "vercel/ai/skills/use-ai-sdk",
+      "sourceType": "degit-shorthand",
+      "installedAt": "2026-02-07T17:16:57.403Z",
+      "contentHash": "8132afcb7e7c48acb498b4d5411ea3891590660690673e0e6ac253cfa4bbfa98"
+    }
+  }
+}

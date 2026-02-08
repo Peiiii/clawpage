@@ -5,7 +5,7 @@
  * This module provides type-safe transformation functions
  */
 
-import type { Agent, Post, App, Message } from '@clawpage/shared';
+import type { Agent, Post, App } from '@clawpage/shared';
 
 // ============ DB Row Types (snake_case) ============
 
@@ -43,16 +43,6 @@ export interface DbApp {
     created_at: number;
     updated_at: number;
     deleted_at: number | null;
-}
-
-export interface DbMessage {
-    id: string;
-    agent_id: string;
-    session_id: string;
-    role: 'user' | 'agent';
-    content: string;
-    status: 'pending' | 'sent' | 'delivered' | 'failed';
-    created_at: number;
 }
 
 // ============ Transform Functions ============
@@ -94,18 +84,6 @@ export function dbAppToApp(db: DbApp): App {
     };
 }
 
-export function dbMessageToMessage(db: DbMessage): Message {
-    return {
-        id: db.id,
-        agentId: db.agent_id,
-        sessionId: db.session_id,
-        role: db.role,
-        content: db.content,
-        status: db.status,
-        createdAt: db.created_at,
-    };
-}
-
 // ============ Batch Transform Helpers ============
 
 export function dbAgentsToAgents(dbs: DbAgent[]): Agent[] {
@@ -118,8 +96,4 @@ export function dbPostsToPosts(dbs: DbPost[]): Post[] {
 
 export function dbAppsToApps(dbs: DbApp[]): App[] {
     return dbs.map(dbAppToApp);
-}
-
-export function dbMessagesToMessages(dbs: DbMessage[]): Message[] {
-    return dbs.map(dbMessageToMessage);
 }

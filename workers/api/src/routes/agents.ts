@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import type { Env } from '../env';
-import type { Agent, CreateAgentRequest, ApiResponse, PaginatedResponse, GatewayConfigRequest } from '@clawpage/shared';
-import { authMiddleware, agentAuthMiddleware } from '../middleware/auth';
+import type { Agent, CreateAgentRequest, ApiResponse, PaginatedResponse } from '@clawpage/shared';
+import { authMiddleware } from '../middleware/auth';
 
 export const agentsRouter = new Hono<{ Bindings: Env }>();
 
@@ -224,97 +224,6 @@ agentsRouter.post('/', authMiddleware, async (c) => {
   return c.json<ApiResponse<Agent>>({ success: true, data: newAgent! }, 201);
 });
 
-// 配置 Agent Gateway（需认证）
-agentsRouter.put('/:slug/gateway', agentAuthMiddleware, async (c) => {
-  const slug = c.req.param('slug');
-  const agentId = c.get('agentId');
-  const body = await c.req.json<GatewayConfigRequest>();
-
-  if (!body.gatewayUrl || !body.authToken) {
-    return c.json<ApiResponse<null>>({ success: false, error: 'gatewayUrl and authToken required' }, 400);
-  }
-
-  const gatewayUrl = body.gatewayUrl.trim();
-  if (!gatewayUrl.startsWith('http://') && !gatewayUrl.startsWith('https://')) {
-    return c.json<ApiResponse<null>>({ success: false, error: 'gatewayUrl must be http or https' }, 400);
-  }
-
-  const authMode = body.authMode === 'password' ? 'password' : 'token';
-  const gatewayAgentId = body.gatewayAgentId?.trim() || null;
-
-  const agent = await c.env.DB.prepare(
-    'SELECT id FROM agents WHERE slug = ? AND deleted_at IS NULL'
-  ).bind(slug).first<{ id: string }>();
-
-  if (!agent) {
-    return c.json<ApiResponse<null>>({ success: false, error: 'Agent not found' }, 404);
-  }
-
-  if (agent.id !== agentId) {
-    return c.json<ApiResponse<null>>({ success: false, error: 'Unauthorized' }, 403);
-  }
-
-  const now = Date.now();
-  const existing = await c.env.DB.prepare(
-    'SELECT agent_id FROM agent_gateways WHERE agent_id = ?'
-  ).bind(agentId).first<{ agent_id: string }>();
-
-  if (existing) {
-    await c.env.DB.prepare(`
-      UPDATE agent_gateways SET
-        gateway_url = ?,
-        auth_mode = ?,
-        auth_token = ?,
-        gateway_agent_id = ?,
-        updated_at = ?
-      WHERE agent_id = ?
-    `).bind(
-      gatewayUrl,
-      authMode,
-      body.authToken,
-      gatewayAgentId,
-      now,
-      agentId
-    ).run();
-  } else {
-    await c.env.DB.prepare(`
-      INSERT INTO agent_gateways (
-        agent_id,
-        gateway_url,
-        auth_mode,
-        auth_token,
-        gateway_agent_id,
-        created_at,
-        updated_at
-      )
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).bind(
-      agentId,
-      gatewayUrl,
-      authMode,
-      body.authToken,
-      gatewayAgentId,
-      now,
-      now
-    ).run();
-  }
-
-  return c.json<ApiResponse<{
-    gatewayUrl: string;
-    authMode: string;
-    gatewayAgentId: string | null;
-    updatedAt: number;
-  }>>({
-    success: true,
-    data: {
-      gatewayUrl,
-      authMode,
-      gatewayAgentId,
-      updatedAt: now,
-    },
-  });
-});
-
 // 删除 Agent（需认证）
 agentsRouter.delete('/:slug', authMiddleware, async (c) => {
   const slug = c.req.param('slug');
@@ -443,32 +352,27 @@ agentsRouter.post('/register', async (c) => {
 
   const connectorId = crypto.randomUUID();
   const connectorToken = generateConnectorToken();
-  const connectorTokenHash = await hashToken(connectorToken);
+  const connectorHash = await hashToken(connectorToken);
 
-  await c.env.DB.prepare(`
-    INSERT INTO clawbay_connectors (id, agent_id, token_hash, created_at, updated_at, last_seen_at)
-    VALUES (?, ?, ?, ?, ?, ?)
-  `).bind(
+  await c.env.DB.prepare(
+    `INSERT INTO clawbay_connectors (id, agent_id, token_hash, created_at, updated_at, last_seen_at)
+     VALUES (?, ?, ?, ?, ?, ?)`
+  ).bind(
     connectorId,
     id,
-    connectorTokenHash,
+    connectorHash,
     now,
     now,
     null
   ).run();
 
-  const requestUrl = new URL(c.req.url);
-  const apiBase = `${requestUrl.protocol}//${requestUrl.host}`;
-  const connectorUrl = apiBase.replace(/^http/, 'ws') + `/connectors/ws?token=${connectorToken}`;
-  
   return c.json({
     success: true,
     data: {
       claimCode,
       apiKey,
-      agentUrl: `https://clawbay.ai/a/${body.slug}`,
       connectorToken,
-      connectorUrl,
+      agentUrl: `https://clawbay.ai/a/${body.slug}`,
       message: '请将 claimCode 发送给用户，在 ClawBay 完成认领。认领完成后，Agent 将在平台上显示。'
     }
   }, 201);

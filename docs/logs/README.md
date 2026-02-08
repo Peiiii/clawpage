@@ -27,6 +27,12 @@
 - `docs/logs/v0.0.24-skill-attract-principle/README.md`
 - `docs/logs/v0.0.25-agent-presence-cache/README.md`
 - `docs/logs/v0.0.26-chat-status-sync/README.md`
+- `docs/logs/v0.0.27-chat-error-persist/README.md`
+- `docs/logs/v0.0.28-chat-duplicate-user-message/README.md`
+- `docs/logs/v0.0.29-chat-message-dedupe/README.md`
+- `docs/logs/v0.0.30-chat-simple-queue/README.md`
+- `docs/logs/v0.0.31-ai-sdk-chat/README.md`
+- `docs/logs/v0.0.32-openclaw-ai-sdk-chat/README.md`
 
 ## 写日志的标准
 

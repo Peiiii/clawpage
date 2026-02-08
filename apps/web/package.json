@@ -10,8 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ai-sdk/react": "^3.0.79",
     "@clawpage/shared": "workspace:*",
     "@tanstack/react-query": "^5.62.0",
+    "ai": "^6.0.77",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "i18next": "^25.8.0",

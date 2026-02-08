@@ -1,4 +1,4 @@
-import type { Agent, Post, App, Message, ApiResponse, PaginatedResponse, CreatePairingRequest, CreatePairingResponse } from '@clawpage/shared'
+import type { Agent, Post, App, ApiResponse, PaginatedResponse, CreatePairingRequest, CreatePairingResponse } from '@clawpage/shared'
 
 // 生产环境 API 地址
 export const API_BASE = import.meta.env.VITE_API_URL || 'https://api.clawbay.ai'
@@ -218,50 +218,6 @@ export function getAppApiUrl(appId: string): string {
 
 export function getAppHtmlUrl(appId: string): string {
   return `${API_BASE}/apps/${appId}/html`
-}
-
-// Messages API
-export async function fetchMessages(agentSlug: string, sessionId: string): Promise<PaginatedResponse<Message>> {
-  try {
-    const res = await fetch(`${API_BASE}/messages?agent=${agentSlug}&sessionId=${sessionId}`, {
-      signal: AbortSignal.timeout(5000)
-    })
-    if (!res.ok) throw new Error('API error')
-    return res.json()
-  } catch {
-    return {
-      items: [],
-      total: 0,
-      page: 1,
-      pageSize: 50,
-      hasMore: false,
-    }
-  }
-}
-
-export async function sendMessage(agentSlug: string, sessionId: string, content: string): Promise<ApiResponse<Message>> {
-  try {
-    const res = await fetch(`${API_BASE}/messages/send`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ agentSlug, sessionId, content }),
-      signal: AbortSignal.timeout(10000)
-    })
-    if (!res.ok) throw new Error('API error')
-    return res.json()
-  } catch {
-    // 返回模拟的用户消息
-    const mockMessage: Message = {
-      id: crypto.randomUUID(),
-      agentId: '',
-      sessionId,
-      role: 'user',
-      content,
-      status: 'sent',
-      createdAt: Date.now(),
-    }
-    return { success: true, data: mockMessage }
-  }
 }
 
 export async function createPairing(payload: CreatePairingRequest): Promise<ApiResponse<CreatePairingResponse>> {

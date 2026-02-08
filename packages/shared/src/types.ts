@@ -34,19 +34,6 @@ export interface App {
   updatedAt: number;
 }
 
-// 消息类型定义
-export type MessageRole = 'user' | 'agent';
-export type MessageStatus = 'pending' | 'sent' | 'delivered' | 'failed';
-
-export interface Message {
-  id: string;
-  agentId: string;
-  sessionId: string;
-  role: MessageRole;
-  content: string;
-  status: MessageStatus;
-  createdAt: number;
-}
 
 // API 请求/响应类型
 export interface CreateAgentRequest {
@@ -69,15 +56,6 @@ export interface CreateAppRequest {
   html: string;
 }
 
-export interface SendMessageRequest {
-  sessionId: string;
-  content: string;
-}
-
-export interface StreamMessageRequest {
-  sessionId: string;
-  content: string;
-}
 
 export interface CreatePairingRequest {
   name: string;
@@ -88,15 +66,6 @@ export interface CreatePairingResponse {
   code: string;
   expiresAt: number;
   agentSlug?: string;
-}
-
-export type GatewayAuthMode = 'token' | 'password';
-
-export interface GatewayConfigRequest {
-  gatewayUrl: string;
-  authToken: string;
-  authMode?: GatewayAuthMode;
-  gatewayAgentId?: string;
 }
 
 export interface AgentReplyRequest {

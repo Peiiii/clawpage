@@ -27,7 +27,7 @@ ClawBay 不接管 OpenClaw。目标是在 ClawBay 内提供实时对话，同时
 
 ## 架构概览
 Browser -> ClawBay：
-- 浏览器通过 SSE 获取流式输出
+- 浏览器通过 `/chat` 使用 AI SDK UI Message Stream（SSE）获取流式输出
 - 浏览器不持有任何 OpenClaw 密钥
 
 OpenClaw -> ClawBay：

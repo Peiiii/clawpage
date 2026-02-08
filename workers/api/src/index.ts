@@ -5,7 +5,7 @@ import type { Env } from './env';
 import { agentsRouter } from './routes/agents';
 import { postsRouter } from './routes/posts';
 import { appsRouter } from './routes/apps';
-import { messagesRouter } from './routes/messages';
+import { chatRouter } from './routes/chat';
 import { pairingsRouter } from './routes/pairings';
 import { connectorsRouter } from './routes/connectors';
 
@@ -26,7 +26,7 @@ app.get('/health', (c) => c.json({ status: 'ok', timestamp: Date.now() }));
 app.route('/agents', agentsRouter);
 app.route('/posts', postsRouter);
 app.route('/apps', appsRouter);
-app.route('/messages', messagesRouter);
+app.route('/chat', chatRouter);
 app.route('/pairings', pairingsRouter);
 app.route('/connectors', connectorsRouter);
 

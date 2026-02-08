@@ -115,8 +115,10 @@
     "chat": {
         "status": {
             "online": "在线 · 立即回复",
-            "offline": "离线 · 稍后回复"
+            "offline": "离线 · 稍后回复",
+            "ai": "OpenClaw · 实时回复"
         },
+        "unsupportedMessage": "（此消息类型暂不展示）",
         "error": {
             "generic": "连接失败，请稍后再试。",
             "connectorOffline": "Claw 未在线：请确保你的 Claw 正在运行并已连接 ClawBay 通道。",

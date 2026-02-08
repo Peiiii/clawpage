@@ -11,8 +11,10 @@
     "db:migrate:prod": "wrangler d1 migrations apply clawpage-db"
   },
   "dependencies": {
-    "hono": "^4.6.0",
-    "@clawpage/shared": "workspace:*"
+    "@clawpage/shared": "workspace:*",
+    "ai": "^6.0.77",
+    "eventsource-parser": "^3.0.6",
+    "hono": "^4.6.0"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20241230.0",

@@ -1,28 +1,37 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { Send, Bot, User, Sparkles } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { useChatStore } from '@/store'
-import { fetchMessages } from '@/lib/api'
+import { API_BASE } from '@/lib/api'
 import { generateSessionId, cn } from '@/lib/utils'
-import { useChatStream } from '@/hooks/useChatStream'
+import { useChat } from '@ai-sdk/react'
+import { DefaultChatTransport, type UIMessage } from 'ai'
 
 export function ChatPanel() {
   const { t } = useTranslation()
-  const { currentAgent, messages, setMessages, isLoading } = useChatStore()
+  const { currentAgent } = useChatStore()
   const [input, setInput] = useState('')
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const sessionId = generateSessionId()
-  const { sendMessage } = useChatStream(sessionId)
-  const hasPendingAgent = messages.some((message) => message.role === 'agent' && message.status === 'pending')
+  const sessionId = useMemo(() => generateSessionId(), [])
+  const agentSlug = currentAgent?.slug
+  const chatId = useMemo(
+    () => (agentSlug ? `${agentSlug}:${sessionId}` : sessionId),
+    [agentSlug, sessionId]
+  )
+  const transport = useMemo(
+    () => new DefaultChatTransport({ api: `${API_BASE}/chat` }),
+    []
+  )
+  const { messages: rawMessages, sendMessage, status, error } = useChat({ id: chatId, transport })
+  const messages = useMemo(
+    () => rawMessages.filter((message) => message.role !== 'system'),
+    [rawMessages]
+  )
+  const isBusy = status === 'streaming' || status === 'submitted'
 
-  // Load messages when agent changes
   useEffect(() => {
-    if (currentAgent) {
-      fetchMessages(currentAgent.slug, sessionId).then((data) => {
-        setMessages(data.items)
-      })
-    }
-  }, [currentAgent, sessionId, setMessages])
+    setInput('')
+  }, [currentAgent?.slug])
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -31,12 +40,24 @@ export function ChatPanel() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!input.trim() || !currentAgent || isLoading) return
+    if (!input.trim() || !currentAgent || isBusy) return
 
     const content = input.trim()
     setInput('')
     try {
-      await sendMessage(content)
+      await sendMessage(
+        { text: content },
+        {
+          body: {
+            agent: {
+              slug: currentAgent.slug,
+              name: currentAgent.name,
+              description: currentAgent.description,
+            },
+            sessionId,
+          },
+        }
+      )
     } catch {
       // Ignore and let UI handle failed state
     }
@@ -56,10 +77,16 @@ export function ChatPanel() {
     )
   }
 
-  const isOnline = currentAgent?.isOnline === true
-  const statusText = isOnline
-    ? t('chat.status.online', '在线 · 立即回复')
-    : t('chat.status.offline', '离线 · 稍后回复')
+  const statusText = t('chat.status.ai', 'OpenClaw · 实时回复')
+
+  const renderMessageText = (message: UIMessage) => {
+    const text = message.parts
+      .filter((part) => part.type === 'text')
+      .map((part) => part.text)
+      .join('')
+      .trim()
+    return text || t('chat.unsupportedMessage', '（此消息类型暂不展示）')
+  }
 
   return (
     <div className="flex flex-col h-full">
@@ -73,13 +100,13 @@ export function ChatPanel() {
               <Bot className="w-6 h-6 text-white" />
             )}
           </div>
-          <div className={`absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full ring-2 ring-background flex items-center justify-center ${isOnline ? 'bg-emerald-500' : 'bg-muted'}`}>
-            <div className={`w-2 h-2 rounded-full ${isOnline ? 'bg-white animate-pulse' : 'bg-muted-foreground/70'}`} />
+          <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full ring-2 ring-background flex items-center justify-center bg-emerald-500">
+            <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
           </div>
         </div>
         <div>
           <h3 className="font-semibold text-base">{currentAgent?.name}</h3>
-          <p className={`text-xs flex items-center gap-1 ${isOnline ? 'text-emerald-400' : 'text-muted-foreground'}`}>
+          <p className="text-xs flex items-center gap-1 text-emerald-400">
             <Sparkles className="w-3 h-3" />
             {statusText}
           </p>
@@ -126,12 +153,12 @@ export function ChatPanel() {
                 ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-br-md'
                 : 'bg-muted/80 backdrop-blur-sm rounded-bl-md border border-border/50'
             )}>
-              <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.content}</p>
+              <p className="text-sm leading-relaxed whitespace-pre-wrap">{renderMessageText(message)}</p>
             </div>
           </div>
         ))}
         
-        {isLoading && !hasPendingAgent && (
+        {isBusy && (
           <div className="flex gap-3">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center shadow-lg">
               <Bot className="w-4 h-4 text-white" />
@@ -141,6 +168,18 @@ export function ChatPanel() {
                 <span className="inline-flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
                 正在输入…
               </div>
+            </div>
+          </div>
+        )}
+        {error && (
+          <div className="flex gap-3">
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center shadow-lg">
+              <Bot className="w-4 h-4 text-white" />
+            </div>
+            <div className="bg-muted/80 backdrop-blur-sm rounded-2xl rounded-bl-md px-4 py-3 border border-border/50">
+              <p className="text-sm leading-relaxed whitespace-pre-wrap text-red-500">
+                {error.message}
+              </p>
             </div>
           </div>
         )}
@@ -159,7 +198,7 @@ export function ChatPanel() {
           />
           <button
             type="submit"
-            disabled={!input.trim() || isLoading}
+            disabled={!input.trim() || isBusy}
             className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-pink-500 text-white disabled:opacity-50 disabled:cursor-not-allowed hover:bg-pink-600 transition-colors"
           >
             <Send className="w-4 h-4" />

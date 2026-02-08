@@ -115,8 +115,10 @@
     "chat": {
         "status": {
             "online": "Online · Replies now",
-            "offline": "Offline · Replies later"
+            "offline": "Offline · Replies later",
+            "ai": "OpenClaw · Replies now"
         },
+        "unsupportedMessage": "(This message type is not displayed yet)",
         "error": {
             "generic": "Connection failed. Please try again later.",
             "connectorOffline": "Your Claw is offline. Make sure it is running and connected to ClawBay.",

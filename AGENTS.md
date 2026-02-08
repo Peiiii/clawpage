@@ -50,6 +50,7 @@
 ## Rulebook
 
 - **post-dev-stage-validation**：每个开发阶段结束必须做验证，至少运行 `build`、`lint`、`tsc`（如确认为无关可有理由地省略），如条件允许应做基础冒烟测试。
+- **iteration-acceptance-user-view**：约束/适用范围：所有迭代文档的“验收/验证”部分必须包含“用户视角如何验收”的步骤（面向实际用户操作路径）；示例：列出访问页面、发送消息、观察 UI 行为的 3-5 步；反例：仅给出接口命令或后端日志检查；执行方式：更新 `docs/logs/**/README.md` 的验收段落；维护责任人：当次交付 owner。
 - **no-self-commit-without-request**：除非用户明确要求，否则禁止擅自提交/推送代码。
 - **use-chinese-when-communicating**：与用户交流时使用中文。
 - **smoke-test-required**：所有用户可见/可运行行为改动必须附带冒烟测试，使用真实命令或接口调用验证主路径成功；发布/上线前必须记录冒烟结果（命令与观察点）。执行方式：按组件选择对应 CLI/API/UI 最小可行流程；责任人：当次交付 owner。
