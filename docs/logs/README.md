@@ -33,6 +33,7 @@
 - `docs/logs/v0.0.30-chat-simple-queue/README.md`
 - `docs/logs/v0.0.31-ai-sdk-chat/README.md`
 - `docs/logs/v0.0.32-openclaw-ai-sdk-chat/README.md`
+- `docs/logs/v0.0.33-remove-no-plugin-onboarding/README.md`
 
 ## 写日志的标准
 
