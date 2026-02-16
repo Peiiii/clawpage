@@ -34,6 +34,7 @@
 - `docs/logs/v0.0.31-ai-sdk-chat/README.md`
 - `docs/logs/v0.0.32-openclaw-ai-sdk-chat/README.md`
 - `docs/logs/v0.0.33-remove-no-plugin-onboarding/README.md`
+- `docs/logs/v0.0.34-chat-run-timeline/README.md`
 
 ## 写日志的标准
 
@@ -41,6 +42,7 @@
 
 - 做了什么（用户可见 + 关键实现点）
 - 怎么验证（轻量 smoke-check + `build/lint/typecheck`）
+- 产品验证链路（用户主路径步骤 + 每步观察点）
 - 怎么发布/部署（如果会影响 npm 包/线上环境；详细流程引用 `docs/workflows/npm-release-process.md`）
 
 模板：`docs/logs/TEMPLATE.md`

@@ -7,10 +7,76 @@ import { generateSessionId, cn } from '@/lib/utils'
 import { useChat } from '@ai-sdk/react'
 import { DefaultChatTransport, type UIMessage } from 'ai'
 
+type RunEventStage = 'queued' | 'dispatching' | 'streaming' | 'completed' | 'failed'
+
+type RunEvent = {
+  runId: string
+  stage: RunEventStage
+  label: string
+  detail?: string
+  at: number
+}
+
+type ChatDataParts = {
+  run_event: RunEvent
+}
+
+type ChatMessage = UIMessage<unknown, ChatDataParts>
+
+const RUN_STAGE_STYLES: Record<RunEventStage, { dotClass: string; labelClass: string }> = {
+  queued: {
+    dotClass: 'bg-sky-400',
+    labelClass: 'text-sky-500',
+  },
+  dispatching: {
+    dotClass: 'bg-indigo-400',
+    labelClass: 'text-indigo-500',
+  },
+  streaming: {
+    dotClass: 'bg-emerald-400 animate-pulse',
+    labelClass: 'text-emerald-500',
+  },
+  completed: {
+    dotClass: 'bg-green-500',
+    labelClass: 'text-green-500',
+  },
+  failed: {
+    dotClass: 'bg-red-500',
+    labelClass: 'text-red-500',
+  },
+}
+
+function isRunEventStage(value: unknown): value is RunEventStage {
+  return value === 'queued' || value === 'dispatching' || value === 'streaming' || value === 'completed' || value === 'failed'
+}
+
+function normalizeRunEvent(value: unknown): RunEvent | null {
+  if (!value || typeof value !== 'object') return null
+  const payload = value as Partial<RunEvent>
+  if (typeof payload.runId !== 'string' || !payload.runId.trim()) return null
+  if (!isRunEventStage(payload.stage)) return null
+  if (typeof payload.label !== 'string' || !payload.label.trim()) return null
+
+  return {
+    runId: payload.runId,
+    stage: payload.stage,
+    label: payload.label,
+    detail: typeof payload.detail === 'string' && payload.detail.trim() ? payload.detail : undefined,
+    at: typeof payload.at === 'number' && Number.isFinite(payload.at) ? payload.at : Date.now(),
+  }
+}
+
+function formatEventTime(timestamp: number): string {
+  const date = new Date(timestamp)
+  if (Number.isNaN(date.getTime())) return '--:--:--'
+  return date.toLocaleTimeString([], { hour12: false })
+}
+
 export function ChatPanel() {
   const { t } = useTranslation()
   const { currentAgent } = useChatStore()
   const [input, setInput] = useState('')
+  const [runEvents, setRunEvents] = useState<RunEvent[]>([])
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const sessionId = useMemo(() => generateSessionId(), [])
   const agentSlug = currentAgent?.slug
@@ -22,16 +88,54 @@ export function ChatPanel() {
     () => new DefaultChatTransport({ api: `${API_BASE}/chat` }),
     []
   )
-  const { messages: rawMessages, sendMessage, status, error } = useChat({ id: chatId, transport })
+
+  const { messages: rawMessages, sendMessage, status, error } = useChat<ChatMessage>({
+    id: chatId,
+    transport,
+    onData: (dataPart) => {
+      if (dataPart.type !== 'data-run_event') return
+      const nextEvent = normalizeRunEvent(dataPart.data)
+      if (!nextEvent) return
+
+      setRunEvents((previous) => {
+        const duplicated = previous.some(
+          (item) =>
+            item.runId === nextEvent.runId &&
+            item.stage === nextEvent.stage &&
+            Math.abs(item.at - nextEvent.at) < 1500
+        )
+        if (duplicated) return previous
+        return [...previous, nextEvent].slice(-20)
+      })
+    },
+  })
+
   const messages = useMemo(
     () => rawMessages.filter((message) => message.role !== 'system'),
     [rawMessages]
   )
+  const recentRunEvents = useMemo(() => runEvents.slice(-4), [runEvents])
+  const latestRunEvent = recentRunEvents[recentRunEvents.length - 1]
   const isBusy = status === 'streaming' || status === 'submitted'
 
   useEffect(() => {
     setInput('')
+    setRunEvents([])
   }, [currentAgent?.slug])
+
+  useEffect(() => {
+    if (!error) return
+    setRunEvents((previous) => {
+      const fallbackEvent: RunEvent = {
+        runId: `client-${Date.now()}`,
+        stage: 'failed',
+        label: '客户端请求失败',
+        detail: error.message,
+        at: Date.now(),
+      }
+      return [...previous, fallbackEvent].slice(-20)
+    })
+  }, [error])
 
   // Scroll to bottom on new messages
   useEffect(() => {
@@ -79,7 +183,7 @@ export function ChatPanel() {
 
   const statusText = t('chat.status.ai', 'OpenClaw · 实时回复')
 
-  const renderMessageText = (message: UIMessage) => {
+  const renderMessageText = (message: ChatMessage) => {
     const text = message.parts
       .filter((part) => part.type === 'text')
       .map((part) => part.text)
@@ -90,7 +194,6 @@ export function ChatPanel() {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Agent Header */}
       <div className="flex items-center gap-4 px-5 py-4 border-b border-border/50">
         <div className="relative">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center overflow-hidden ring-2 ring-pink-500/20">
@@ -109,11 +212,44 @@ export function ChatPanel() {
           <p className="text-xs flex items-center gap-1 text-emerald-400">
             <Sparkles className="w-3 h-3" />
             {statusText}
+            {latestRunEvent ? <span className="text-muted-foreground">· {latestRunEvent.label}</span> : null}
           </p>
         </div>
       </div>
 
-      {/* Messages */}
+      <div className="px-5 py-3 border-b border-border/50 bg-muted/20">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">执行进度</span>
+          {latestRunEvent ? (
+            <span className={cn('text-xs font-medium', RUN_STAGE_STYLES[latestRunEvent.stage].labelClass)}>
+              {latestRunEvent.stage}
+            </span>
+          ) : null}
+        </div>
+
+        {recentRunEvents.length === 0 ? (
+          <p className="text-xs text-muted-foreground">发送消息后，这里会显示执行时间线。</p>
+        ) : (
+          <div className="space-y-2">
+            {recentRunEvents.map((event) => {
+              const styles = RUN_STAGE_STYLES[event.stage]
+              return (
+                <div key={`${event.runId}-${event.stage}-${event.at}`} className="flex items-start gap-2">
+                  <span className={cn('mt-1 inline-flex h-2 w-2 rounded-full flex-shrink-0', styles.dotClass)} />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-xs text-foreground/90 truncate">{event.label}</span>
+                      <span className="text-[11px] text-muted-foreground flex-shrink-0">{formatEventTime(event.at)}</span>
+                    </div>
+                    {event.detail ? <p className="text-[11px] text-muted-foreground mt-0.5">{event.detail}</p> : null}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+
       <div className="flex-1 overflow-y-auto p-5 space-y-5">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center py-8">
@@ -126,7 +262,7 @@ export function ChatPanel() {
             </p>
           </div>
         )}
-        
+
         {messages.map((message) => (
           <div
             key={message.id}
@@ -137,7 +273,7 @@ export function ChatPanel() {
           >
             <div className={cn(
               'w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg',
-              message.role === 'user' 
+              message.role === 'user'
                 ? 'bg-gradient-to-br from-blue-500 to-indigo-600'
                 : 'bg-gradient-to-br from-pink-500 to-rose-500'
             )}>
@@ -157,7 +293,7 @@ export function ChatPanel() {
             </div>
           </div>
         ))}
-        
+
         {isBusy && (
           <div className="flex gap-3">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center shadow-lg">
@@ -186,7 +322,6 @@ export function ChatPanel() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
       <div className="p-4 border-t border-border/50">
         <form onSubmit={handleSubmit} className="relative">
           <input

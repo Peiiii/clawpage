@@ -13,6 +13,24 @@ type ChatRequest = {
   sessionId?: string;
 };
 
+type RunEventStage = 'queued' | 'dispatching' | 'streaming' | 'completed' | 'failed';
+
+type RunEventPayload = {
+  runId: string;
+  stage: RunEventStage;
+  label: string;
+  detail?: string;
+  at: number;
+};
+
+type ConnectorStreamPayload = {
+  runId?: string;
+  delta?: string;
+  content?: string;
+  error?: string;
+  status?: string;
+};
+
 function extractUserMessageText(messages: UIMessage[]): string {
   for (let i = messages.length - 1; i >= 0; i -= 1) {
     const message = messages[i];
@@ -90,6 +108,19 @@ chatRouter.post('/', async (c) => {
       let textClosed = false;
       let finished = false;
       let streamedText = '';
+      let runId = messageId;
+      let emittedStreaming = false;
+
+      const writeRunEvent = (stage: RunEventStage, label: string, detail?: string) => {
+        const data: RunEventPayload = {
+          runId,
+          stage,
+          label,
+          at: Date.now(),
+          ...(detail ? { detail } : {}),
+        };
+        writer.write({ type: 'data-run_event', data });
+      };
 
       const startTextIfNeeded = () => {
         if (textStarted) return;
@@ -108,8 +139,10 @@ chatRouter.post('/', async (c) => {
       };
 
       writer.write({ type: 'start', messageId });
+      writeRunEvent('queued', '消息已提交，等待 Claw 接收');
 
       if (!upstream.ok || !upstream.body) {
+        writeRunEvent('failed', '连接器不可用', `HTTP ${upstream.status}`);
         writer.write({ type: 'error', errorText: `Connector error: ${upstream.status}` });
         finishStream();
         return;
@@ -126,17 +159,36 @@ chatRouter.post('/', async (c) => {
           if (done) break;
           if (!value?.data) continue;
 
-          let parsed: { delta?: string; content?: string; error?: string };
+          let parsed: ConnectorStreamPayload;
           try {
-            parsed = JSON.parse(value.data);
+            parsed = JSON.parse(value.data) as ConnectorStreamPayload;
           } catch {
+            writeRunEvent('failed', '连接器返回无效数据');
             writer.write({ type: 'error', errorText: 'Invalid connector payload' });
             break;
+          }
+
+          if (typeof parsed.runId === 'string' && parsed.runId.trim()) {
+            runId = parsed.runId;
+          }
+
+          if (value.event === 'ack') {
+            writeRunEvent('dispatching', '已发送到 Claw，等待生成回复');
+            continue;
+          }
+
+          if (value.event === 'run_started') {
+            writeRunEvent('dispatching', 'Claw 已接收任务，准备执行');
+            continue;
           }
 
           if (value.event === 'delta') {
             const delta = typeof parsed.delta === 'string' ? parsed.delta : '';
             if (delta) {
+              if (!emittedStreaming) {
+                writeRunEvent('streaming', 'Claw 正在生成回复');
+                emittedStreaming = true;
+              }
               streamedText += delta;
               startTextIfNeeded();
               writer.write({ type: 'text-delta', id: textId, delta });
@@ -154,6 +206,7 @@ chatRouter.post('/', async (c) => {
                 suffix = finalText;
               }
               if (!suffix) {
+                writeRunEvent('completed', '回复完成');
                 finishStream();
                 await reader.cancel();
                 break;
@@ -161,6 +214,7 @@ chatRouter.post('/', async (c) => {
               startTextIfNeeded();
               writer.write({ type: 'text-delta', id: textId, delta: suffix });
             }
+            writeRunEvent('completed', '回复完成');
             finishStream();
             await reader.cancel();
             break;
@@ -170,6 +224,7 @@ chatRouter.post('/', async (c) => {
             const errorText = typeof parsed.error === 'string' && parsed.error.trim()
               ? parsed.error
               : 'Connector error';
+            writeRunEvent('failed', '执行失败', errorText);
             writer.write({ type: 'error', errorText });
             finishStream();
             await reader.cancel();
@@ -177,7 +232,9 @@ chatRouter.post('/', async (c) => {
           }
         }
       } catch (err) {
-        writer.write({ type: 'error', errorText: String(err) });
+        const message = String(err);
+        writeRunEvent('failed', '连接中断', message);
+        writer.write({ type: 'error', errorText: message });
       } finally {
         finishStream();
       }
