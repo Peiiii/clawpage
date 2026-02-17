@@ -38,6 +38,13 @@ type ChatHistoryRow = {
   createdAt: number;
 };
 
+type ChatSessionRow = {
+  sessionId: string;
+  lastMessageAt: number;
+  messageCount: number;
+  lastMessagePreview: string | null;
+};
+
 function extractUserMessageText(messages: UIMessage[]): string {
   for (let i = messages.length - 1; i >= 0; i -= 1) {
     const message = messages[i];
@@ -53,6 +60,49 @@ function extractUserMessageText(messages: UIMessage[]): string {
 }
 
 export const chatRouter = new Hono<{ Bindings: Env }>();
+
+chatRouter.get('/sessions', async (c) => {
+  const agentSlug = c.req.query('agentSlug')?.trim();
+  if (!agentSlug) {
+    return c.json({ error: 'agentSlug required' }, 400);
+  }
+
+  const agent = await c.env.DB.prepare(
+    'SELECT id FROM agents WHERE slug = ? AND deleted_at IS NULL'
+  ).bind(agentSlug).first<{ id: string }>();
+
+  if (!agent) {
+    return c.json({ error: 'Agent not found' }, 404);
+  }
+
+  const sessionsResult = await c.env.DB.prepare(
+    `SELECT
+       m.session_id AS sessionId,
+       MAX(m.created_at) AS lastMessageAt,
+       COUNT(*) AS messageCount,
+       (
+         SELECT content
+         FROM messages AS latest
+         WHERE latest.agent_id = m.agent_id AND latest.session_id = m.session_id
+         ORDER BY latest.created_at DESC, latest.id DESC
+         LIMIT 1
+       ) AS lastMessagePreview
+     FROM messages AS m
+     WHERE m.agent_id = ?
+     GROUP BY m.session_id
+     ORDER BY lastMessageAt DESC
+     LIMIT 100`
+  ).bind(agent.id).all<ChatSessionRow>();
+
+  return c.json({
+    sessions: (sessionsResult.results ?? []).map((session) => ({
+      sessionId: session.sessionId,
+      lastMessageAt: Number(session.lastMessageAt ?? 0),
+      messageCount: Number(session.messageCount ?? 0),
+      lastMessagePreview: session.lastMessagePreview ?? undefined,
+    })),
+  });
+});
 
 chatRouter.get('/history', async (c) => {
   const agentSlug = c.req.query('agentSlug')?.trim();

@@ -1,7 +1,7 @@
 import type { Post } from '@clawpage/shared'
 import { FileText, Clock, BookOpen } from 'lucide-react'
 import { formatTime } from '@/lib/utils'
-import ReactMarkdown from 'react-markdown'
+import { MarkdownRenderer } from './MarkdownRenderer'
 
 interface PostListProps {
   posts: Post[]
@@ -32,10 +32,10 @@ export function PostList({ posts }: PostListProps) {
         >
           {/* Left accent line */}
           <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-purple-500 to-pink-500 opacity-0 group-hover:opacity-100 transition-all duration-300" />
-          
+
           {/* Shimmer effect on hover */}
           <div className="absolute inset-0 shimmer opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-          
+
           <div className="p-6 relative">
             {/* Header */}
             <div className="flex items-start justify-between gap-4 mb-4">
@@ -54,23 +54,17 @@ export function PostList({ posts }: PostListProps) {
                 {formatTime(post.createdAt)}
               </span>
             </div>
-            
+
             {/* Content */}
-            <div className="prose prose-sm dark:prose-invert prose-p:text-muted-foreground prose-p:leading-relaxed prose-headings:text-foreground prose-strong:text-foreground prose-ul:text-muted-foreground prose-pre:bg-transparent prose-pre:p-0 max-w-none pl-12">
-              <ReactMarkdown
-                components={{
-                  pre: ({ children }) => (
-                    <div className="code-block-wrapper my-4">
-                      <pre>{children}</pre>
-                    </div>
-                  ),
-                }}
+            <div className="pl-12">
+              <MarkdownRenderer
+                className="prose-p:text-muted-foreground prose-headings:text-foreground prose-strong:text-foreground prose-ul:text-muted-foreground"
               >
                 {post.content}
-              </ReactMarkdown>
+              </MarkdownRenderer>
             </div>
           </div>
-          
+
           {/* Hover gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
         </article>

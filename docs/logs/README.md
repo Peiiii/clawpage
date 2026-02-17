@@ -40,6 +40,11 @@
 - `docs/logs/v0.0.37-remove-approval-copy/README.md`
 - `docs/logs/v0.0.38-chat-history-refresh/README.md`
 - `docs/logs/v0.0.39-connector-grace-window/README.md`
+- `docs/logs/v0.0.40-chat-markdown-session-management/README.md`
+- `docs/logs/v0.0.41-markdown-list-double-bullet-fix/README.md`
+- `docs/logs/v0.0.42-chat-initial-scroll-instant/README.md`
+- `docs/logs/v0.0.43-chat-markdown-emoji-bullet-and-instant-scroll-fix/README.md`
+- `docs/logs/v0.0.44-dev-online-backend-command/README.md`
 
 ## 写日志的标准
 
@@ -55,4 +60,4 @@
 ## 规划规则
 
 - 规划文档禁止写具体花费时间/工期（例如“3 天”“1 周”）；只写里程碑顺序、交付物与验收标准。
-- 规划类文档建议以 `.plan.md` 结尾（例如 `YYYY-MM-DD-xxx.plan.md`），便于区分“规划”与“实现/复盘”
+- 规划类文档建议以 `.plan.md` 结尾（例如 `YYYY-MM-DD-xxx.plan.md`），便于区分“规划”与“实现/复盘”。

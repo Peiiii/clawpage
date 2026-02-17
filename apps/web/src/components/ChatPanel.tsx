@@ -1,6 +1,7 @@
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
 import { Send, Bot, User, Sparkles } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
+import { MarkdownRenderer } from './MarkdownRenderer'
 import { useChatStore } from '@/store'
 import { API_BASE } from '@/lib/api'
 import { generateSessionId, cn } from '@/lib/utils'
@@ -33,6 +34,17 @@ type ChatHistoryMessage = {
 type ChatHistoryResponse = {
   sessionId: string
   messages: ChatHistoryMessage[]
+}
+
+type ChatSessionSummary = {
+  sessionId: string
+  lastMessageAt: number
+  messageCount: number
+  lastMessagePreview?: string
+}
+
+type ChatSessionsResponse = {
+  sessions: ChatSessionSummary[]
 }
 
 const SESSION_STORAGE_PREFIX = 'clawbay:chat-session:'
@@ -86,23 +98,35 @@ function formatEventTime(timestamp: number): string {
   return date.toLocaleTimeString([], { hour12: false })
 }
 
-function hasRenderableAssistantText(message: ChatMessage): boolean {
-  return message.parts.some((part) => part.type === 'text' && part.text.trim().length > 0)
+function resolveSessionStorageKey(agentSlug: string): string {
+  return `${SESSION_STORAGE_PREFIX}${agentSlug}`
+}
+
+function loadStoredSessionId(agentSlug: string | undefined): string | undefined {
+  if (!agentSlug || typeof window === 'undefined') return undefined
+  try {
+    const value = window.localStorage.getItem(resolveSessionStorageKey(agentSlug))?.trim()
+    return value || undefined
+  } catch {
+    return undefined
+  }
+}
+
+function persistSessionId(agentSlug: string | undefined, sessionId: string) {
+  if (!agentSlug || !sessionId || typeof window === 'undefined') return
+  try {
+    window.localStorage.setItem(resolveSessionStorageKey(agentSlug), sessionId)
+  } catch {
+    // ignore storage failure
+  }
 }
 
 function resolveSessionId(agentSlug: string | undefined): string {
+  const storedSessionId = loadStoredSessionId(agentSlug)
+  if (storedSessionId) return storedSessionId
   const fallbackSessionId = generateSessionId()
-  if (!agentSlug || typeof window === 'undefined') return fallbackSessionId
-
-  try {
-    const storageKey = `${SESSION_STORAGE_PREFIX}${agentSlug}`
-    const storedSessionId = window.localStorage.getItem(storageKey)?.trim()
-    if (storedSessionId) return storedSessionId
-    window.localStorage.setItem(storageKey, fallbackSessionId)
-    return fallbackSessionId
-  } catch {
-    return fallbackSessionId
-  }
+  persistSessionId(agentSlug, fallbackSessionId)
+  return fallbackSessionId
 }
 
 function toChatMessage(message: ChatHistoryMessage): ChatMessage {
@@ -113,15 +137,72 @@ function toChatMessage(message: ChatHistoryMessage): ChatMessage {
   }
 }
 
+function getRawMessageText(message: ChatMessage): string {
+  return message.parts
+    .filter((part) => part.type === 'text')
+    .map((part) => part.text)
+    .join('')
+    .trim()
+}
+
+function sanitizeAssistantReasoning(text: string): string {
+  return text.replace(/<think>[\s\S]*?<\/think>/gi, '').trim()
+}
+
+function normalizeMarkdownListLeadingBullets(text: string): string {
+  return text.replace(
+    /(^|\n)(\s*(?:[-+*]|\d+[.)])\s+)(?:(?:[•●◦▪▫·◉○◎◇◆◈⬤⚫⚪]|🔘|🟣|🟢|🔵|🟡|🟠|🔴|🟤)(?:\uFE0F)?\s*)+/g,
+    '$1$2'
+  )
+}
+
+function getRenderableMessageText(message: ChatMessage): string {
+  const text = getRawMessageText(message)
+  if (!text) return ''
+  if (message.role !== 'assistant') return text
+  return sanitizeAssistantReasoning(text)
+}
+
+function hasRenderableAssistantText(message: ChatMessage): boolean {
+  return getRenderableMessageText(message).length > 0
+}
+
+function normalizeSessionSummary(value: unknown): ChatSessionSummary | null {
+  if (!value || typeof value !== 'object') return null
+  const payload = value as Partial<ChatSessionSummary>
+  if (typeof payload.sessionId !== 'string' || !payload.sessionId.trim()) return null
+
+  const lastMessageAt = typeof payload.lastMessageAt === 'number' && Number.isFinite(payload.lastMessageAt)
+    ? payload.lastMessageAt
+    : 0
+  const messageCount = typeof payload.messageCount === 'number' && Number.isFinite(payload.messageCount)
+    ? payload.messageCount
+    : 0
+  const lastMessagePreview = typeof payload.lastMessagePreview === 'string' && payload.lastMessagePreview.trim()
+    ? payload.lastMessagePreview.trim()
+    : undefined
+
+  return {
+    sessionId: payload.sessionId,
+    lastMessageAt,
+    messageCount,
+    lastMessagePreview,
+  }
+}
+
 export function ChatPanel() {
   const { t } = useTranslation()
   const { currentAgent } = useChatStore()
   const agentSlug = currentAgent?.slug
   const [input, setInput] = useState('')
   const [runEvents, setRunEvents] = useState<RunEvent[]>([])
+  const [sessions, setSessions] = useState<ChatSessionSummary[]>([])
   const [sessionId, setSessionId] = useState(() => resolveSessionId(agentSlug))
+  const [sessionsLoading, setSessionsLoading] = useState(false)
   const [historyLoading, setHistoryLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
+  const shouldInstantScrollRef = useRef(true)
   const chatId = useMemo(
     () => (agentSlug ? `${agentSlug}:${sessionId}` : sessionId),
     [agentSlug, sessionId]
@@ -159,20 +240,93 @@ export function ChatPanel() {
     },
   })
 
+  const reloadSessions = useCallback(async (slug: string, options?: { allowSwitch?: boolean }) => {
+    setSessionsLoading(true)
+    try {
+      const url = new URL(`${API_BASE}/chat/sessions`)
+      url.searchParams.set('agentSlug', slug)
+      const response = await fetch(url.toString())
+      if (!response.ok) {
+        throw new Error(`sessions request failed: ${response.status}`)
+      }
+
+      const payload = await response.json() as ChatSessionsResponse
+      const nextSessions = Array.isArray(payload.sessions)
+        ? payload.sessions
+          .map(normalizeSessionSummary)
+          .filter((session): session is ChatSessionSummary => Boolean(session))
+          .sort((a, b) => b.lastMessageAt - a.lastMessageAt)
+        : []
+
+      setSessions(nextSessions)
+
+      if (options?.allowSwitch) {
+        const storedSessionId = loadStoredSessionId(slug)
+        if (storedSessionId && (nextSessions.length === 0 || nextSessions.some((item) => item.sessionId === storedSessionId))) {
+          setSessionId(storedSessionId)
+          persistSessionId(slug, storedSessionId)
+          return
+        }
+
+        if (nextSessions[0]) {
+          setSessionId(nextSessions[0].sessionId)
+          persistSessionId(slug, nextSessions[0].sessionId)
+          return
+        }
+
+        const freshSessionId = resolveSessionId(slug)
+        setSessionId(freshSessionId)
+      }
+    } catch (reloadError) {
+      console.error('Failed to load chat sessions', reloadError)
+      setSessions([])
+      if (options?.allowSwitch) {
+        const fallbackSessionId = resolveSessionId(slug)
+        setSessionId(fallbackSessionId)
+      }
+    } finally {
+      setSessionsLoading(false)
+    }
+  }, [])
+
   const messages = useMemo(
     () => rawMessages.filter((message) => message.role !== 'system' && (message.role !== 'assistant' || hasRenderableAssistantText(message))),
     [rawMessages]
   )
+  const sessionOptions = useMemo(() => {
+    if (!sessionId) return sessions
+    if (sessions.some((item) => item.sessionId === sessionId)) return sessions
+    return [
+      {
+        sessionId,
+        lastMessageAt: 0,
+        messageCount: 0,
+      },
+      ...sessions,
+    ]
+  }, [sessions, sessionId])
+  const selectedSessionSummary = useMemo(
+    () => sessionOptions.find((item) => item.sessionId === sessionId),
+    [sessionOptions, sessionId]
+  )
   const recentRunEvents = useMemo(() => runEvents.slice(-4), [runEvents])
   const latestRunEvent = recentRunEvents[recentRunEvents.length - 1]
-  const isBusy = historyLoading || status === 'streaming' || status === 'submitted'
+  const isBusy = sessionsLoading || historyLoading || status === 'streaming' || status === 'submitted'
 
   useEffect(() => {
-    const nextSessionId = resolveSessionId(agentSlug)
-    setSessionId(nextSessionId)
     setInput('')
     setRunEvents([])
-  }, [agentSlug])
+    setMessages([])
+    shouldInstantScrollRef.current = true
+
+    if (!agentSlug) {
+      setSessions([])
+      setSessionId(generateSessionId())
+      return
+    }
+
+    void reloadSessions(agentSlug, { allowSwitch: true })
+  }, [agentSlug, reloadSessions, setMessages])
 
   useEffect(() => {
     if (!agentSlug || !sessionId) {
@@ -181,6 +335,7 @@ export function ChatPanel() {
       return
     }
 
+    shouldInstantScrollRef.current = true
     const abortController = new AbortController()
 
     const loadHistory = async () => {
@@ -243,8 +398,48 @@ export function ChatPanel() {
   }, [error])
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'nearest' })
+    if (shouldInstantScrollRef.current) {
+      const container = messagesContainerRef.current
+      if (container) {
+        const previousScrollBehavior = container.style.scrollBehavior
+        container.style.scrollBehavior = 'auto'
+        container.scrollTop = container.scrollHeight
+        container.style.scrollBehavior = previousScrollBehavior
+      }
+    } else {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'nearest' })
+    }
+
+    shouldInstantScrollRef.current = false
   }, [messages])
+
+  const handleCreateSession = () => {
+    shouldInstantScrollRef.current = true
+    const nextSessionId = generateSessionId()
+    setSessionId(nextSessionId)
+    persistSessionId(agentSlug, nextSessionId)
+    setInput('')
+    setRunEvents([])
+    setMessages([])
+    setSessions((previous) => [
+      {
+        sessionId: nextSessionId,
+        lastMessageAt: 0,
+        messageCount: 0,
+      },
+      ...previous.filter((item) => item.sessionId !== nextSessionId),
+    ])
+  }
+
+  const handleSwitchSession = (nextSessionId: string) => {
+    if (!nextSessionId || nextSessionId === sessionId) return
+    shouldInstantScrollRef.current = true
+    setSessionId(nextSessionId)
+    persistSessionId(agentSlug, nextSessionId)
+    setRunEvents([])
+    setInput('')
+    setMessages([])
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -252,6 +447,20 @@ export function ChatPanel() {
 
     const content = input.trim()
     setInput('')
+    setSessions((previous) => {
+      const now = Date.now()
+      const existing = previous.find((item) => item.sessionId === sessionId)
+      return [
+        {
+          sessionId,
+          lastMessageAt: now,
+          messageCount: (existing?.messageCount ?? 0) + 1,
+          lastMessagePreview: content,
+        },
+        ...previous.filter((item) => item.sessionId !== sessionId),
+      ].slice(0, 30)
+    })
+
     try {
       await sendMessage(
         { text: content },
@@ -268,6 +477,10 @@ export function ChatPanel() {
       )
     } catch {
       // Ignore and let UI handle failed state
+    } finally {
+      if (agentSlug) {
+        void reloadSessions(agentSlug)
+      }
     }
   }
 
@@ -288,12 +501,9 @@ export function ChatPanel() {
   const statusText = t('chat.status.ai', 'OpenClaw · 实时回复')
 
   const renderMessageText = (message: ChatMessage) => {
-    const text = message.parts
-      .filter((part) => part.type === 'text')
-      .map((part) => part.text)
-      .join('')
-      .trim()
-    return text || t('chat.unsupportedMessage', '（此消息类型暂不展示）')
+    const text = getRenderableMessageText(message)
+    const normalizedText = normalizeMarkdownListLeadingBullets(text)
+    return normalizedText || t('chat.unsupportedMessage', '（此消息类型暂不展示）')
   }
 
   return (
@@ -319,6 +529,41 @@ export function ChatPanel() {
             {latestRunEvent ? <span className="text-muted-foreground">· {latestRunEvent.label}</span> : null}
           </p>
         </div>
+      </div>
+
+      <div className="px-5 py-3 border-b border-border/50 bg-muted/20 space-y-2">
+        <div className="flex items-center gap-2">
+          <select
+            value={sessionId}
+            onChange={(event) => handleSwitchSession(event.target.value)}
+            disabled={isBusy}
+            className="h-8 flex-1 rounded-md border border-border/60 bg-background/60 px-2 text-xs text-foreground disabled:opacity-60"
+          >
+            {sessionOptions.map((session, index) => {
+              const timeText = session.lastMessageAt > 0 ? formatEventTime(session.lastMessageAt) : '新会话'
+              return (
+                <option key={session.sessionId} value={session.sessionId}>
+                  {`会话 ${index + 1} · ${timeText}`}
+                </option>
+              )
+            })}
+          </select>
+          <button
+            type="button"
+            onClick={handleCreateSession}
+            disabled={isBusy}
+            className="h-8 rounded-md border border-border/60 px-3 text-xs hover:bg-muted/60 disabled:opacity-60"
+          >
+            新会话
+          </button>
+        </div>
+        <p className="text-[11px] text-muted-foreground truncate">
+          {sessionsLoading
+            ? '正在刷新会话列表…'
+            : selectedSessionSummary?.lastMessagePreview
+              ? selectedSessionSummary.lastMessagePreview
+              : '当前会话暂无消息'}
+        </p>
       </div>
 
       <div className="px-5 py-3 border-b border-border/50 bg-muted/20">
@@ -354,7 +599,7 @@ export function ChatPanel() {
         )}
       </div>
 
-      <div className="flex-1 overflow-y-auto p-5 space-y-5">
+      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-5 space-y-5">
         {messages.length === 0 && (
           <div className="flex flex-col items-center justify-center h-full text-center py-8">
             <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-pink-500/20 to-rose-500/20 flex items-center justify-center mb-4">
@@ -393,7 +638,15 @@ export function ChatPanel() {
                 ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-br-md'
                 : 'bg-muted/80 backdrop-blur-sm rounded-bl-md border border-border/50'
             )}>
-              <p className="text-sm leading-relaxed whitespace-pre-wrap">{renderMessageText(message)}</p>
+              <MarkdownRenderer
+                className={cn(
+                  message.role === 'user'
+                    ? 'prose-invert [&_a]:text-white [&_.code-block-wrapper_pre]:bg-black/30 [&_.code-block-wrapper_pre]:border-white/10'
+                    : ''
+                )}
+              >
+                {renderMessageText(message)}
+              </MarkdownRenderer>
             </div>
           </div>
         ))}
@@ -433,7 +686,7 @@ export function ChatPanel() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             placeholder={historyLoading ? '正在恢复历史...' : '输入消息...'}
-            disabled={historyLoading}
+            disabled={isBusy}
             className="w-full h-11 pl-4 pr-12 rounded-xl bg-muted/50 border border-border/50 focus:border-pink-500/50 focus:ring-2 focus:ring-pink-500/20 outline-none transition-all text-sm"
           />
           <button
