@@ -72,6 +72,10 @@ function formatEventTime(timestamp: number): string {
   return date.toLocaleTimeString([], { hour12: false })
 }
 
+function hasRenderableAssistantText(message: ChatMessage): boolean {
+  return message.parts.some((part) => part.type === 'text' && part.text.trim().length > 0)
+}
+
 export function ChatPanel() {
   const { t } = useTranslation()
   const { currentAgent } = useChatStore()
@@ -100,9 +104,16 @@ export function ChatPanel() {
       setRunEvents((previous) => {
         const duplicated = previous.some(
           (item) =>
-            item.runId === nextEvent.runId &&
-            item.stage === nextEvent.stage &&
-            Math.abs(item.at - nextEvent.at) < 1500
+            (
+              item.runId === nextEvent.runId &&
+              item.stage === nextEvent.stage &&
+              Math.abs(item.at - nextEvent.at) < 1500
+            ) || (
+              item.stage === 'failed' &&
+              nextEvent.stage === 'failed' &&
+              item.detail === nextEvent.detail &&
+              Math.abs(item.at - nextEvent.at) < 3000
+            )
         )
         if (duplicated) return previous
         return [...previous, nextEvent].slice(-20)
@@ -111,7 +122,7 @@ export function ChatPanel() {
   })
 
   const messages = useMemo(
-    () => rawMessages.filter((message) => message.role !== 'system'),
+    () => rawMessages.filter((message) => message.role !== 'system' && (message.role !== 'assistant' || hasRenderableAssistantText(message))),
     [rawMessages]
   )
   const recentRunEvents = useMemo(() => runEvents.slice(-4), [runEvents])
@@ -126,18 +137,23 @@ export function ChatPanel() {
   useEffect(() => {
     if (!error) return
     setRunEvents((previous) => {
+      const now = Date.now()
+      const latestFailedEvent = [...previous].reverse().find((item) => item.stage === 'failed')
+      if (latestFailedEvent && latestFailedEvent.detail === error.message && now - latestFailedEvent.at < 5000) {
+        return previous
+      }
+
       const fallbackEvent: RunEvent = {
         runId: `client-${Date.now()}`,
         stage: 'failed',
-        label: '客户端请求失败',
+        label: '连接请求失败',
         detail: error.message,
-        at: Date.now(),
+        at: now,
       }
       return [...previous, fallbackEvent].slice(-20)
     })
   }, [error])
 
-  // Scroll to bottom on new messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'nearest' })
   }, [messages])

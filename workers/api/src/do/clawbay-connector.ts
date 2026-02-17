@@ -18,10 +18,21 @@ type ConnectorConnection = {
   connectorId: string;
   agentId: string;
   socket: WebSocket;
+  lastSeenAt: number;
+  pingTimer: ReturnType<typeof setInterval> | null;
 };
+
+const CONNECTION_GRACE_MS = 5000;
+const CONNECTION_RETRY_INTERVAL_MS = 200;
+const CONNECTION_PING_INTERVAL_MS = 20000;
+const CONNECTION_STALE_TIMEOUT_MS = 65000;
 
 function encodeSse(event: string, data: unknown) {
   return `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function hashToken(token: string): Promise<string> {
@@ -70,6 +81,74 @@ export class ClawbayConnector {
     return new Response('Not Found', { status: 404 });
   }
 
+  private stopConnectionHeartbeat(connection: ConnectorConnection | null) {
+    if (!connection?.pingTimer) {
+      return;
+    }
+    clearInterval(connection.pingTimer);
+    connection.pingTimer = null;
+  }
+
+  private startConnectionHeartbeat(connection: ConnectorConnection) {
+    this.stopConnectionHeartbeat(connection);
+    connection.pingTimer = setInterval(() => {
+      const active = this.connection;
+      if (!active || active.socket !== connection.socket) {
+        this.stopConnectionHeartbeat(connection);
+        return;
+      }
+
+      const now = Date.now();
+      if (now - active.lastSeenAt > CONNECTION_STALE_TIMEOUT_MS) {
+        try {
+          active.socket.close(1011, 'heartbeat-timeout');
+        } catch {
+          // noop
+        }
+        this.handleConnectorClose(active.socket);
+        return;
+      }
+
+      try {
+        active.socket.send(
+          JSON.stringify({
+            type: 'ping',
+            ts: now,
+          })
+        );
+      } catch {
+        try {
+          active.socket.close(1011, 'heartbeat-send-failed');
+        } catch {
+          // noop
+        }
+        this.handleConnectorClose(active.socket);
+      }
+    }, CONNECTION_PING_INTERVAL_MS);
+  }
+
+  private failActiveRuns(errorMessage: string) {
+    for (const [runId, run] of this.runs.entries()) {
+      run.sendEvent('error', { runId, error: errorMessage });
+      run.controller.close();
+      void this.env.DB.prepare('UPDATE messages SET status = ? WHERE id = ?')
+        .bind('failed', run.userMessageId)
+        .run();
+      this.runs.delete(runId);
+    }
+  }
+
+  private async waitForConnection(timeoutMs: number): Promise<ConnectorConnection | null> {
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+      if (this.connection) {
+        return this.connection;
+      }
+      await sleep(CONNECTION_RETRY_INTERVAL_MS);
+    }
+    return this.connection;
+  }
+
   private async handleConnect(request: Request): Promise<Response> {
     const token = new URL(request.url).searchParams.get('token');
     if (!token) {
@@ -91,22 +170,33 @@ export class ClawbayConnector {
     const socket = pair[1];
 
     socket.accept();
-    this.connection?.socket.close(1000, 'replaced');
+
+    const previousConnection = this.connection;
+    if (previousConnection) {
+      this.failActiveRuns('Connector session replaced');
+      this.stopConnectionHeartbeat(previousConnection);
+      previousConnection.socket.close(1000, 'replaced');
+    }
+
     this.connection = {
       connectorId: connector.id,
       agentId: connector.agent_id,
       socket,
+      lastSeenAt: Date.now(),
+      pingTimer: null,
     };
+
     await touchConnector(this.env.DB, connector.id);
+    this.startConnectionHeartbeat(this.connection);
 
     socket.addEventListener('message', (event) => {
-      this.handleConnectorMessage(event);
+      void this.handleConnectorMessage(event, socket);
     });
     socket.addEventListener('close', () => {
-      this.handleConnectorClose();
+      this.handleConnectorClose(socket);
     });
     socket.addEventListener('error', () => {
-      this.handleConnectorClose();
+      this.handleConnectorClose(socket);
     });
 
     return new Response(null, { status: 101, webSocket: client });
@@ -126,7 +216,6 @@ export class ClawbayConnector {
       return new Response('sessionId and content required', { status: 400 });
     }
 
-    const connection = this.connection;
     const encoder = new TextEncoder();
 
     const stream = new ReadableStream<Uint8Array>({
@@ -138,6 +227,8 @@ export class ClawbayConnector {
         const runId = crypto.randomUUID();
         const userMessageId = crypto.randomUUID();
         const now = Date.now();
+
+        const connection = await this.waitForConnection(CONNECTION_GRACE_MS);
         const agentId = body.agentId || connection?.agentId;
 
         if (!agentId) {
@@ -154,8 +245,6 @@ export class ClawbayConnector {
           .bind(userMessageId, agentId, sessionId, content, initialStatus, now)
           .run();
 
-        sendEvent('ack', { runId, messageId: userMessageId });
-
         if (!connection) {
           sendEvent('error', { runId, error: 'Connector offline' });
           controller.close();
@@ -171,23 +260,34 @@ export class ClawbayConnector {
           userMessageId,
         });
 
-        await this.env.DB.prepare(
-          'UPDATE messages SET status = ? WHERE id = ?'
-        )
+        try {
+          connection.socket.send(
+            JSON.stringify({
+              type: 'user_message',
+              runId,
+              sessionId,
+              content,
+            })
+          );
+        } catch {
+          this.runs.delete(runId);
+          await this.env.DB.prepare('UPDATE messages SET status = ? WHERE id = ?')
+            .bind('failed', userMessageId)
+            .run();
+          sendEvent('error', { runId, error: 'Connector send failed' });
+          controller.close();
+          return;
+        }
+
+        await this.env.DB.prepare('UPDATE messages SET status = ? WHERE id = ?')
           .bind('sent', userMessageId)
           .run();
 
-        connection.socket.send(
-          JSON.stringify({
-            type: 'user_message',
-            runId,
-            sessionId,
-            content,
-          })
-        );
+        sendEvent('ack', { runId, messageId: userMessageId });
+        sendEvent('run_started', { runId });
       },
       cancel: () => {
-        // Cleanup happens when the run is finalized or errored.
+        // noop
       },
     });
 
@@ -200,22 +300,51 @@ export class ClawbayConnector {
     });
   }
 
-  private async handleConnectorMessage(event: MessageEvent) {
+  private async handleConnectorMessage(event: MessageEvent, sourceSocket: WebSocket) {
     const connection = this.connection;
-    if (!connection) return;
+    if (!connection || connection.socket !== sourceSocket) {
+      return;
+    }
 
-    await touchConnector(this.env.DB, connection.connectorId);
+    type ConnectorInboundPayload = {
+      type?: string;
+      runId?: string;
+      delta?: string;
+      content?: string;
+      error?: string;
+      ts?: number;
+    };
 
-    let payload: { type?: string; runId?: string; delta?: string; content?: string; error?: string };
+    let payload: ConnectorInboundPayload;
     try {
-      payload = JSON.parse(String(event.data));
+      payload = JSON.parse(String(event.data)) as ConnectorInboundPayload;
     } catch {
       return;
     }
 
-    if (!payload.runId) return;
+    connection.lastSeenAt = Date.now();
+
+    if (payload.type === 'ping') {
+      sourceSocket.send(JSON.stringify({ type: 'pong', ts: Date.now() }));
+      await touchConnector(this.env.DB, connection.connectorId);
+      return;
+    }
+
+    if (payload.type === 'pong') {
+      await touchConnector(this.env.DB, connection.connectorId);
+      return;
+    }
+
+    await touchConnector(this.env.DB, connection.connectorId);
+
+    if (!payload.runId) {
+      return;
+    }
+
     const run = this.runs.get(payload.runId);
-    if (!run) return;
+    if (!run) {
+      return;
+    }
 
     if (payload.type === 'delta' && payload.delta) {
       run.assistantText += payload.delta;
@@ -235,27 +364,33 @@ export class ClawbayConnector {
 
     if (payload.type === 'final') {
       const agentMessageId = crypto.randomUUID();
-      const content = payload.content ?? run.assistantText;
-      if (content && content.trim()) {
+      const finalContent = payload.content ?? run.assistantText;
+      if (finalContent && finalContent.trim()) {
         await this.env.DB.prepare(
           `INSERT INTO messages (id, agent_id, session_id, role, content, status, created_at)
            VALUES (?, ?, ?, 'agent', ?, 'delivered', ?)`
         )
-          .bind(agentMessageId, run.agentId, run.sessionId, content, Date.now())
+          .bind(agentMessageId, run.agentId, run.sessionId, finalContent, Date.now())
           .run();
       }
-      run.sendEvent('final', { runId: payload.runId, content, messageId: agentMessageId });
+      run.sendEvent('final', { runId: payload.runId, content: finalContent, messageId: agentMessageId });
       run.controller.close();
       this.runs.delete(payload.runId);
     }
   }
 
-  private handleConnectorClose() {
-    for (const [runId, run] of this.runs.entries()) {
-      run.sendEvent('error', { runId, error: 'Connector disconnected' });
-      run.controller.close();
-      this.runs.delete(runId);
+  private handleConnectorClose(closedSocket?: WebSocket) {
+    const connection = this.connection;
+    if (!connection) {
+      return;
     }
+
+    if (closedSocket && connection.socket !== closedSocket) {
+      return;
+    }
+
+    this.stopConnectionHeartbeat(connection);
     this.connection = null;
+    this.failActiveRuns('Connector disconnected');
   }
 }

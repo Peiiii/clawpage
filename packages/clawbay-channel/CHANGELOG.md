@@ -1,5 +1,11 @@
 # @clawbay/clawbay-channel
 
+## 0.0.9
+
+### Patch Changes
+
+- Improve ClawBay channel reliability with heartbeat and reconnect buffering
+
 ## 0.0.8
 
 ### Patch Changes

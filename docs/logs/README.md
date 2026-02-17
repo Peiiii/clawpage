@@ -35,6 +35,7 @@
 - `docs/logs/v0.0.32-openclaw-ai-sdk-chat/README.md`
 - `docs/logs/v0.0.33-remove-no-plugin-onboarding/README.md`
 - `docs/logs/v0.0.34-chat-run-timeline/README.md`
+- `docs/logs/v0.0.35-clawbay-channel-stability/README.md`
 
 ## 写日志的标准
 

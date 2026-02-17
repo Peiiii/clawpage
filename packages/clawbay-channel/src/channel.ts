@@ -48,6 +48,8 @@ const clawbayChannelConfigSchema = {
 };
 
 const DEFAULT_API_BASE = "https://api.clawbay.ai";
+const HEARTBEAT_INTERVAL_MS = 20000;
+const HEARTBEAT_TIMEOUT_MS = 65000;
 
 function resolveClawbayAccount(cfg: { channels?: { clawbay?: ClawbayChannelConfig } }): ResolvedClawbayAccount {
   const config = cfg.channels?.clawbay ?? {};
@@ -192,6 +194,42 @@ export const clawbayPlugin: ChannelPlugin<ResolvedClawbayAccount> = {
 
       let stopped = false;
       let socket: WebSocket | null = null;
+      let heartbeatTimer: ReturnType<typeof setInterval> | null = null;
+      let lastHeartbeatAt = 0;
+
+      const stopHeartbeat = () => {
+        if (!heartbeatTimer) {
+          return;
+        }
+        clearInterval(heartbeatTimer);
+        heartbeatTimer = null;
+      };
+
+      const markHeartbeat = () => {
+        lastHeartbeatAt = Date.now();
+      };
+
+      const startHeartbeat = () => {
+        stopHeartbeat();
+        markHeartbeat();
+        heartbeatTimer = setInterval(() => {
+          if (!socket || socket.readyState !== WebSocket.OPEN) {
+            return;
+          }
+          const now = Date.now();
+          if (now - lastHeartbeatAt > HEARTBEAT_TIMEOUT_MS) {
+            ctx.log?.warn?.("[clawbay] heartbeat timeout, reconnecting");
+            socket.close();
+            return;
+          }
+          socket.send(
+            JSON.stringify({
+              type: "ping",
+              ts: now,
+            })
+          );
+        }, HEARTBEAT_INTERVAL_MS);
+      };
 
       const connect = () => {
         if (stopped) return;
@@ -200,16 +238,29 @@ export const clawbayPlugin: ChannelPlugin<ResolvedClawbayAccount> = {
 
         socket.addEventListener("open", () => {
           ctx.log?.info?.("[clawbay] connected");
+          startHeartbeat();
         });
 
         socket.addEventListener("message", async (event) => {
           if (!socket || socket.readyState !== WebSocket.OPEN) return;
-          let payload: { type?: string; runId?: string; sessionId?: string; content?: string };
+          let payload: { type?: string; runId?: string; sessionId?: string; content?: string; ts?: number };
           try {
             payload = JSON.parse(String(event.data));
           } catch {
             return;
           }
+
+          if (payload.type === "ping") {
+            markHeartbeat();
+            socket.send(JSON.stringify({ type: "pong", ts: Date.now() }));
+            return;
+          }
+
+          if (payload.type === "pong") {
+            markHeartbeat();
+            return;
+          }
+
           if (payload.type !== "user_message" || !payload.runId || !payload.sessionId) {
             return;
           }
@@ -263,6 +314,7 @@ export const clawbayPlugin: ChannelPlugin<ResolvedClawbayAccount> = {
         });
 
         const scheduleReconnect = () => {
+          stopHeartbeat();
           if (stopped) return;
           setTimeout(connect, 2000);
         };
@@ -278,6 +330,7 @@ export const clawbayPlugin: ChannelPlugin<ResolvedClawbayAccount> = {
       return {
         stop: () => {
           stopped = true;
+          stopHeartbeat();
           socket?.close();
         },
       };
