@@ -200,9 +200,7 @@ export function ChatPanel() {
   const [sessionId, setSessionId] = useState(() => resolveSessionId(agentSlug))
   const [sessionsLoading, setSessionsLoading] = useState(false)
   const [historyLoading, setHistoryLoading] = useState(false)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
-  const shouldInstantScrollRef = useRef(true)
   const chatId = useMemo(
     () => (agentSlug ? `${agentSlug}:${sessionId}` : sessionId),
     [agentSlug, sessionId]
@@ -317,7 +315,6 @@ export function ChatPanel() {
     setInput('')
     setRunEvents([])
     setMessages([])
-    shouldInstantScrollRef.current = true
 
     if (!agentSlug) {
       setSessions([])
@@ -335,7 +332,7 @@ export function ChatPanel() {
       return
     }
 
-    shouldInstantScrollRef.current = true
+
     const abortController = new AbortController()
 
     const loadHistory = async () => {
@@ -398,23 +395,15 @@ export function ChatPanel() {
   }, [error])
 
   useEffect(() => {
-    if (shouldInstantScrollRef.current) {
+    requestAnimationFrame(() => {
       const container = messagesContainerRef.current
       if (container) {
-        const previousScrollBehavior = container.style.scrollBehavior
-        container.style.scrollBehavior = 'auto'
         container.scrollTop = container.scrollHeight
-        container.style.scrollBehavior = previousScrollBehavior
       }
-    } else {
-      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end', inline: 'nearest' })
-    }
-
-    shouldInstantScrollRef.current = false
+    })
   }, [messages])
 
   const handleCreateSession = () => {
-    shouldInstantScrollRef.current = true
     const nextSessionId = generateSessionId()
     setSessionId(nextSessionId)
     persistSessionId(agentSlug, nextSessionId)
@@ -433,7 +422,6 @@ export function ChatPanel() {
 
   const handleSwitchSession = (nextSessionId: string) => {
     if (!nextSessionId || nextSessionId === sessionId) return
-    shouldInstantScrollRef.current = true
     setSessionId(nextSessionId)
     persistSessionId(agentSlug, nextSessionId)
     setRunEvents([])
@@ -676,7 +664,7 @@ export function ChatPanel() {
             </div>
           </div>
         )}
-        <div ref={messagesEndRef} />
+
       </div>
 
       <div className="p-4 border-t border-border/50">
