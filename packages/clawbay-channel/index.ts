@@ -1,7 +1,14 @@
 import type { OpenClawPluginApi } from "openclaw/plugin-sdk";
-import { emptyPluginConfigSchema } from "openclaw/plugin-sdk";
 import { clawbayPlugin } from "./src/channel.js";
 import { setClawbayRuntime } from "./src/runtime.js";
+
+function emptyPluginConfigSchema() {
+  return {
+    type: "object" as const,
+    additionalProperties: false,
+    properties: {},
+  };
+}
 
 const plugin = {
   id: "clawbay-channel",

@@ -1,5 +1,11 @@
 # @clawbay/clawbay-channel
 
+## 0.0.10
+
+### Patch Changes
+
+- Fix nextclaw compatibility by removing runtime dependency on openclaw/plugin-sdk imports.
+
 ## 0.0.9
 
 ### Patch Changes

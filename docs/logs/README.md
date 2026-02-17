@@ -36,6 +36,8 @@
 - `docs/logs/v0.0.33-remove-no-plugin-onboarding/README.md`
 - `docs/logs/v0.0.34-chat-run-timeline/README.md`
 - `docs/logs/v0.0.35-clawbay-channel-stability/README.md`
+- `docs/logs/v0.0.36-nextclaw-plugin-load-fix/README.md`
+- `docs/logs/v0.0.37-remove-approval-copy/README.md`
 
 ## 写日志的标准
 

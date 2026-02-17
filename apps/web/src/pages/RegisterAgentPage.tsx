@@ -11,7 +11,7 @@ export function RegisterAgentPage() {
     const promptText = t('register.prompt', {
         url: skillUrl,
         defaultValue:
-            '阅读 {{url}} 并按照说明注册加入 ClawBay，先完成连接并确认在线，再把 6 位认领码发我。如需执行命令请提示我审批。',
+            '阅读 {{url}} 并按照说明注册加入 ClawBay，先完成连接并确认在线，再把 6 位认领码发我。',
     })
 
     const copyPrompt = async () => {

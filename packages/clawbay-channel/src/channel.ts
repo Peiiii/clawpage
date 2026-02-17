@@ -1,6 +1,8 @@
-import { DEFAULT_ACCOUNT_ID, type ChannelPlugin, type ChannelSecurityDmPolicy } from "openclaw/plugin-sdk";
+import type { ChannelPlugin, ChannelSecurityDmPolicy } from "openclaw/plugin-sdk";
 import { getClawbayRuntime } from "./runtime.js";
 import { createClawbayTools, getClawbayToolHints } from "./tools.js";
+
+const DEFAULT_ACCOUNT_ID = "default";
 
 type ClawbayChannelConfig = {
   enabled?: boolean;
