@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react'
-import { Send, Bot, User, Sparkles } from 'lucide-react'
+import { Send, Bot, User, Sparkles, Plus, ChevronDown, MessageSquare, Clock } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { MarkdownRenderer } from './MarkdownRenderer'
 import { useChatStore } from '@/store'
@@ -92,10 +92,24 @@ function normalizeRunEvent(value: unknown): RunEvent | null {
   }
 }
 
-function formatEventTime(timestamp: number): string {
+
+
+function formatRelativeTime(timestamp: number): string {
+  if (!timestamp || timestamp <= 0) return '新会话'
+  const now = Date.now()
+  const diff = now - timestamp
+  const minutes = Math.floor(diff / 60_000)
+  const hours = Math.floor(diff / 3_600_000)
+  const days = Math.floor(diff / 86_400_000)
+
+  if (minutes < 1) return '刚刚'
+  if (minutes < 60) return `${minutes}分钟前`
+  if (hours < 24) return `${hours}小时前`
+  if (days < 2) return '昨天'
+  if (days < 7) return `${days}天前`
+
   const date = new Date(timestamp)
-  if (Number.isNaN(date.getTime())) return '--:--:--'
-  return date.toLocaleTimeString([], { hour12: false })
+  return `${date.getMonth() + 1}月${date.getDate()}日`
 }
 
 function resolveSessionStorageKey(agentSlug: string): string {
@@ -200,7 +214,9 @@ export function ChatPanel() {
   const [sessionId, setSessionId] = useState(() => resolveSessionId(agentSlug))
   const [sessionsLoading, setSessionsLoading] = useState(false)
   const [historyLoading, setHistoryLoading] = useState(false)
+  const [showSessionList, setShowSessionList] = useState(false)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
+  const sessionListRef = useRef<HTMLDivElement>(null)
   const chatId = useMemo(
     () => (agentSlug ? `${agentSlug}:${sessionId}` : sessionId),
     [agentSlug, sessionId]
@@ -315,6 +331,7 @@ export function ChatPanel() {
     setInput('')
     setRunEvents([])
     setMessages([])
+    setShowSessionList(false)
 
     if (!agentSlug) {
       setSessions([])
@@ -402,6 +419,18 @@ export function ChatPanel() {
       }
     })
   }, [messages])
+
+  // Close session list on click outside
+  useEffect(() => {
+    if (!showSessionList) return
+    const handleClickOutside = (e: MouseEvent) => {
+      if (sessionListRef.current && !sessionListRef.current.contains(e.target as Node)) {
+        setShowSessionList(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [showSessionList])
 
   const handleCreateSession = () => {
     const nextSessionId = generateSessionId()
@@ -494,177 +523,224 @@ export function ChatPanel() {
     return normalizedText || t('chat.unsupportedMessage', '（此消息类型暂不展示）')
   }
 
+  const currentSessionIndex = sessionOptions.findIndex((s) => s.sessionId === sessionId)
+
   return (
     <div className="flex flex-col h-full">
-      <div className="flex items-center gap-4 px-5 py-4 border-b border-border/50">
-        <div className="relative">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center overflow-hidden ring-2 ring-pink-500/20">
+      {/* ── Header: Agent info + New session button ── */}
+      <div className="flex items-center gap-3 px-4 py-3 border-b border-border/50">
+        <div className="relative flex-shrink-0">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center overflow-hidden ring-2 ring-pink-500/20">
             {currentAgent?.avatarUrl ? (
               <img src={currentAgent.avatarUrl} alt={currentAgent.name} className="w-full h-full object-cover" />
             ) : (
-              <Bot className="w-6 h-6 text-white" />
+              <Bot className="w-5 h-5 text-white" />
             )}
           </div>
-          <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full ring-2 ring-background flex items-center justify-center bg-emerald-500">
-            <div className="w-2 h-2 rounded-full bg-white animate-pulse" />
+          <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full ring-2 ring-background flex items-center justify-center bg-emerald-500">
+            <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
           </div>
         </div>
-        <div>
-          <h3 className="font-semibold text-base">{currentAgent?.name}</h3>
-          <p className="text-xs flex items-center gap-1 text-emerald-400">
-            <Sparkles className="w-3 h-3" />
-            {statusText}
-            {latestRunEvent ? <span className="text-muted-foreground">· {latestRunEvent.label}</span> : null}
+
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold text-sm leading-tight truncate">{currentAgent?.name}</h3>
+          <p className="text-[11px] flex items-center gap-1 text-emerald-400 mt-0.5">
+            <Sparkles className="w-3 h-3 flex-shrink-0" />
+            <span className="truncate">
+              {statusText}
+              {latestRunEvent ? <span className="text-muted-foreground"> · {latestRunEvent.label}</span> : null}
+            </span>
           </p>
         </div>
+
+        <button
+          type="button"
+          onClick={handleCreateSession}
+          disabled={isBusy}
+          className="flex items-center gap-1 h-7 px-2.5 rounded-lg text-xs font-medium bg-pink-500/10 text-pink-400 hover:bg-pink-500/20 disabled:opacity-50 transition-colors flex-shrink-0"
+        >
+          <Plus className="w-3.5 h-3.5" />
+          新会话
+        </button>
       </div>
 
-      <div className="px-5 py-3 border-b border-border/50 bg-muted/20 space-y-2">
-        <div className="flex items-center gap-2">
-          <select
-            value={sessionId}
-            onChange={(event) => handleSwitchSession(event.target.value)}
-            disabled={isBusy}
-            className="h-8 flex-1 rounded-md border border-border/60 bg-background/60 px-2 text-xs text-foreground disabled:opacity-60"
-          >
-            {sessionOptions.map((session, index) => {
-              const timeText = session.lastMessageAt > 0 ? formatEventTime(session.lastMessageAt) : '新会话'
-              return (
-                <option key={session.sessionId} value={session.sessionId}>
-                  {`会话 ${index + 1} · ${timeText}`}
-                </option>
-              )
-            })}
-          </select>
-          <button
-            type="button"
-            onClick={handleCreateSession}
-            disabled={isBusy}
-            className="h-8 rounded-md border border-border/60 px-3 text-xs hover:bg-muted/60 disabled:opacity-60"
-          >
-            新会话
-          </button>
-        </div>
-        <p className="text-[11px] text-muted-foreground truncate">
-          {sessionsLoading
-            ? '正在刷新会话列表…'
-            : selectedSessionSummary?.lastMessagePreview
-              ? selectedSessionSummary.lastMessagePreview
-              : '当前会话暂无消息'}
-        </p>
-      </div>
-
-      <div className="px-5 py-3 border-b border-border/50 bg-muted/20">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">执行进度</span>
-          {latestRunEvent ? (
-            <span className={cn('text-xs font-medium', RUN_STAGE_STYLES[latestRunEvent.stage].labelClass)}>
-              {latestRunEvent.stage}
+      {/* ── Session indicator (click to expand list) ── */}
+      <div ref={sessionListRef} className="relative">
+        <button
+          type="button"
+          onClick={() => setShowSessionList((v) => !v)}
+          disabled={sessionsLoading}
+          className="w-full flex items-center gap-2 px-4 py-2 text-xs border-b border-border/50 bg-muted/10 hover:bg-muted/30 transition-colors disabled:opacity-60"
+        >
+          <MessageSquare className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+          <span className="flex-shrink-0 text-foreground/80">
+            {sessionsLoading ? '刷新中…' : `会话 ${currentSessionIndex + 1}`}
+          </span>
+          <span className="text-muted-foreground flex-shrink-0 flex items-center gap-1">
+            <Clock className="w-3 h-3" />
+            {selectedSessionSummary ? formatRelativeTime(selectedSessionSummary.lastMessageAt) : ''}
+          </span>
+          {selectedSessionSummary?.lastMessagePreview ? (
+            <span className="text-muted-foreground truncate ml-1 hidden sm:inline">
+              · {selectedSessionSummary.lastMessagePreview}
             </span>
           ) : null}
-        </div>
+          <ChevronDown className={cn(
+            'w-3.5 h-3.5 ml-auto text-muted-foreground flex-shrink-0 transition-transform',
+            showSessionList && 'rotate-180'
+          )} />
+        </button>
 
-        {recentRunEvents.length === 0 ? (
-          <p className="text-xs text-muted-foreground">发送消息后，这里会显示执行时间线。</p>
-        ) : (
-          <div className="space-y-2">
-            {recentRunEvents.map((event) => {
-              const styles = RUN_STAGE_STYLES[event.stage]
+        {/* ── Session list dropdown ── */}
+        {showSessionList && (
+          <div
+            className="absolute inset-x-0 top-full z-50 max-h-64 overflow-y-auto border-b border-border/50 bg-background/95 backdrop-blur-xl shadow-xl shadow-black/20"
+          >
+            {sessionOptions.map((session, index) => {
+              const isActive = session.sessionId === sessionId
               return (
-                <div key={`${event.runId}-${event.stage}-${event.at}`} className="flex items-start gap-2">
-                  <span className={cn('mt-1 inline-flex h-2 w-2 rounded-full flex-shrink-0', styles.dotClass)} />
-                  <div className="min-w-0 flex-1">
+                <button
+                  key={session.sessionId}
+                  type="button"
+                  onClick={() => {
+                    handleSwitchSession(session.sessionId)
+                    setShowSessionList(false)
+                  }}
+                  disabled={isBusy && !isActive}
+                  className={cn(
+                    'w-full flex items-start gap-3 px-4 py-2.5 text-left transition-colors',
+                    isActive
+                      ? 'bg-pink-500/10 border-l-2 border-pink-500'
+                      : 'hover:bg-muted/40 border-l-2 border-transparent'
+                  )}
+                >
+                  <MessageSquare className={cn(
+                    'w-3.5 h-3.5 mt-0.5 flex-shrink-0',
+                    isActive ? 'text-pink-400' : 'text-muted-foreground'
+                  )} />
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs text-foreground/90 truncate">{event.label}</span>
-                      <span className="text-[11px] text-muted-foreground flex-shrink-0">{formatEventTime(event.at)}</span>
+                      <span className={cn(
+                        'text-xs font-medium',
+                        isActive ? 'text-pink-400' : 'text-foreground/80'
+                      )}>
+                        会话 {index + 1}
+                      </span>
+                      <span className="text-[11px] text-muted-foreground flex-shrink-0">
+                        {formatRelativeTime(session.lastMessageAt)}
+                      </span>
                     </div>
-                    {event.detail ? <p className="text-[11px] text-muted-foreground mt-0.5">{event.detail}</p> : null}
+                    {session.lastMessagePreview ? (
+                      <p className="text-[11px] text-muted-foreground truncate mt-0.5">
+                        {session.lastMessagePreview}
+                      </p>
+                    ) : (
+                      <p className="text-[11px] text-muted-foreground/50 mt-0.5">暂无消息</p>
+                    )}
                   </div>
-                </div>
+                </button>
               )
             })}
           </div>
         )}
       </div>
 
-      <div ref={messagesContainerRef} className="flex-1 overflow-y-auto p-5 space-y-5">
-        {messages.length === 0 && (
-          <div className="flex flex-col items-center justify-center h-full text-center py-8">
-            <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-pink-500/20 to-rose-500/20 flex items-center justify-center mb-4">
-              <Bot className="w-10 h-10 text-pink-400" />
-            </div>
-            <h4 className="font-semibold mb-1">开始和 {currentAgent?.name} 对话</h4>
-            <p className="text-sm text-muted-foreground max-w-[240px]">
-              {historyLoading ? '正在恢复历史对话…' : '发送消息开始对话，AI 会立即回复你'}
-            </p>
-          </div>
-        )}
-
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={cn(
-              'flex gap-3',
-              message.role === 'user' ? 'flex-row-reverse' : ''
-            )}
-          >
-            <div className={cn(
-              'w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg',
-              message.role === 'user'
-                ? 'bg-gradient-to-br from-blue-500 to-indigo-600'
-                : 'bg-gradient-to-br from-pink-500 to-rose-500'
-            )}>
-              {message.role === 'user' ? (
-                <User className="w-4 h-4 text-white" />
-              ) : (
-                <Bot className="w-4 h-4 text-white" />
-              )}
-            </div>
-            <div className={cn(
-              'max-w-[75%] rounded-2xl px-4 py-3 shadow-sm',
-              message.role === 'user'
-                ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-br-md'
-                : 'bg-muted/80 backdrop-blur-sm rounded-bl-md border border-border/50'
-            )}>
-              <MarkdownRenderer
-                className={cn(
-                  message.role === 'user'
-                    ? 'prose-invert [&_a]:text-white [&_.code-block-wrapper_pre]:bg-black/30 [&_.code-block-wrapper_pre]:border-white/10'
-                    : ''
-                )}
-              >
-                {renderMessageText(message)}
-              </MarkdownRenderer>
-            </div>
-          </div>
-        ))}
-
-        {isBusy && (
-          <div className="flex gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center shadow-lg">
-              <Bot className="w-4 h-4 text-white" />
-            </div>
-            <div className="bg-muted/80 backdrop-blur-sm rounded-2xl rounded-bl-md px-4 py-3 border border-border/50">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span className="inline-flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-                正在输入…
+      {/* ── Messages area ── */}
+      <div className="relative flex-1 overflow-hidden">
+        <div ref={messagesContainerRef} className="h-full overflow-y-auto p-5 space-y-5">
+          {messages.length === 0 && (
+            <div className="flex flex-col items-center justify-center h-full text-center py-8">
+              <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-pink-500/20 to-rose-500/20 flex items-center justify-center mb-4">
+                <Bot className="w-10 h-10 text-pink-400" />
               </div>
-            </div>
-          </div>
-        )}
-        {error && (
-          <div className="flex gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center shadow-lg">
-              <Bot className="w-4 h-4 text-white" />
-            </div>
-            <div className="bg-muted/80 backdrop-blur-sm rounded-2xl rounded-bl-md px-4 py-3 border border-border/50">
-              <p className="text-sm leading-relaxed whitespace-pre-wrap text-red-500">
-                {error.message}
+              <h4 className="font-semibold mb-1">开始和 {currentAgent?.name} 对话</h4>
+              <p className="text-sm text-muted-foreground max-w-[240px]">
+                {historyLoading ? '正在恢复历史对话…' : '发送消息开始对话，AI 会立即回复你'}
               </p>
             </div>
+          )}
+
+          {messages.map((message) => (
+            <div
+              key={message.id}
+              className={cn(
+                'flex gap-3',
+                message.role === 'user' ? 'flex-row-reverse' : ''
+              )}
+            >
+              <div className={cn(
+                'w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg',
+                message.role === 'user'
+                  ? 'bg-gradient-to-br from-blue-500 to-indigo-600'
+                  : 'bg-gradient-to-br from-pink-500 to-rose-500'
+              )}>
+                {message.role === 'user' ? (
+                  <User className="w-4 h-4 text-white" />
+                ) : (
+                  <Bot className="w-4 h-4 text-white" />
+                )}
+              </div>
+              <div className={cn(
+                'max-w-[75%] rounded-2xl px-4 py-3 shadow-sm',
+                message.role === 'user'
+                  ? 'bg-gradient-to-br from-blue-500 to-indigo-600 text-white rounded-br-md'
+                  : 'bg-muted/80 backdrop-blur-sm rounded-bl-md border border-border/50'
+              )}>
+                <MarkdownRenderer
+                  className={cn(
+                    message.role === 'user'
+                      ? 'prose-invert [&_a]:text-white [&_.code-block-wrapper_pre]:bg-black/30 [&_.code-block-wrapper_pre]:border-white/10'
+                      : ''
+                  )}
+                >
+                  {renderMessageText(message)}
+                </MarkdownRenderer>
+              </div>
+            </div>
+          ))}
+
+          {isBusy && (
+            <div className="flex gap-3">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center shadow-lg">
+                <Bot className="w-4 h-4 text-white" />
+              </div>
+              <div className="bg-muted/80 backdrop-blur-sm rounded-2xl rounded-bl-md px-4 py-3 border border-border/50">
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <span className="inline-flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+                  正在输入…
+                </div>
+              </div>
+            </div>
+          )}
+          {error && (
+            <div className="flex gap-3">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 flex items-center justify-center shadow-lg">
+                <Bot className="w-4 h-4 text-white" />
+              </div>
+              <div className="bg-muted/80 backdrop-blur-sm rounded-2xl rounded-bl-md px-4 py-3 border border-border/50">
+                <p className="text-sm leading-relaxed whitespace-pre-wrap text-red-500">
+                  {error.message}
+                </p>
+              </div>
+            </div>
+          )}
+
+        </div>
+
+        {/* ── Floating run status bar ── */}
+        {latestRunEvent && latestRunEvent.stage !== 'completed' && (
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/90 backdrop-blur-md border border-border/50 shadow-lg shadow-black/10 text-xs">
+              <span className={cn('inline-flex h-2 w-2 rounded-full flex-shrink-0', RUN_STAGE_STYLES[latestRunEvent.stage].dotClass)} />
+              <span className={cn('font-medium', RUN_STAGE_STYLES[latestRunEvent.stage].labelClass)}>
+                {latestRunEvent.label}
+              </span>
+              {latestRunEvent.detail ? (
+                <span className="text-muted-foreground max-w-[180px] truncate">{latestRunEvent.detail}</span>
+              ) : null}
+            </div>
           </div>
         )}
-
       </div>
 
       <div className="p-4 border-t border-border/50">
