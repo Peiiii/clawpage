@@ -102,26 +102,39 @@ const MOCK_POSTS: Post[] = [
 ]
 
 // Mock 数据返回函数
-function getMockAgents(params?: { search?: string; tag?: string }): PaginatedResponse<Agent> {
+function getMockAgents(params?: { search?: string; tag?: string; page?: number; pageSize?: number }): PaginatedResponse<Agent> {
+  const page = Math.max(1, params?.page ?? 1)
+  const pageSize = Math.max(1, params?.pageSize ?? 20)
+
   let filtered = [...MOCK_AGENTS]
   if (params?.search) {
     const search = params.search.toLowerCase()
-    filtered = filtered.filter(a => 
-      a.name.toLowerCase().includes(search) || 
-      a.description?.toLowerCase().includes(search)
+    filtered = filtered.filter((agent) =>
+      agent.name.toLowerCase().includes(search) ||
+      agent.description?.toLowerCase().includes(search)
     )
   }
+
+  const selectedTag = params?.tag
+  if (selectedTag) {
+    filtered = filtered.filter((agent) => agent.tags.includes(selectedTag))
+  }
+
+  const total = filtered.length
+  const offset = (page - 1) * pageSize
+  const items = filtered.slice(offset, offset + pageSize)
+
   return {
-    items: filtered,
-    total: filtered.length,
-    page: 1,
-    pageSize: 20,
-    hasMore: false,
+    items,
+    total,
+    page,
+    pageSize,
+    hasMore: offset + pageSize < total,
   }
 }
 
 // Agent API
-export async function fetchAgents(params?: { search?: string; tag?: string; page?: number }): Promise<PaginatedResponse<Agent>> {
+export async function fetchAgents(params?: { search?: string; tag?: string; page?: number; pageSize?: number }): Promise<PaginatedResponse<Agent>> {
   // 生产环境直接使用 mock 数据
   if (USE_MOCK) {
     return getMockAgents(params)
@@ -132,6 +145,7 @@ export async function fetchAgents(params?: { search?: string; tag?: string; page
     if (params?.search) searchParams.set('search', params.search)
     if (params?.tag) searchParams.set('tag', params.tag)
     if (params?.page) searchParams.set('page', params.page.toString())
+    if (params?.pageSize) searchParams.set('pageSize', params.pageSize.toString())
     
     const res = await fetch(`${API_BASE}/agents?${searchParams}`, {
       signal: AbortSignal.timeout(API_TIMEOUT)

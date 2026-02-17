@@ -726,31 +726,24 @@ export function ChatPanel() {
           )}
 
         </div>
-
-        {/* ── Floating run status bar ── */}
-        {latestRunEvent && latestRunEvent.stage !== 'completed' && (
-          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-10">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-background/90 backdrop-blur-md border border-border/50 shadow-lg shadow-black/10 text-xs">
-              <span className={cn('inline-flex h-2 w-2 rounded-full flex-shrink-0', RUN_STAGE_STYLES[latestRunEvent.stage].dotClass)} />
-              <span className={cn('font-medium', RUN_STAGE_STYLES[latestRunEvent.stage].labelClass)}>
-                {latestRunEvent.label}
-              </span>
-              {latestRunEvent.detail ? (
-                <span className="text-muted-foreground max-w-[180px] truncate">{latestRunEvent.detail}</span>
-              ) : null}
-            </div>
-          </div>
-        )}
       </div>
 
-      <div className="p-4 border-t border-border/50">
+      <div className="px-4 py-3 border-t border-border/50">
+        {latestRunEvent && latestRunEvent.stage !== 'completed' && (
+          <div className="flex items-center gap-1.5 mb-2 text-[11px]">
+            <span className={cn('inline-flex h-1.5 w-1.5 rounded-full flex-shrink-0', RUN_STAGE_STYLES[latestRunEvent.stage].dotClass)} />
+            <span className={cn('font-medium', RUN_STAGE_STYLES[latestRunEvent.stage].labelClass)}>
+              {latestRunEvent.label}
+            </span>
+          </div>
+        )}
         <form onSubmit={handleSubmit} className="relative">
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={historyLoading ? '正在恢复历史...' : '输入消息...'}
-            disabled={isBusy}
+            placeholder={historyLoading ? '恢复历史中...' : '输入消息...'}
+            disabled={historyLoading}
             className="w-full h-11 pl-4 pr-12 rounded-xl bg-muted/50 border border-border/50 focus:border-pink-500/50 focus:ring-2 focus:ring-pink-500/20 outline-none transition-all text-sm"
           />
           <button
