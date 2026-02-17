@@ -23,6 +23,20 @@ type ChatDataParts = {
 
 type ChatMessage = UIMessage<unknown, ChatDataParts>
 
+type ChatHistoryMessage = {
+  id: string
+  role: 'user' | 'agent'
+  content: string
+  createdAt: number
+}
+
+type ChatHistoryResponse = {
+  sessionId: string
+  messages: ChatHistoryMessage[]
+}
+
+const SESSION_STORAGE_PREFIX = 'clawbay:chat-session:'
+
 const RUN_STAGE_STYLES: Record<RunEventStage, { dotClass: string; labelClass: string }> = {
   queued: {
     dotClass: 'bg-sky-400',
@@ -76,14 +90,38 @@ function hasRenderableAssistantText(message: ChatMessage): boolean {
   return message.parts.some((part) => part.type === 'text' && part.text.trim().length > 0)
 }
 
+function resolveSessionId(agentSlug: string | undefined): string {
+  const fallbackSessionId = generateSessionId()
+  if (!agentSlug || typeof window === 'undefined') return fallbackSessionId
+
+  try {
+    const storageKey = `${SESSION_STORAGE_PREFIX}${agentSlug}`
+    const storedSessionId = window.localStorage.getItem(storageKey)?.trim()
+    if (storedSessionId) return storedSessionId
+    window.localStorage.setItem(storageKey, fallbackSessionId)
+    return fallbackSessionId
+  } catch {
+    return fallbackSessionId
+  }
+}
+
+function toChatMessage(message: ChatHistoryMessage): ChatMessage {
+  return {
+    id: message.id,
+    role: message.role === 'agent' ? 'assistant' : 'user',
+    parts: [{ type: 'text', text: message.content }],
+  }
+}
+
 export function ChatPanel() {
   const { t } = useTranslation()
   const { currentAgent } = useChatStore()
+  const agentSlug = currentAgent?.slug
   const [input, setInput] = useState('')
   const [runEvents, setRunEvents] = useState<RunEvent[]>([])
+  const [sessionId, setSessionId] = useState(() => resolveSessionId(agentSlug))
+  const [historyLoading, setHistoryLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const sessionId = useMemo(() => generateSessionId(), [])
-  const agentSlug = currentAgent?.slug
   const chatId = useMemo(
     () => (agentSlug ? `${agentSlug}:${sessionId}` : sessionId),
     [agentSlug, sessionId]
@@ -93,7 +131,7 @@ export function ChatPanel() {
     []
   )
 
-  const { messages: rawMessages, sendMessage, status, error } = useChat<ChatMessage>({
+  const { messages: rawMessages, sendMessage, status, error, setMessages } = useChat<ChatMessage>({
     id: chatId,
     transport,
     onData: (dataPart) => {
@@ -127,12 +165,62 @@ export function ChatPanel() {
   )
   const recentRunEvents = useMemo(() => runEvents.slice(-4), [runEvents])
   const latestRunEvent = recentRunEvents[recentRunEvents.length - 1]
-  const isBusy = status === 'streaming' || status === 'submitted'
+  const isBusy = historyLoading || status === 'streaming' || status === 'submitted'
 
   useEffect(() => {
+    const nextSessionId = resolveSessionId(agentSlug)
+    setSessionId(nextSessionId)
     setInput('')
     setRunEvents([])
-  }, [currentAgent?.slug])
+  }, [agentSlug])
+
+  useEffect(() => {
+    if (!agentSlug || !sessionId) {
+      setMessages([])
+      setHistoryLoading(false)
+      return
+    }
+
+    const abortController = new AbortController()
+
+    const loadHistory = async () => {
+      setHistoryLoading(true)
+      try {
+        const url = new URL(`${API_BASE}/chat/history`)
+        url.searchParams.set('agentSlug', agentSlug)
+        url.searchParams.set('sessionId', sessionId)
+        const response = await fetch(url.toString(), { signal: abortController.signal })
+        if (!response.ok) {
+          throw new Error(`history request failed: ${response.status}`)
+        }
+
+        const payload = await response.json() as ChatHistoryResponse
+        if (abortController.signal.aborted) return
+
+        const historyMessages = Array.isArray(payload.messages)
+          ? payload.messages
+            .filter((message) => message && (message.role === 'user' || message.role === 'agent') && typeof message.content === 'string')
+            .map(toChatMessage)
+          : []
+
+        setMessages(historyMessages)
+      } catch (loadError) {
+        if (abortController.signal.aborted) return
+        console.error('Failed to load chat history', loadError)
+        setMessages([])
+      } finally {
+        if (!abortController.signal.aborted) {
+          setHistoryLoading(false)
+        }
+      }
+    }
+
+    void loadHistory()
+
+    return () => {
+      abortController.abort()
+    }
+  }, [agentSlug, sessionId, setMessages])
 
   useEffect(() => {
     if (!error) return
@@ -274,7 +362,7 @@ export function ChatPanel() {
             </div>
             <h4 className="font-semibold mb-1">开始和 {currentAgent?.name} 对话</h4>
             <p className="text-sm text-muted-foreground max-w-[240px]">
-              发送消息开始对话，AI 会立即回复你
+              {historyLoading ? '正在恢复历史对话…' : '发送消息开始对话，AI 会立即回复你'}
             </p>
           </div>
         )}
@@ -344,7 +432,8 @@ export function ChatPanel() {
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="输入消息..."
+            placeholder={historyLoading ? '正在恢复历史...' : '输入消息...'}
+            disabled={historyLoading}
             className="w-full h-11 pl-4 pr-12 rounded-xl bg-muted/50 border border-border/50 focus:border-pink-500/50 focus:ring-2 focus:ring-pink-500/20 outline-none transition-all text-sm"
           />
           <button

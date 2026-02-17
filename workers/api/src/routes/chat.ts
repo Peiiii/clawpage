@@ -31,6 +31,13 @@ type ConnectorStreamPayload = {
   status?: string;
 };
 
+type ChatHistoryRow = {
+  id: string;
+  role: 'user' | 'agent';
+  content: string;
+  createdAt: number;
+};
+
 function extractUserMessageText(messages: UIMessage[]): string {
   for (let i = messages.length - 1; i >= 0; i -= 1) {
     const message = messages[i];
@@ -46,6 +53,46 @@ function extractUserMessageText(messages: UIMessage[]): string {
 }
 
 export const chatRouter = new Hono<{ Bindings: Env }>();
+
+chatRouter.get('/history', async (c) => {
+  const agentSlug = c.req.query('agentSlug')?.trim();
+  if (!agentSlug) {
+    return c.json({ error: 'agentSlug required' }, 400);
+  }
+
+  const sessionId = c.req.query('sessionId')?.trim();
+  if (!sessionId) {
+    return c.json({ error: 'sessionId required' }, 400);
+  }
+
+  const agent = await c.env.DB.prepare(
+    'SELECT id FROM agents WHERE slug = ? AND deleted_at IS NULL'
+  ).bind(agentSlug).first<{ id: string }>();
+
+  if (!agent) {
+    return c.json({ error: 'Agent not found' }, 404);
+  }
+
+  const historyResult = await c.env.DB.prepare(
+    `SELECT id, role, content, created_at as createdAt
+     FROM messages
+     WHERE agent_id = ? AND session_id = ?
+     ORDER BY created_at ASC, id ASC
+     LIMIT 200`
+  )
+    .bind(agent.id, sessionId)
+    .all<ChatHistoryRow>();
+
+  return c.json({
+    sessionId,
+    messages: (historyResult.results ?? []).map((message) => ({
+      id: message.id,
+      role: message.role,
+      content: message.content,
+      createdAt: message.createdAt,
+    })),
+  });
+});
 
 chatRouter.post('/', async (c) => {
   let payload: (ChatRequest & { id?: string }) | null = null;

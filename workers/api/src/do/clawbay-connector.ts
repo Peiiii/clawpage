@@ -22,7 +22,7 @@ type ConnectorConnection = {
   pingTimer: ReturnType<typeof setInterval> | null;
 };
 
-const CONNECTION_GRACE_MS = 5000;
+const CONNECTION_GRACE_MS = 20000;
 const CONNECTION_RETRY_INTERVAL_MS = 200;
 const CONNECTION_PING_INTERVAL_MS = 20000;
 const CONNECTION_STALE_TIMEOUT_MS = 65000;

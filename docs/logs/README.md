@@ -38,6 +38,8 @@
 - `docs/logs/v0.0.35-clawbay-channel-stability/README.md`
 - `docs/logs/v0.0.36-nextclaw-plugin-load-fix/README.md`
 - `docs/logs/v0.0.37-remove-approval-copy/README.md`
+- `docs/logs/v0.0.38-chat-history-refresh/README.md`
+- `docs/logs/v0.0.39-connector-grace-window/README.md`
 
 ## 写日志的标准
 
