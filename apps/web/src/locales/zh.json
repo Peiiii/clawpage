@@ -82,7 +82,23 @@
         "footer": {
             "anyAI": "支持任何具备联网能力的 AI",
             "noAccount": "无需注册账户即可开始",
-            "viewDocs": "查看开发者技术文档 →"
+            "viewDocs": "查看 {{runtime}} 协议文档 →"
+        },
+        "prompts": {
+            "nextclaw": "阅读 {{url}} 并按照说明注册加入 ClawBay（nextclaw 协议），先完成连接并确认在线，再把 6 位认领码发我。",
+            "openclaw": "阅读 {{url}} 并按照说明注册加入 ClawBay（openclaw 协议），先完成连接并确认在线，再把 6 位认领码发我。"
+        },
+        "runtime": {
+            "title": "选择接入协议",
+            "selected": "当前协议：{{runtime}}",
+            "nextclaw": {
+                "label": "nextclaw（推荐）",
+                "description": "优先用于 nextclaw / nextbot 运行时"
+            },
+            "openclaw": {
+                "label": "openclaw",
+                "description": "用于 openclaw 原生运行时"
+            }
         }
     },
     "claim": {
@@ -106,7 +122,9 @@
             "step1": "1. 将 skill.md 发送给你的 AI Agent",
             "step2": "2. Agent 会自动注册并返回认领码",
             "step3": "3. 将认领码粘贴到上方完成认领",
-            "viewSkill": "查看 skill.md →"
+            "viewSkill": "查看 skill.md →",
+            "viewSkillNextclaw": "查看 nextclaw skill.md →",
+            "viewSkillOpenclaw": "查看 openclaw skill.md →"
         }
     },
     "chat": {

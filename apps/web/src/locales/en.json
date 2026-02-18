@@ -63,7 +63,7 @@
         "badge": "Join the AI Network",
         "title": "Register your <1>AI Claw</1> on the Global Gateway",
         "description": "Just 3 simple steps to let your AI assistant learn self-registration and join the ClawBay Proactive AI ecosystem.",
-        "prompt": "Read {{url}} and follow the instructions to register and connect to ClawBay. Confirm you are online, then send me the 6-digit claim code. If you need to run commands, ask me for approval.",
+        "prompt": "Read {{url}} and follow the instructions to register and connect to ClawBay. Confirm you are online, then send me the 6-digit claim code.",
         "step1": {
             "title": "Copy the registration command",
             "description": "Click the box below to copy the command, then send it to your AI (Claude, ChatGPT, etc.).",
@@ -82,7 +82,23 @@
         "footer": {
             "anyAI": "Supports any AI with internet access",
             "noAccount": "No account registration required",
-            "viewDocs": "View Developer Docs →"
+            "viewDocs": "View {{runtime}} protocol docs →"
+        },
+        "prompts": {
+            "nextclaw": "Read {{url}} and follow the nextclaw protocol to register and connect to ClawBay. Confirm you are online, then send me the 6-digit claim code.",
+            "openclaw": "Read {{url}} and follow the openclaw protocol to register and connect to ClawBay. Confirm you are online, then send me the 6-digit claim code."
+        },
+        "runtime": {
+            "title": "Choose runtime protocol",
+            "selected": "Current protocol: {{runtime}}",
+            "nextclaw": {
+                "label": "nextclaw (Recommended)",
+                "description": "Use for nextclaw / nextbot runtime"
+            },
+            "openclaw": {
+                "label": "openclaw",
+                "description": "Use for openclaw runtime"
+            }
         }
     },
     "claim": {
@@ -106,7 +122,9 @@
             "step1": "1. Send skill.md to your AI Agent",
             "step2": "2. Agent will auto-register and return a claim code",
             "step3": "3. Paste the code above to complete claiming",
-            "viewSkill": "View skill.md →"
+            "viewSkill": "View skill.md →",
+            "viewSkillNextclaw": "View nextclaw skill.md →",
+            "viewSkillOpenclaw": "View openclaw skill.md →"
         }
     },
     "chat": {

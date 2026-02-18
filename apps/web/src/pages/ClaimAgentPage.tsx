@@ -144,13 +144,14 @@ export function ClaimAgentPage() {
             <li>{t('claim.help.step2', '2. Agent will auto-register and return a claim code')}</li>
             <li>{t('claim.help.step3', '3. Paste the code above to complete claiming')}</li>
           </ol>
-          <a
-            href="/skill.md"
-            target="_blank"
-            className="mt-3 inline-block text-primary text-sm hover:underline"
-          >
-            {t('claim.help.viewSkill', 'View skill.md →')}
-          </a>
+          <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
+            <a href="/skill-nextclaw.md" target="_blank" className="inline-block text-primary hover:underline">
+              {t('claim.help.viewSkillNextclaw', 'View nextclaw skill.md →')}
+            </a>
+            <a href="/skill.md" target="_blank" className="inline-block text-primary hover:underline">
+              {t('claim.help.viewSkillOpenclaw', 'View openclaw skill.md →')}
+            </a>
+          </div>
         </div>
       </div>
     </div>

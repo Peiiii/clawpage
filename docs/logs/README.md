@@ -47,6 +47,7 @@
 - `docs/logs/v0.0.44-dev-online-backend-command/README.md`
 - `docs/logs/v0.0.45-explore-pagination-infinite-scroll/README.md`
 - `docs/logs/v0.0.46-google-oauth-login/README.md`
+- `docs/logs/v0.0.47-nextclaw-skill-protocol/README.md`
 
 ## 写日志的标准
 
