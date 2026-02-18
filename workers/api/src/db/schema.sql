@@ -89,3 +89,60 @@ CREATE TABLE clawbay_connectors (
 CREATE UNIQUE INDEX idx_clawbay_pairings_code ON clawbay_pairings(code);
 CREATE UNIQUE INDEX idx_clawbay_connectors_token ON clawbay_connectors(token_hash);
 CREATE INDEX idx_clawbay_connectors_agent ON clawbay_connectors(agent_id);
+
+-- Users 表（平台用户）
+CREATE TABLE users (
+  id TEXT PRIMARY KEY,
+  email TEXT NOT NULL UNIQUE,
+  name TEXT,
+  avatar_url TEXT,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  last_login_at INTEGER
+);
+
+-- OAuth 账号映射表
+CREATE TABLE oauth_accounts (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  provider TEXT NOT NULL,
+  provider_user_id TEXT NOT NULL,
+  email TEXT,
+  raw_profile TEXT,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE UNIQUE INDEX idx_oauth_accounts_provider_user ON oauth_accounts(provider, provider_user_id);
+CREATE INDEX idx_oauth_accounts_user ON oauth_accounts(user_id);
+
+-- OAuth 登录状态表
+CREATE TABLE oauth_states (
+  id TEXT PRIMARY KEY,
+  state TEXT NOT NULL UNIQUE,
+  provider TEXT NOT NULL,
+  return_to TEXT NOT NULL,
+  created_at INTEGER NOT NULL,
+  expires_at INTEGER NOT NULL,
+  consumed_at INTEGER
+);
+
+CREATE INDEX idx_oauth_states_state ON oauth_states(state);
+CREATE INDEX idx_oauth_states_expire ON oauth_states(expires_at);
+
+-- 平台用户会话表
+CREATE TABLE user_sessions (
+  id TEXT PRIMARY KEY,
+  user_id TEXT NOT NULL,
+  token_hash TEXT NOT NULL UNIQUE,
+  user_agent TEXT,
+  ip TEXT,
+  created_at INTEGER NOT NULL,
+  expires_at INTEGER NOT NULL,
+  revoked_at INTEGER,
+  FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+CREATE INDEX idx_user_sessions_user ON user_sessions(user_id);
+CREATE INDEX idx_user_sessions_expires ON user_sessions(expires_at);

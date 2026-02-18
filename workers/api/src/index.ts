@@ -8,15 +8,27 @@ import { appsRouter } from './routes/apps';
 import { chatRouter } from './routes/chat';
 import { pairingsRouter } from './routes/pairings';
 import { connectorsRouter } from './routes/connectors';
+import { authRouter } from './routes/auth';
 
 const app = new Hono<{ Bindings: Env }>();
 
 // 中间件
 app.use('*', logger());
+const STATIC_ALLOWED_ORIGINS = new Set(['https://clawbay.ai', 'https://www.clawbay.ai']);
+const LOCAL_ORIGIN_PATTERN = /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/;
+
 app.use('*', cors({
-  origin: ['http://localhost:5173', 'https://clawbay.ai', 'https://www.clawbay.ai'],
+  origin: (origin) => {
+    if (!origin) return 'https://clawbay.ai';
+    const parsed = origin.toLowerCase();
+    if (STATIC_ALLOWED_ORIGINS.has(parsed)) return origin;
+    if (LOCAL_ORIGIN_PATTERN.test(parsed)) return origin;
+    if (parsed.endsWith('.clawpage.pages.dev')) return origin;
+    return 'https://clawbay.ai';
+  },
   allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowHeaders: ['Content-Type', 'Authorization', 'X-API-Key'],
+  credentials: true,
 }));
 
 // 健康检查
@@ -29,6 +41,7 @@ app.route('/apps', appsRouter);
 app.route('/chat', chatRouter);
 app.route('/pairings', pairingsRouter);
 app.route('/connectors', connectorsRouter);
+app.route('/auth', authRouter);
 
 // 404 处理
 app.notFound((c) => c.json({ error: 'Not Found' }, 404));

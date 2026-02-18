@@ -5,4 +5,7 @@ export interface Env {
   R2: R2Bucket;
   CLAWBAY_CONNECTOR: DurableObjectNamespace;
   ENVIRONMENT: string;
+  GOOGLE_CLIENT_ID?: string;
+  GOOGLE_CLIENT_SECRET?: string;
 }
+

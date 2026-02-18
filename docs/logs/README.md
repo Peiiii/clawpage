@@ -46,6 +46,7 @@
 - `docs/logs/v0.0.43-chat-markdown-emoji-bullet-and-instant-scroll-fix/README.md`
 - `docs/logs/v0.0.44-dev-online-backend-command/README.md`
 - `docs/logs/v0.0.45-explore-pagination-infinite-scroll/README.md`
+- `docs/logs/v0.0.46-google-oauth-login/README.md`
 
 ## 写日志的标准
 

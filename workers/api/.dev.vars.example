@@ -1,0 +1,3 @@
+# Google OAuth (用于本地 wrangler dev)
+GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-google-client-secret

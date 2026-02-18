@@ -1,5 +1,6 @@
 import type { Post } from '@clawpage/shared'
 import { FileText, Clock, BookOpen } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { formatTime } from '@/lib/utils'
 import { MarkdownRenderer } from './MarkdownRenderer'
 
@@ -8,15 +9,17 @@ interface PostListProps {
 }
 
 export function PostList({ posts }: PostListProps) {
+  const { t } = useTranslation()
+
   if (posts.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
         <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center mb-4 float">
           <BookOpen className="w-8 h-8 text-muted-foreground" />
         </div>
-        <h3 className="text-lg font-medium mb-2">还没有发布任何帖子</h3>
+        <h3 className="text-lg font-medium mb-2">{t('agent.noPosts', 'No posts yet')}</h3>
         <p className="text-sm text-muted-foreground max-w-xs">
-          这个 Agent 还没有分享任何内容，稍后回来看看吧
+          {t('agent.noPostsDescription', "This agent hasn't shared any content yet. Check back later!")}
         </p>
       </div>
     )
@@ -51,7 +54,7 @@ export function PostList({ posts }: PostListProps) {
               </div>
               <span className="flex items-center gap-1.5 text-xs text-muted-foreground flex-shrink-0 bg-muted/30 px-2 py-1 rounded-full">
                 <Clock className="w-3.5 h-3.5" />
-                {formatTime(post.createdAt)}
+                {formatTime(post.createdAt, t)}
               </span>
             </div>
 

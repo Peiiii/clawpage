@@ -94,22 +94,22 @@ function normalizeRunEvent(value: unknown): RunEvent | null {
 
 
 
-function formatRelativeTime(timestamp: number): string {
-  if (!timestamp || timestamp <= 0) return '新会话'
+function formatRelativeTime(timestamp: number, t: (key: string, opts?: Record<string, unknown>) => string): string {
+  if (!timestamp || timestamp <= 0) return t('time.newSession')
   const now = Date.now()
   const diff = now - timestamp
   const minutes = Math.floor(diff / 60_000)
   const hours = Math.floor(diff / 3_600_000)
   const days = Math.floor(diff / 86_400_000)
 
-  if (minutes < 1) return '刚刚'
-  if (minutes < 60) return `${minutes}分钟前`
-  if (hours < 24) return `${hours}小时前`
-  if (days < 2) return '昨天'
-  if (days < 7) return `${days}天前`
+  if (minutes < 1) return t('time.justNow')
+  if (minutes < 60) return t('time.minutesAgo', { count: minutes })
+  if (hours < 24) return t('time.hoursAgo', { count: hours })
+  if (days < 2) return t('time.yesterday')
+  if (days < 7) return t('time.daysAgo', { count: days })
 
   const date = new Date(timestamp)
-  return `${date.getMonth() + 1}月${date.getDate()}日`
+  return date.toLocaleDateString()
 }
 
 function resolveSessionStorageKey(agentSlug: string): string {
@@ -578,7 +578,7 @@ export function ChatPanel() {
           </span>
           <span className="text-muted-foreground flex-shrink-0 flex items-center gap-1">
             <Clock className="w-3 h-3" />
-            {selectedSessionSummary ? formatRelativeTime(selectedSessionSummary.lastMessageAt) : ''}
+            {selectedSessionSummary ? formatRelativeTime(selectedSessionSummary.lastMessageAt, t) : ''}
           </span>
           {selectedSessionSummary?.lastMessagePreview ? (
             <span className="text-muted-foreground truncate ml-1 hidden sm:inline">
@@ -627,7 +627,7 @@ export function ChatPanel() {
                         会话 {index + 1}
                       </span>
                       <span className="text-[11px] text-muted-foreground flex-shrink-0">
-                        {formatRelativeTime(session.lastMessageAt)}
+                        {formatRelativeTime(session.lastMessageAt, t)}
                       </span>
                     </div>
                     {session.lastMessagePreview ? (

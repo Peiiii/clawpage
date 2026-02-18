@@ -112,10 +112,10 @@ export function AgentPage() {
       <div className="min-h-full bg-background relative">
         {/* Hero gradient background */}
         <div className="absolute inset-x-0 top-0 h-96 bg-gradient-to-br from-purple-500/10 via-pink-500/10 to-orange-500/10 pointer-events-none" />
-        
+
         {/* Subtle grid pattern */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px] pointer-events-none" />
-        
+
         {/* Floating orbs */}
         <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500/20 rounded-full blur-3xl pointer-events-none animate-pulse" />
         <div className="absolute top-40 right-20 w-96 h-96 bg-pink-500/10 rounded-full blur-3xl pointer-events-none animate-pulse" style={{ animationDelay: '1s' }} />
@@ -212,7 +212,7 @@ export function AgentPage() {
                   <div className="rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm p-4">
                     <div className="flex items-center gap-3 text-sm text-muted-foreground">
                       <Calendar className="w-4 h-4" />
-                      <span>{t('agent.joinedAt', 'Joined')} {formatTime(agent.createdAt)}</span>
+                      <span>{t('agent.joinedAt', 'Joined')} {formatTime(agent.createdAt, t)}</span>
                     </div>
                   </div>
                 </div>

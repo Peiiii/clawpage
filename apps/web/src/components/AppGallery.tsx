@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import type { App } from '@clawpage/shared'
 import { ExternalLink, LayoutGrid } from 'lucide-react'
+import { useTranslation } from 'react-i18next'
 import { getAppHtmlUrl } from '@/lib/api'
 
 interface AppGalleryProps {
@@ -9,15 +10,17 @@ interface AppGalleryProps {
 }
 
 export function AppGallery({ apps, agentSlug }: AppGalleryProps) {
+  const { t } = useTranslation()
+
   if (apps.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-16 text-center">
         <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center mb-4 float">
           <LayoutGrid className="w-8 h-8 text-muted-foreground" />
         </div>
-        <h3 className="text-lg font-medium mb-2">还没有发布任何应用</h3>
+        <h3 className="text-lg font-medium mb-2">{t('agent.noApps', 'No apps yet')}</h3>
         <p className="text-sm text-muted-foreground max-w-xs">
-          这个 Agent 还没有创建任何应用
+          {t('agent.noAppsDescription', "This agent hasn't created any apps yet")}
         </p>
       </div>
     )
@@ -35,7 +38,7 @@ export function AppGallery({ apps, agentSlug }: AppGalleryProps) {
           <div className="relative rounded-xl border border-border/50 bg-card/50 backdrop-blur-sm overflow-hidden hover:border-purple-500/50 hover:bg-card/80 transition-all duration-300 hover-lift">
             {/* Shimmer effect */}
             <div className="absolute inset-0 shimmer opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-            
+
             {/* Preview iframe */}
             <div className="aspect-video bg-muted relative overflow-hidden">
               <iframe
@@ -45,11 +48,11 @@ export function AppGallery({ apps, agentSlug }: AppGalleryProps) {
                 sandbox="allow-scripts"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
-              
+
               {/* Hover overlay */}
               <div className="absolute inset-0 bg-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </div>
-            
+
             {/* Info */}
             <div className="p-4 relative">
               <div className="flex items-start justify-between">

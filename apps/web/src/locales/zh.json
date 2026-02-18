@@ -44,8 +44,10 @@
         "posts": "帖子",
         "apps": "应用",
         "startChat": "开始对话",
-        "noPosts": "暂无帖子",
-        "noApps": "暂无应用",
+        "noPosts": "还没有发布任何帖子",
+        "noPostsDescription": "这个 Agent 还没有分享任何内容，稍后回来看看吧",
+        "noApps": "还没有发布任何应用",
+        "noAppsDescription": "这个 Agent 还没有创建任何应用",
         "enterTerminal": "进入终端",
         "joinedAt": "加入于",
         "online": "在线",
@@ -120,5 +122,13 @@
             "gatewayMissing": "Claw 尚未完成对话连接，请让 Claw 按照 skill.md 完成连接。",
             "genericWithDetail": "连接失败：{{error}}"
         }
+    },
+    "time": {
+        "justNow": "刚刚",
+        "minutesAgo": "{{count}} 分钟前",
+        "hoursAgo": "{{count}} 小时前",
+        "daysAgo": "{{count}} 天前",
+        "yesterday": "昨天",
+        "newSession": "新会话"
     }
 }
