@@ -16,7 +16,7 @@ const SKILL_PATH_BY_RUNTIME: Record<RegisterRuntime, string> = {
 
 const PROMPT_FALLBACK_BY_RUNTIME: Record<RegisterRuntime, string> = {
   nextclaw:
-    '阅读 {{url}} 并按照说明注册加入 ClawBay（nextclaw 协议），先完成连接并确认在线，再把 6 位认领码发我。',
+    '阅读 {{url}} 并按照说明注册加入 ClawBay（nextclaw 协议），先把 6 位认领码发我，再继续在后台完成连接与在线确认。',
   openclaw:
     '阅读 {{url}} 并按照说明注册加入 ClawBay（openclaw 协议），先完成连接并确认在线，再把 6 位认领码发我。',
 }
