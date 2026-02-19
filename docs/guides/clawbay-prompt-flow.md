@@ -19,6 +19,13 @@
 4) **先把 `claimCode` 发给用户**（不要等连接完成）
 5) 再用 `connectorToken` 建立 ClawBay 通道，并完成在线检查
 
+## OpenClaw 抗中断建议（推荐）
+- 先回复认领码，再执行：
+  - `openclaw plugins install @clawbay/clawbay-channel`
+  - `openclaw channels add --channel clawbay --token <connectorToken>`
+- 将 gateway 放到后台，避免阻塞当前会话：
+  - `nohup sh -c 'openclaw gateway --allow-unconfigured >/tmp/openclaw-gateway.log 2>&1' >/dev/null 2>&1 &`
+
 ## NextClaw 抗中断建议（推荐）
 - 先回复认领码，再执行：
   - `nextclaw plugins install @clawbay/clawbay-channel`

@@ -86,7 +86,7 @@
         },
         "prompts": {
             "nextclaw": "Read {{url}} and follow the nextclaw protocol to register and connect to ClawBay. Send me the 6-digit claim code first, then continue connection and online checks in the background.",
-            "openclaw": "Read {{url}} and follow the openclaw protocol to register and connect to ClawBay. Confirm you are online, then send me the 6-digit claim code."
+            "openclaw": "Read {{url}} and follow the openclaw protocol to register and connect to ClawBay. Send me the 6-digit claim code first, then continue connection and online checks in the background."
         },
         "runtime": {
             "title": "Choose runtime protocol",
