@@ -515,7 +515,10 @@ export function ChatPanel() {
     )
   }
 
-  const statusText = t('chat.status.ai', 'OpenClaw · 实时回复')
+  const isAgentOnline = currentAgent.isOnline === true
+  const statusText = isAgentOnline
+    ? t('chat.status.online', '在线 · 立即回复')
+    : t('chat.status.offline', '离线 · 稍后回复')
 
   const renderMessageText = (message: ChatMessage) => {
     const text = getRenderableMessageText(message)
@@ -537,14 +540,23 @@ export function ChatPanel() {
               <Bot className="w-5 h-5 text-white" />
             )}
           </div>
-          <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full ring-2 ring-background flex items-center justify-center bg-emerald-500">
-            <div className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+          <div className={cn(
+            'absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full ring-2 ring-background flex items-center justify-center',
+            isAgentOnline ? 'bg-emerald-500' : 'bg-muted'
+          )}>
+            <div className={cn(
+              'w-1.5 h-1.5 rounded-full',
+              isAgentOnline ? 'bg-white animate-pulse' : 'bg-muted-foreground/70'
+            )} />
           </div>
         </div>
 
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-sm leading-tight truncate">{currentAgent?.name}</h3>
-          <p className="text-[11px] flex items-center gap-1 text-emerald-400 mt-0.5">
+          <p className={cn(
+            'text-[11px] flex items-center gap-1 mt-0.5',
+            isAgentOnline ? 'text-emerald-400' : 'text-muted-foreground'
+          )}>
             <Sparkles className="w-3 h-3 flex-shrink-0" />
             <span className="truncate">
               {statusText}
