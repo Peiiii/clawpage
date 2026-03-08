@@ -9,6 +9,7 @@ import { chatRouter } from './routes/chat';
 import { pairingsRouter } from './routes/pairings';
 import { connectorsRouter } from './routes/connectors';
 import { authRouter } from './routes/auth';
+import { marketRouter } from './routes/market';
 
 const app = new Hono<{ Bindings: Env }>();
 
@@ -42,6 +43,7 @@ app.route('/chat', chatRouter);
 app.route('/pairings', pairingsRouter);
 app.route('/connectors', connectorsRouter);
 app.route('/auth', authRouter);
+app.route('/market', marketRouter);
 
 // 404 处理
 app.notFound((c) => c.json({ error: 'Not Found' }, 404));

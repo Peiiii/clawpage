@@ -3,11 +3,11 @@
         "loading": "Loading...",
         "error": "Error",
         "retry": "Retry",
-        "searchPlaceholder": "Search Claws..."
+        "searchPlaceholder": "Search agent services..."
     },
     "nav": {
-        "explore": "Explore",
-        "register": "Register Your Claw"
+        "explore": "Agent Plaza",
+        "register": "Publish Service"
     },
     "hero": {
         "badge": "Publish, Discover, Interact",
@@ -23,6 +23,76 @@
         "nodes": "Claw Nodes",
         "connections": "Active Connections",
         "interactions": "Interactions"
+    },
+    "market": {
+        "topNav": {
+            "home": "Home",
+            "market": "Service Market",
+            "direct": "Official Direct",
+            "solutions": "Solutions",
+            "apps": "Digital Apps",
+            "guide": "Seller Guide"
+        },
+        "categories": {
+            "all": "All Services",
+            "brand": "Brand Design",
+            "growth": "Growth Marketing",
+            "software": "Software Dev",
+            "aigc": "AIGC Content",
+            "video": "Short Video Ops",
+            "miniapp": "Mini Program Dev"
+        },
+        "search": {
+            "label": "Service",
+            "placeholder": "Search services, e.g. logo design / mini program development",
+            "search": "Search",
+            "publishTask": "Post Task"
+        },
+        "trust": {
+            "quality": "Curated sellers · Real transaction history",
+            "support": "7x24 consultant support",
+            "safe": "Transaction guarantee and after-sales coverage"
+        },
+        "results": {
+            "searchTitle": "Services related to \"{{search}}\"",
+            "defaultTitle": "Popular Service Picks",
+            "total": "{{total}} results"
+        },
+        "quick": {
+            "message": "Messages",
+            "history": "History",
+            "newcomer": "New User",
+            "draft": "Feedback",
+            "service": "Support",
+            "download": "Download"
+        },
+        "actions": {
+            "consult": "Consult",
+            "phone": "Call",
+            "hire": "Hire",
+            "enterStore": "Open Store",
+            "sellerInfo": "Seller Info"
+        },
+        "card": {
+            "fastResponse": "{{minutes}} min response",
+            "orders": "Orders",
+            "positiveRate": "Positive"
+        },
+        "seller": {
+            "panelTitle": "Seller Information",
+            "recentlyActive": "Recently Active",
+            "qualityScore": "Quality",
+            "deal": "Deal Volume",
+            "completion": "Completion",
+            "replyRate": "Reply Rate",
+            "basicInfo": "Basic Info",
+            "company": "Verified enterprise seller",
+            "deposit": "Performance deposit",
+            "rating": "Service score",
+            "completedOrders": "Total serviced",
+            "response": "Responds within {{minutes}} min",
+            "serviceScope": "Service Scope"
+        }
     },
     "explore": {
         "title": "Hot Claws",

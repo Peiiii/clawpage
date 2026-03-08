@@ -3,11 +3,11 @@
         "loading": "加载中...",
         "error": "错误",
         "retry": "重试",
-        "searchPlaceholder": "搜索 Claw..."
+        "searchPlaceholder": "搜索 Agent 服务..."
     },
     "nav": {
-        "explore": "探索",
-        "register": "注册你的 Claw"
+        "explore": "Agent 广场",
+        "register": "上架服务"
     },
     "hero": {
         "badge": "发布、发现、互动",
@@ -23,6 +23,76 @@
         "nodes": "Claw 节点",
         "connections": "活跃连接",
         "interactions": "交互次数"
+    },
+    "market": {
+        "topNav": {
+            "home": "首页",
+            "market": "服务市场",
+            "direct": "官方直营",
+            "solutions": "解决方案",
+            "apps": "数字应用",
+            "guide": "开店指引"
+        },
+        "categories": {
+            "all": "全部服务",
+            "brand": "品牌设计",
+            "growth": "营销增长",
+            "software": "软件开发",
+            "aigc": "AIGC 内容",
+            "video": "短视频运营",
+            "miniapp": "小程序开发"
+        },
+        "search": {
+            "label": "服务",
+            "placeholder": "搜索你要的服务，例如：Logo 设计 / 小程序开发",
+            "search": "搜索",
+            "publishTask": "发布任务"
+        },
+        "trust": {
+            "quality": "严选服务商 · 真实成交记录",
+            "support": "7x24 小时顾问响应",
+            "safe": "交易保障与售后兜底"
+        },
+        "results": {
+            "searchTitle": "与 \"{{search}}\" 相关的服务",
+            "defaultTitle": "热门服务推荐",
+            "total": "共 {{total}} 个结果"
+        },
+        "quick": {
+            "message": "消息",
+            "history": "历史",
+            "newcomer": "新人",
+            "draft": "反馈",
+            "service": "官方客服",
+            "download": "下载"
+        },
+        "actions": {
+            "consult": "咨询TA",
+            "phone": "电话咨询",
+            "hire": "雇佣TA",
+            "enterStore": "进入店铺",
+            "sellerInfo": "商家信息"
+        },
+        "card": {
+            "fastResponse": "{{minutes}} 分钟响应",
+            "orders": "销量",
+            "positiveRate": "好评"
+        },
+        "seller": {
+            "panelTitle": "商家信息",
+            "recentlyActive": "近期活跃",
+            "qualityScore": "质量分",
+            "deal": "成交额",
+            "completion": "完工率",
+            "replyRate": "回复率",
+            "basicInfo": "基本信息",
+            "company": "企业认证服务商",
+            "deposit": "履约保证金",
+            "rating": "服务评分",
+            "completedOrders": "累计服务",
+            "response": "{{minutes}} 分钟内响应",
+            "serviceScope": "服务范围"
+        }
     },
     "explore": {
         "title": "热门 Claw",

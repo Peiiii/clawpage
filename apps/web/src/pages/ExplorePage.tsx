@@ -1,248 +1,174 @@
-import { useEffect, useMemo, useRef } from 'react'
 import { Helmet } from 'react-helmet-async'
-import { useInfiniteQuery } from '@tanstack/react-query'
-import { useSearchParams, Link } from 'react-router-dom'
-import { useTranslation } from 'react-i18next'
-import { Bot, ArrowRight, Zap, Users, Globe, Loader2 } from 'lucide-react'
-import { fetchAgents } from '@/lib/api'
-import { AgentCard } from '@/components/AgentCard'
+import { useMemo, useState, type FormEvent } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import { Link, useSearchParams } from 'react-router-dom'
+import { Search } from 'lucide-react'
+import { fetchMarketAgents } from '@/lib/api'
+import { MarketplaceAgentCard } from '@/components/MarketplaceAgentCard'
 
-const AGENTS_PAGE_SIZE = 12
+const CATEGORIES = ['全部', '短视频运营', 'AIGC 内容', '品牌增长', '软件开发', '营销增长']
 
 export function ExplorePage() {
-  const { t } = useTranslation()
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const search = searchParams.get('search') || ''
-  const tag = searchParams.get('tag') || ''
-  const loadMoreRef = useRef<HTMLDivElement>(null)
+  const category = searchParams.get('category') || ''
+  const marketStatus = searchParams.get('marketStatus') || ''
+  const [searchInput, setSearchInput] = useState(search)
 
-  const {
-    data,
-    isLoading,
-    isError,
-    error,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useInfiniteQuery({
-    queryKey: ['agents', search, tag, AGENTS_PAGE_SIZE],
-    queryFn: ({ pageParam }) =>
-      fetchAgents({
+  const activeCategory = useMemo(() => (category || '全部'), [category])
+  const activeStatus = useMemo(() => (marketStatus || '全部'), [marketStatus])
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['market-agents', search, category, marketStatus],
+    queryFn: () =>
+      fetchMarketAgents({
         search,
-        tag,
-        page: pageParam,
-        pageSize: AGENTS_PAGE_SIZE,
+        category: category && category !== '全部' ? category : undefined,
+        marketStatus:
+          marketStatus === 'tradable' || marketStatus === 'consult_only'
+            ? marketStatus
+            : undefined,
       }),
-    initialPageParam: 1,
-    getNextPageParam: (lastPage) => (lastPage.hasMore ? lastPage.page + 1 : undefined),
   })
 
-  const agents = useMemo(
-    () => data?.pages.flatMap((page) => page.items) ?? [],
-    [data]
-  )
-  const total = data?.pages[0]?.total ?? 0
+  const submitSearch = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    const params = new URLSearchParams()
+    if (searchInput.trim()) params.set('search', searchInput.trim())
+    if (category && category !== '全部') params.set('category', category)
+    if (marketStatus && marketStatus !== '全部') params.set('marketStatus', marketStatus)
+    setSearchParams(params)
+  }
 
-  useEffect(() => {
-    if (!hasNextPage || isFetchingNextPage) return
+  const switchCategory = (nextCategory: string) => {
+    const params = new URLSearchParams()
+    if (search.trim()) params.set('search', search.trim())
+    if (marketStatus && marketStatus !== '全部') params.set('marketStatus', marketStatus)
+    if (nextCategory !== '全部') params.set('category', nextCategory)
+    setSearchParams(params)
+  }
 
-    const target = loadMoreRef.current
-    if (!target) return
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        const first = entries[0]
-        if (!first?.isIntersecting) return
-        void fetchNextPage()
-      },
-      { rootMargin: '280px 0px' }
-    )
-
-    observer.observe(target)
-    return () => observer.disconnect()
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage, agents.length])
+  const switchStatus = (nextStatus: '全部' | 'tradable' | 'consult_only') => {
+    const params = new URLSearchParams()
+    if (search.trim()) params.set('search', search.trim())
+    if (category && category !== '全部') params.set('category', category)
+    if (nextStatus !== '全部') params.set('marketStatus', nextStatus)
+    setSearchParams(params)
+  }
 
   return (
-    <div className="min-h-full">
+    <div className="min-h-full bg-gradient-to-b from-orange-50/70 via-background to-background">
       <Helmet>
-        <title>ClawBay — Where Claws Meet Users</title>
-        <meta name="description" content="Publish, Discover, Interact. Discover the best AI Agents on ClawBay." />
+        <title>ClawBay Agent 服务市场</title>
       </Helmet>
 
-      <section className="relative pt-16 pb-12 overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0 bg-gradient-to-b from-pink-50/80 via-white/50 to-white dark:from-pink-950/30 dark:via-background/50 dark:to-background" />
-          <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-gradient-to-b from-pink-200/50 via-rose-100/30 to-transparent dark:from-pink-500/25 dark:via-rose-500/15 dark:to-transparent rounded-full blur-3xl" />
-          <div
-            className="absolute inset-0 opacity-[0.4] dark:opacity-[0.2]"
-            style={{
-              backgroundImage: `radial-gradient(circle at 1px 1px, rgb(236 72 153 / 0.15) 1px, transparent 0)`,
-              backgroundSize: '24px 24px'
-            }}
-          />
-          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-pink-300/50 to-transparent dark:via-pink-500/30" />
-        </div>
+      <section className="border-b border-border/60 bg-background/95 backdrop-blur">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
+            <span className="font-semibold text-foreground">Agent 服务市场</span>
+            <span>发现 Agent</span>
+            <span>咨询沟通</span>
+            <span>下单交付</span>
+            <span>交易保障</span>
+          </div>
 
-        <div className="container mx-auto px-4 relative">
-          <div className="max-w-3xl mx-auto text-center">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-300 text-xs font-medium mb-6">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              {t('hero.badge', 'Publish, Discover, Interact')}
-            </div>
-
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 leading-tight">
-              {t('hero.title1', 'Claw 与用户')}
-              <br />
-              <span className="bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent">
-                {t('hero.title2', '相遇的地方')}
-              </span>
-            </h1>
-
-            <p className="text-base md:text-lg text-muted-foreground mb-8 max-w-xl mx-auto leading-relaxed">
-              {t('hero.description', 'ClawBay 是 Claw 与用户相遇的地方。在这里发布你的 Claw，发现更多 Claw，与它们直接互动。')}
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-3 justify-center mb-10">
-              <a
-                href="#agents"
-                className="inline-flex items-center justify-center h-11 px-6 rounded-lg bg-pink-500 text-white font-medium text-sm hover:bg-pink-600 transition-colors cursor-pointer"
+          <div className="mt-4 rounded-2xl border border-orange-200 bg-white p-3 shadow-sm">
+            <form onSubmit={submitSearch} className="flex flex-col md:flex-row gap-3">
+              <input
+                value={searchInput}
+                onChange={(event) => setSearchInput(event.target.value)}
+                placeholder="搜索 Agent 服务，例如：短视频起号 / AIGC 内容引擎"
+                className="flex-1 h-12 rounded-xl border border-border px-4 text-sm outline-none focus:ring-2 focus:ring-orange-300"
+              />
+              <button
+                type="submit"
+                className="h-12 px-7 rounded-xl bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-colors inline-flex items-center justify-center gap-1.5"
               >
-                {t('hero.cta.connect', '连接 Claw')}
-                <ArrowRight className="ml-1.5 h-4 w-4" />
-              </a>
+                <Search className="h-4 w-4" />
+                搜索
+              </button>
               <Link
-                to="/register"
-                className="inline-flex items-center justify-center h-11 px-6 rounded-lg border border-border bg-background font-medium text-sm hover:bg-pink-50 hover:border-pink-200 dark:hover:bg-pink-950/30 dark:hover:border-pink-800 transition-colors cursor-pointer"
+                to="/sell"
+                className="h-12 px-7 rounded-xl bg-amber-400 text-amber-950 font-semibold hover:bg-amber-300 transition-colors inline-flex items-center justify-center"
               >
-                {t('hero.cta.register', '注册你的 Claw')}
+                上架服务
               </Link>
-            </div>
+            </form>
+          </div>
 
-            <div className="flex items-center justify-center gap-8 md:gap-12">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center">
-                  <Bot className="w-4 h-4 text-pink-600 dark:text-pink-400" />
-                </div>
-                <div className="text-left">
-                  <div className="text-lg font-semibold leading-none">{total || 7}+</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">{t('stats.nodes', 'Claw 节点')}</div>
-                </div>
-              </div>
-
-              <div className="w-px h-8 bg-border" />
-
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-pink-100 dark:bg-pink-900/30 flex items-center justify-center">
-                  <Users className="w-4 h-4 text-pink-600 dark:text-pink-400" />
-                </div>
-                <div className="text-left">
-                  <div className="text-lg font-semibold leading-none">1K+</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">{t('stats.connections', '活跃连接')}</div>
-                </div>
-              </div>
-
-              <div className="w-px h-8 bg-border" />
-
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center">
-                  <Zap className="w-4 h-4 text-orange-600 dark:text-orange-400" />
-                </div>
-                <div className="text-left">
-                  <div className="text-lg font-semibold leading-none">10K+</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">{t('stats.interactions', '交互次数')}</div>
-                </div>
-              </div>
-            </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {[
+              { label: '全部', value: '全部' },
+              { label: '可交易', value: 'tradable' },
+              { label: '仅咨询', value: 'consult_only' },
+            ].map((item) => (
+              <button
+                key={item.value}
+                onClick={() => switchStatus(item.value as '全部' | 'tradable' | 'consult_only')}
+                className={[
+                  'rounded-full px-4 py-1.5 text-sm transition-colors border',
+                  item.value === activeStatus
+                    ? 'bg-orange-500 border-orange-500 text-white'
+                    : 'bg-white border-border text-muted-foreground hover:text-foreground hover:border-orange-300',
+                ].join(' ')}
+              >
+                {item.label}
+              </button>
+            ))}
           </div>
         </div>
       </section>
 
-      <section id="agents" className="py-8">
+      <section className="py-5">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-xl font-semibold">
-                {search ? (
-                  <>
-                    <span className="text-muted-foreground">搜索:</span> {search}
-                  </>
-                ) : (
-                  <>
-                    热门 <span className="text-pink-500">Claw</span>
-                  </>
-                )}
-              </h2>
-            </div>
-            <span className="text-xs text-muted-foreground">
-              共 {total} 个
-            </span>
+          <div className="flex flex-wrap gap-2">
+            {CATEGORIES.map((item) => (
+              <button
+                key={item}
+                onClick={() => switchCategory(item)}
+                className={[
+                  'rounded-full px-4 py-1.5 text-sm transition-colors border',
+                  item === activeCategory
+                    ? 'bg-orange-500 border-orange-500 text-white'
+                    : 'bg-white border-border text-muted-foreground hover:text-foreground hover:border-orange-300',
+                ].join(' ')}
+              >
+                {item}
+              </button>
+            ))}
+          </div>
+
+          <div className="mt-5 flex items-center justify-between">
+            <h2 className="text-xl font-semibold">{search ? `“${search}”相关 Agent` : '推荐 Agent'}</h2>
+            <span className="text-sm text-muted-foreground">共 {data?.total || 0} 个 Agent</span>
           </div>
 
           {isLoading && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} className="h-40 rounded-xl bg-muted animate-pulse" />
+            <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="h-80 rounded-2xl bg-muted animate-pulse" />
               ))}
             </div>
           )}
 
-          {isError && (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="w-12 h-12 rounded-xl bg-red-100 flex items-center justify-center mb-3">
-                <Globe className="w-6 h-6 text-red-500" />
-              </div>
-              <h3 className="text-base font-medium mb-1">加载失败</h3>
-              <p className="text-sm text-muted-foreground">
-                {error instanceof Error ? error.message : '请检查网络连接后重试'}
-              </p>
+          {error && (
+            <div className="mt-6 rounded-2xl border border-red-200 bg-red-50 p-6 text-sm text-red-600">
+              Agent 列表加载失败，请稍后重试。
             </div>
           )}
 
-          {!isLoading && !isError && agents.length === 0 && (
-            <div className="flex flex-col items-center justify-center py-12 text-center">
-              <div className="w-12 h-12 rounded-xl bg-muted flex items-center justify-center mb-3">
-                <Bot className="w-6 h-6 text-muted-foreground" />
-              </div>
-              <h3 className="text-base font-medium mb-1">
-                {search ? '未找到结果' : '暂无 Claw'}
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                {search ? '请尝试其他关键词' : '成为第一个注册者！'}
-              </p>
+          {data && data.items.length === 0 && (
+            <div className="mt-6 rounded-2xl border border-border bg-card p-10 text-center text-muted-foreground">
+              暂无 Agent，请先完成接入或认领。
             </div>
           )}
 
-          {agents.length > 0 && (
-            <>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {agents.map((agent) => (
-                  <AgentCard key={agent.id} agent={agent} />
-                ))}
-              </div>
-
-              <div ref={loadMoreRef} className="h-10" />
-
-              {isFetchingNextPage ? (
-                <div className="flex items-center justify-center mt-4 text-xs text-muted-foreground gap-2">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  正在加载更多 Claw...
-                </div>
-              ) : null}
-
-              {hasNextPage ? (
-                <div className="flex justify-center mt-6">
-                  <button
-                    type="button"
-                    onClick={() => void fetchNextPage()}
-                    className="inline-flex items-center justify-center px-4 py-2 rounded-lg border border-border text-sm hover:bg-muted/50 transition-colors"
-                  >
-                    加载更多
-                  </button>
-                </div>
-              ) : (
-                <p className="text-center text-xs text-muted-foreground mt-6">已加载全部 Claw</p>
-              )}
-            </>
+          {data && data.items.length > 0 && (
+            <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              {data.items.map((agent) => (
+                <MarketplaceAgentCard key={agent.id} agent={agent} />
+              ))}
+            </div>
           )}
         </div>
       </section>

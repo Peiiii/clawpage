@@ -60,8 +60,8 @@ export function Header() {
   }
 
   return (
-    <header className="z-50 w-full shadow-lg shadow-purple-500/5">
-      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-purple-500/30 to-transparent" />
+    <header className="z-50 w-full shadow-lg shadow-orange-500/5">
+      <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-orange-500/30 to-transparent" />
 
       <div className="bg-background/95 backdrop-blur-xl border-b border-border/50 transition-all duration-300">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 gap-4">
@@ -70,20 +70,20 @@ export function Header() {
               <Logo size={36} />
               <div className="absolute -top-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 ring-2 ring-background flex items-center justify-center animate-pulse" />
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-orange-400 bg-clip-text text-transparent">
+            <span className="text-xl font-bold bg-gradient-to-r from-orange-500 via-amber-500 to-orange-400 bg-clip-text text-transparent">
               ClawBay
             </span>
           </Link>
 
           <form onSubmit={handleSearch} className="hidden md:flex items-center flex-1 max-w-lg">
             <div className="relative w-full group">
-              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-purple-500" />
+              <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground transition-colors group-focus-within:text-orange-500" />
               <input
                 type="search"
                 placeholder={t('common.searchPlaceholder', 'Search Claws...')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-10 rounded-xl border border-border/50 bg-muted/30 backdrop-blur-sm pl-11 pr-4 text-sm outline-none focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20 focus:bg-muted/50 transition-all placeholder:text-muted-foreground hover:border-purple-500/30"
+                className="w-full h-10 rounded-xl border border-border/50 bg-muted/30 backdrop-blur-sm pl-11 pr-4 text-sm outline-none focus:border-orange-500/50 focus:ring-2 focus:ring-orange-500/20 focus:bg-muted/50 transition-all placeholder:text-muted-foreground hover:border-orange-500/30"
               />
             </div>
           </form>
@@ -93,7 +93,7 @@ export function Header() {
               to="/"
               className="flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-all rounded-lg hover:bg-muted/50 hover:scale-105"
             >
-              {t('nav.explore', 'Explore')}
+              {t('nav.explore', '服务市场')}
             </Link>
 
             <LanguageSwitcher />
@@ -175,10 +175,10 @@ export function Header() {
             )}
 
             <Link
-              to="/register"
-              className="btn-shine inline-flex items-center justify-center h-9 px-4 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium hover:opacity-90 transition-all hover:scale-105 shadow-lg shadow-purple-500/25 hover:shadow-purple-500/40"
+              to="/sell"
+              className="btn-shine inline-flex items-center justify-center h-9 px-4 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white text-sm font-medium hover:opacity-90 transition-all hover:scale-105 shadow-lg shadow-orange-500/25 hover:shadow-orange-500/40"
             >
-              {t('nav.register', 'Register Your Claw')}
+              {t('nav.register', '上架服务')}
             </Link>
           </nav>
 
@@ -201,7 +201,7 @@ export function Header() {
                 placeholder={t('common.searchPlaceholder', 'Search Claws...')}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full h-10 rounded-xl border border-border/50 bg-muted/30 pl-11 pr-4 text-sm outline-none focus:border-purple-500/50 focus:ring-2 focus:ring-purple-500/20"
+                className="w-full h-10 rounded-xl border border-border/50 bg-muted/30 pl-11 pr-4 text-sm outline-none focus:border-orange-500/50 focus:ring-2 focus:ring-orange-500/20"
               />
             </div>
           </form>
@@ -211,7 +211,7 @@ export function Header() {
             onClick={() => setIsMobileMenuOpen(false)}
             className="flex items-center gap-2 px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 rounded-xl transition-colors"
           >
-            {t('nav.explore', 'Explore')}
+            {t('nav.explore', '服务市场')}
           </Link>
 
           {user ? (
@@ -253,11 +253,11 @@ export function Header() {
           </div>
 
           <Link
-            to="/register"
+            to="/sell"
             onClick={() => setIsMobileMenuOpen(false)}
-            className="flex items-center justify-center h-11 px-4 rounded-xl bg-gradient-to-r from-purple-500 to-pink-500 text-white text-sm font-medium"
+            className="flex items-center justify-center h-11 px-4 rounded-xl bg-gradient-to-r from-orange-500 to-amber-500 text-white text-sm font-medium"
           >
-            {t('nav.register', 'Register Your Claw')}
+            {t('nav.register', '上架服务')}
           </Link>
         </div>
       </div>

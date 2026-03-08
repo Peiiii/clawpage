@@ -146,3 +146,90 @@ CREATE TABLE user_sessions (
 
 CREATE INDEX idx_user_sessions_user ON user_sessions(user_id);
 CREATE INDEX idx_user_sessions_expires ON user_sessions(expires_at);
+
+-- Agent Marketplace: 服务表
+CREATE TABLE market_services (
+  id TEXT PRIMARY KEY,
+  agent_id TEXT NOT NULL,
+  title TEXT NOT NULL,
+  summary TEXT,
+  description TEXT,
+  price_cents INTEGER NOT NULL,
+  delivery_days INTEGER NOT NULL DEFAULT 3,
+  category TEXT NOT NULL,
+  tags TEXT NOT NULL DEFAULT '[]',
+  status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active', 'paused')),
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  FOREIGN KEY (agent_id) REFERENCES agents(id)
+);
+
+CREATE INDEX idx_market_services_status ON market_services(status);
+CREATE INDEX idx_market_services_category ON market_services(category);
+CREATE INDEX idx_market_services_agent ON market_services(agent_id);
+
+-- Agent Marketplace: 咨询会话与消息
+CREATE TABLE market_conversations (
+  id TEXT PRIMARY KEY,
+  service_id TEXT,
+  agent_id TEXT NOT NULL,
+  customer_name TEXT NOT NULL,
+  customer_contact TEXT,
+  status TEXT NOT NULL DEFAULT 'open' CHECK (status IN ('open', 'closed')),
+  last_message_at INTEGER NOT NULL,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  FOREIGN KEY (service_id) REFERENCES market_services(id),
+  FOREIGN KEY (agent_id) REFERENCES agents(id)
+);
+
+CREATE INDEX idx_market_conversations_service ON market_conversations(service_id);
+CREATE INDEX idx_market_conversations_agent ON market_conversations(agent_id);
+CREATE INDEX idx_market_conversations_last_msg ON market_conversations(last_message_at DESC);
+
+CREATE TABLE market_messages (
+  id TEXT PRIMARY KEY,
+  conversation_id TEXT NOT NULL,
+  sender_role TEXT NOT NULL CHECK (sender_role IN ('customer', 'agent', 'system')),
+  message_type TEXT NOT NULL DEFAULT 'text' CHECK (message_type IN ('text', 'service_card', 'system')),
+  content TEXT NOT NULL,
+  created_at INTEGER NOT NULL,
+  FOREIGN KEY (conversation_id) REFERENCES market_conversations(id)
+);
+
+CREATE INDEX idx_market_messages_conversation ON market_messages(conversation_id, created_at);
+
+-- Agent Marketplace: 订单与评价
+CREATE TABLE market_orders (
+  id TEXT PRIMARY KEY,
+  conversation_id TEXT NOT NULL,
+  service_id TEXT NOT NULL,
+  agent_id TEXT NOT NULL,
+  amount_cents INTEGER NOT NULL,
+  platform_fee_rate REAL NOT NULL DEFAULT 0.10,
+  status TEXT NOT NULL DEFAULT 'pending_payment' CHECK (
+    status IN ('pending_payment', 'in_progress', 'pending_acceptance', 'completed', 'refund_requested', 'refunded', 'canceled')
+  ),
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  completed_at INTEGER,
+  FOREIGN KEY (conversation_id) REFERENCES market_conversations(id),
+  FOREIGN KEY (service_id) REFERENCES market_services(id),
+  FOREIGN KEY (agent_id) REFERENCES agents(id)
+);
+
+CREATE INDEX idx_market_orders_conversation ON market_orders(conversation_id);
+CREATE INDEX idx_market_orders_agent ON market_orders(agent_id);
+CREATE INDEX idx_market_orders_status ON market_orders(status);
+
+CREATE TABLE market_reviews (
+  id TEXT PRIMARY KEY,
+  order_id TEXT NOT NULL UNIQUE,
+  rating INTEGER NOT NULL CHECK (rating >= 1 AND rating <= 5),
+  comment TEXT,
+  created_at INTEGER NOT NULL,
+  updated_at INTEGER NOT NULL,
+  FOREIGN KEY (order_id) REFERENCES market_orders(id)
+);
+
+CREATE INDEX idx_market_reviews_order ON market_reviews(order_id);
